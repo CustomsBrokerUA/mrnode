@@ -96,25 +96,10 @@ export function useArchiveFilters({
     // Filter for list61 (extended logic with mappedData)
     const filteredDocs61 = useMemo(() => {
         let filtered = declarationsWithDetails.filter(doc => {
-            // Must have xmlData and mappedData (which means it has actual 61.1 data)
-            if (!doc.xmlData || doc.mappedData === null) {
-                return false;
-            }
-            
-            // Double-check: verify that xmlData contains data61_1
-            try {
-                const trimmed = doc.xmlData.trim();
-                if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-                    const parsed = JSON.parse(doc.xmlData);
-                    return !!(parsed.data61_1);
-                } else if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
-                    return true;
-                }
-            } catch {
-                return false;
-            }
-            
-            return false;
+            // For list61 we only keep declarations that have 61.1 payload and summary
+            if (!doc.xmlData || !doc.summary) return false;
+            if ('has61_1' in doc && !doc.has61_1) return false;
+            return true;
         });
         
         // Status filter
@@ -156,16 +141,15 @@ export function useArchiveFilters({
         // Customs office filter
         if (filters.customsOffice) {
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                return mappedData?.header?.customsOffice?.toLowerCase().includes(filters.customsOffice.toLowerCase());
+                const office = doc.summary?.customsOffice || '';
+                return office.toLowerCase().includes(filters.customsOffice.toLowerCase());
             });
         }
         
         // Currency filter
         if (filters.currency !== 'all') {
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                return mappedData?.header?.invoiceCurrency === filters.currency;
+                return doc.summary?.invoiceCurrency === filters.currency;
             });
         }
         
@@ -174,8 +158,7 @@ export function useArchiveFilters({
             const fromValue = parseFloat(filters.invoiceValueFrom);
             if (!isNaN(fromValue)) {
                 filtered = filtered.filter(doc => {
-                    const mappedData = (doc as any).mappedData;
-                    const value = mappedData?.header?.invoiceValue || 0;
+                    const value = doc.summary?.invoiceValue || 0;
                     return value >= fromValue;
                 });
             }
@@ -185,8 +168,7 @@ export function useArchiveFilters({
             const toValue = parseFloat(filters.invoiceValueTo);
             if (!isNaN(toValue)) {
                 filtered = filtered.filter(doc => {
-                    const mappedData = (doc as any).mappedData;
-                    const value = mappedData?.header?.invoiceValue || 0;
+                    const value = doc.summary?.invoiceValue || 0;
                     return value <= toValue;
                 });
             }
@@ -196,8 +178,7 @@ export function useArchiveFilters({
         if (filters.consignor) {
             const searchTerms = String(filters.consignor).split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                const consignor = mappedData?.header?.consignor?.toLowerCase() || '';
+                const consignor = (doc.summary?.senderName || '').toLowerCase();
                 return searchTerms.some(term => consignor.includes(term));
             });
         }
@@ -206,8 +187,7 @@ export function useArchiveFilters({
         if (filters.consignee) {
             const searchTerms = String(filters.consignee).split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                const consignee = mappedData?.header?.consignee?.toLowerCase() || '';
+                const consignee = (doc.summary?.recipientName || '').toLowerCase();
                 return searchTerms.some(term => consignee.includes(term));
             });
         }
@@ -216,8 +196,7 @@ export function useArchiveFilters({
         if (filters.contractHolder) {
             const searchTerms = String(filters.contractHolder).split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                const contractHolder = mappedData?.header?.contractHolder?.toLowerCase() || '';
+                const contractHolder = (doc.summary?.contractHolder || '').toLowerCase();
                 return searchTerms.some(term => contractHolder.includes(term));
             });
         }
@@ -226,13 +205,11 @@ export function useArchiveFilters({
         if (filters.hsCode) {
             const searchTerms = String(filters.hsCode).split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                if (!mappedData?.goods || !Array.isArray(mappedData.goods)) return false;
-                return mappedData.goods.some((good: any) => {
-                    if (!good || !good.hsCode) return false;
-                    const hsCode = String(good.hsCode).toLowerCase();
-                    return searchTerms.some(term => hsCode.includes(term));
-                });
+                const codes: string[] = Array.isArray((doc as any).hsCodes)
+                    ? (doc as any).hsCodes.map((h: any) => String(h?.hsCode || '').toLowerCase()).filter(Boolean)
+                    : [];
+                if (codes.length === 0) return false;
+                return searchTerms.some(term => codes.some(code => code.includes(term)));
             });
         }
         
@@ -240,8 +217,7 @@ export function useArchiveFilters({
         if (filters.declarationType) {
             const searchTerms = String(filters.declarationType).split(',').map(term => term.trim().toLowerCase()).filter(Boolean);
             filtered = filtered.filter(doc => {
-                const mappedData = (doc as any).mappedData;
-                const declarationType = mappedData?.header?.type?.toLowerCase() || '';
+                const declarationType = (doc.summary?.declarationType || '').toLowerCase();
                 return searchTerms.some(term => declarationType.includes(term));
             });
         }
@@ -250,14 +226,12 @@ export function useArchiveFilters({
         if (filters.searchTerm) {
             const search = filters.searchTerm.toLowerCase();
             filtered = filtered.filter(doc => {
-                if (!doc.mappedData) return false;
-                
                 const mdNumber = getMDNumber(getRawData(doc), doc.mrn);
-                const consignor = doc.mappedData.header?.consignor || '';
-                const consignee = doc.mappedData.header?.consignee || '';
-                const invoiceValue = doc.mappedData.header?.invoiceValue?.toString() || '';
-                const invoiceCurrency = doc.mappedData.header?.invoiceCurrency || '';
-                const goodsCount = doc.mappedData.goods?.length?.toString() || '';
+                const consignor = doc.summary?.senderName || '';
+                const consignee = doc.summary?.recipientName || '';
+                const invoiceValue = doc.summary?.invoiceValue?.toString() || '';
+                const invoiceCurrency = doc.summary?.invoiceCurrency || '';
+                const goodsCount = doc.summary?.totalItems?.toString() || '';
                 
                 return (
                     doc.mrn?.toLowerCase().includes(search) ||
@@ -269,11 +243,7 @@ export function useArchiveFilters({
                     invoiceCurrency.toLowerCase().includes(search) ||
                     goodsCount.includes(search) ||
                     getRawData(doc)?.ccd_type?.toLowerCase().includes(search) ||
-                    (typeof getRawData(doc)?.trn_all === 'string' 
-                        ? getRawData(doc)?.trn_all.toLowerCase().includes(search)
-                        : Array.isArray(getRawData(doc)?.trn_all)
-                            ? getRawData(doc)?.trn_all.some((t: any) => String(t).toLowerCase().includes(search))
-                            : String(getRawData(doc)?.trn_all || '').toLowerCase().includes(search))
+                    String(getRawData(doc)?.trn_all || '').toLowerCase().includes(search)
                 );
             });
         }

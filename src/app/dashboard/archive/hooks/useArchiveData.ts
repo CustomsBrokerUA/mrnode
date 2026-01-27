@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { Declaration, DeclarationWithRawData } from '../types';
-import { mapXmlToDeclaration } from '@/lib/xml-mapper';
 import { formatRegisteredDate } from '../utils';
 
 /**
@@ -187,147 +186,85 @@ export function useArchiveData(
         if (activeTab !== 'list61') return [];
         
         return declarations.map(doc => {
-            if (!doc.xmlData) {
-                return { ...doc, mappedData: null };
+            if (!doc.xmlData || !doc.summary) {
+                return { ...doc, mappedData: null, has61_1: false };
             }
-            
+
+            // Lightweight check: do we have 61.1 payload? (avoid heavy XML parsing)
             let has61_1Data = false;
-            let xmlForMapping: string | null = null;
-            
             try {
                 const trimmed = doc.xmlData.trim();
                 if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
                     const parsed = JSON.parse(doc.xmlData);
-                    if (parsed && typeof parsed === 'object' && parsed.data61_1) {
-                        has61_1Data = true;
-                        xmlForMapping = parsed.data61_1;
-                    }
+                    has61_1Data = !!(parsed && typeof parsed === 'object' && parsed.data61_1);
                 } else if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
                     has61_1Data = true;
-                    xmlForMapping = doc.xmlData;
                 }
             } catch {
                 has61_1Data = false;
             }
-            
-            if (!has61_1Data || !xmlForMapping) {
-                return { ...doc, mappedData: null };
-            }
-            
-            // Parse XML using mapXmlToDeclaration
-            try {
-                const mapped = mapXmlToDeclaration(xmlForMapping);
-                
-                if (mapped) {
-                    // Extract ccd_registered from XML
-                    let ccdRegistered: string | undefined;
-                    try {
-                        const ccdRegisteredMatch = xmlForMapping.match(/<ccd_registered>([\s\S]*?)<\/ccd_registered>/i);
-                        if (ccdRegisteredMatch && ccdRegisteredMatch[1]) {
-                            ccdRegistered = ccdRegisteredMatch[1].trim();
-                        } else if (mapped?.header?.rawDate) {
-                            ccdRegistered = mapped.header.rawDate;
-                        }
-                    } catch {
-                        // Failed to extract
-                    }
-                    
-                    // Extract ccd_01_01, ccd_01_02, ccd_01_03 from XML
-                    let ccd01_01: string | undefined;
-                    let ccd01_02: string | undefined;
-                    let ccd01_03: string | undefined;
-                    try {
-                        const ccd01_01Match = xmlForMapping.match(/<ccd_01_01>([\s\S]*?)<\/ccd_01_01>/i);
-                        if (ccd01_01Match && ccd01_01Match[1]) {
-                            ccd01_01 = ccd01_01Match[1].trim();
-                        }
-                        const ccd01_02Match = xmlForMapping.match(/<ccd_01_02>([\s\S]*?)<\/ccd_01_02>/i);
-                        if (ccd01_02Match && ccd01_02Match[1]) {
-                            ccd01_02 = ccd01_02Match[1].trim();
-                        }
-                        const ccd01_03Match = xmlForMapping.match(/<ccd_01_03>([\s\S]*?)<\/ccd_01_03>/i);
-                        if (ccd01_03Match && ccd01_03Match[1]) {
-                            ccd01_03 = ccd01_03Match[1].trim();
-                        }
-                    } catch {
-                        // Failed to extract
-                    }
-                    
-                    return {
-                        ...doc,
-                        mappedData: mapped,
-                        extractedData: {
-                            ccd_registered: ccdRegistered,
-                            ccd_01_01: ccd01_01,
-                            ccd_01_02: ccd01_02,
-                            ccd_01_03: ccd01_03,
-                        }
-                    };
-                }
-            } catch {
-                // Failed to parse XML, will try summary fallback
-            }
-            
-            // Fallback to summary if XML parsing failed
-            if (doc.summary) {
-                const summary = doc.summary;
-                
-                let ccdRegistered: string | undefined;
-                if (summary.registeredDate) {
-                    const date = new Date(summary.registeredDate);
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const hours = String(date.getHours()).padStart(2, '0');
-                    const minutes = String(date.getMinutes()).padStart(2, '0');
-                    const seconds = String(date.getSeconds()).padStart(2, '0');
-                    ccdRegistered = `${year}${month}${day}T${hours}${minutes}${seconds}`;
-                }
-                
-                const mappedData = {
-                    header: {
-                        mrn: doc.mrn || 'N/A',
-                        type: summary.declarationType || '---',
-                        date: ccdRegistered ? formatRegisteredDate(ccdRegistered) : '',
-                        rawDate: ccdRegistered || '',
-                        customsOffice: summary.customsOffice || '',
-                        consignor: summary.senderName || '',
-                        consignee: summary.recipientName || '',
-                        contractHolder: '',
-                        invoiceValue: summary.invoiceValue || 0,
-                        invoiceCurrency: summary.invoiceCurrency || '',
-                        totalValue: summary.customsValue || 0,
-                        currency: summary.currency || '',
-                        exchangeRate: summary.exchangeRate || 0,
-                        transportDetails: summary.transportDetails || '',
-                        declarantName: summary.declarantName || '',
-                    },
-                    goods: []
-                };
-                
-                let ccd01_01: string | undefined;
-                let ccd01_02: string | undefined;
-                let ccd01_03: string | undefined;
-                if (summary.declarationType) {
-                    const parts = summary.declarationType.split(/[\/\s]+/).map(p => p.trim()).filter(Boolean);
-                    if (parts.length >= 1) ccd01_01 = parts[0];
-                    if (parts.length >= 2) ccd01_02 = parts[1];
-                    if (parts.length >= 3) ccd01_03 = parts[2];
-                }
-                
-                return {
-                    ...doc,
-                    mappedData,
-                    extractedData: {
-                        ccd_registered: ccdRegistered,
-                        ccd_01_01: ccd01_01,
-                        ccd_01_02: ccd01_02,
-                        ccd_01_03: ccd01_03,
-                    }
-                };
+
+            if (!has61_1Data) {
+                return { ...doc, mappedData: null, has61_1: false };
             }
 
-            return { ...doc, mappedData: null };
+            const summary = doc.summary;
+
+            let ccdRegistered: string | undefined;
+            if (summary.registeredDate) {
+                const date = new Date(summary.registeredDate);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                ccdRegistered = `${year}${month}${day}T${hours}${minutes}${seconds}`;
+            }
+
+            const mappedData = {
+                header: {
+                    mrn: doc.mrn || 'N/A',
+                    type: summary.declarationType || '---',
+                    date: ccdRegistered ? formatRegisteredDate(ccdRegistered) : '',
+                    rawDate: ccdRegistered || '',
+                    customsOffice: summary.customsOffice || '',
+                    consignor: summary.senderName || '',
+                    consignee: summary.recipientName || '',
+                    contractHolder: summary.contractHolder || '',
+                    invoiceValue: summary.invoiceValue || 0,
+                    invoiceCurrency: summary.invoiceCurrency || '',
+                    totalValue: summary.customsValue || 0,
+                    currency: summary.currency || '',
+                    exchangeRate: summary.exchangeRate || 0,
+                    transportDetails: summary.transportDetails || '',
+                    declarantName: summary.declarantName || '',
+                    totalItems: summary.totalItems || 0,
+                },
+                goods: []
+            };
+
+            let ccd01_01: string | undefined;
+            let ccd01_02: string | undefined;
+            let ccd01_03: string | undefined;
+            if (summary.declarationType) {
+                const parts = summary.declarationType.split(/[\/\s]+/).map(p => p.trim()).filter(Boolean);
+                if (parts.length >= 1) ccd01_01 = parts[0];
+                if (parts.length >= 2) ccd01_02 = parts[1];
+                if (parts.length >= 3) ccd01_03 = parts[2];
+            }
+
+            return {
+                ...doc,
+                mappedData,
+                has61_1: true,
+                extractedData: {
+                    ccd_registered: ccdRegistered,
+                    ccd_01_01: ccd01_01,
+                    ccd_01_02: ccd01_02,
+                    ccd_01_03: ccd01_03,
+                }
+            };
         });
     }, [declarations, activeTab]);
 

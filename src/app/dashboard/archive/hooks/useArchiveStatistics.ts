@@ -195,13 +195,13 @@ export function useArchiveStatistics({
             // Get customs value for grouping (used in both tabs)
             const customsValueForGrouping = customsValue;
 
-            // Group by entities (only for list61 with mappedData)
-            if (activeTab === 'list61' && 'mappedData' in doc && doc.mappedData) {
-                const mappedData = doc.mappedData as any;
+            // Group by entities for list61 using DB-backed summary + hsCodes
+            if (activeTab === 'list61' && doc.summary) {
+                const summary = doc.summary;
 
                 // Group by consignor
-                if (mappedData.header?.consignor) {
-                    const name = mappedData.header.consignor;
+                if (summary.senderName) {
+                    const name = summary.senderName;
                     const existing = consignorsMap.get(name) || { count: 0, totalValue: 0 };
                     consignorsMap.set(name, {
                         count: existing.count + 1,
@@ -210,8 +210,8 @@ export function useArchiveStatistics({
                 }
 
                 // Group by consignee
-                if (mappedData.header?.consignee) {
-                    const name = mappedData.header.consignee;
+                if (summary.recipientName) {
+                    const name = summary.recipientName;
                     const existing = consigneesMap.get(name) || { count: 0, totalValue: 0 };
                     consigneesMap.set(name, {
                         count: existing.count + 1,
@@ -219,9 +219,9 @@ export function useArchiveStatistics({
                     });
                 }
 
-                // Group by contract holder (graph 9 - financial responsible person)
-                if (mappedData.header?.contractHolder) {
-                    const name = mappedData.header.contractHolder;
+                // Group by contract holder
+                if (summary.contractHolder) {
+                    const name = summary.contractHolder;
                     const existing = contractHoldersMap.get(name) || { count: 0, totalValue: 0 };
                     contractHoldersMap.set(name, {
                         count: existing.count + 1,
@@ -229,29 +229,30 @@ export function useArchiveStatistics({
                     });
                 }
 
-                // Group by HS codes (from goods)
-                if (mappedData.goods && Array.isArray(mappedData.goods)) {
-                    mappedData.goods.forEach((good: any) => {
-                        if (good && good.hsCode && good.hsCode !== 'N/A') {
-                            const code = String(good.hsCode).trim();
-                            if (code) {
-                                const existing = hsCodesMap.get(code) || { count: 0, totalValue: 0 };
-                                const goodCustomsValue = good.customsValue || 0;
-                                hsCodesMap.set(code, {
-                                    count: existing.count + 1,
-                                    totalValue: existing.totalValue + goodCustomsValue
-                                });
-                            }
-                        }
+                // Group by HS codes (from denormalized relation)
+                const hsCodes: string[] = Array.isArray((doc as any).hsCodes)
+                    ? Array.from(
+                        new Set(
+                            (doc as any).hsCodes
+                                .map((h: any) => String(h?.hsCode || '').trim())
+                                .filter(Boolean)
+                        )
+                    )
+                    : [];
+                const perHsValue = hsCodes.length > 0 ? customsValueForGrouping / hsCodes.length : 0;
+                hsCodes.forEach(code => {
+                    const existing = hsCodesMap.get(code) || { count: 0, totalValue: 0 };
+                    hsCodesMap.set(code, {
+                        count: existing.count + 1,
+                        totalValue: existing.totalValue + perHsValue
                     });
-                }
+                });
 
                 // Group by declaration type
-                if (mappedData.header?.type) {
-                    // Normalize type format: remove extra spaces around slashes
-                    let type = mappedData.header.type.trim()
-                        .replace(/\s*\/\s*/g, ' / ') // Normalize slashes with spaces
-                        .replace(/\s+/g, ' '); // Replace multiple spaces with single space
+                if (summary.declarationType) {
+                    let type = summary.declarationType.trim()
+                        .replace(/\s*\/\s*/g, ' / ')
+                        .replace(/\s+/g, ' ');
                     if (type && type !== '---' && type !== 'N/A') {
                         const existing = declarationTypesMap.get(type) || { count: 0, totalValue: 0 };
                         declarationTypesMap.set(type, {
@@ -262,8 +263,8 @@ export function useArchiveStatistics({
                 }
 
                 // Group by customs office
-                if (mappedData.header?.customsOffice) {
-                    const office = mappedData.header.customsOffice.trim().replace(/\s+/g, ' ');
+                if (summary.customsOffice) {
+                    const office = summary.customsOffice.trim().replace(/\s+/g, ' ');
                     if (office && office !== '---' && office !== 'N/A') {
                         const existing = customsOfficesMap.get(office) || { count: 0, totalValue: 0 };
                         customsOfficesMap.set(office, {

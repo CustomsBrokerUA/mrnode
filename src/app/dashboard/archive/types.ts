@@ -11,6 +11,7 @@ export type Declaration = {
     date: Date;
     updatedAt: Date;
     companyId: string;
+    hsCodes?: Array<{ hsCode: string }>;
     summary: {
         id: string;
         customsValue: number | null;

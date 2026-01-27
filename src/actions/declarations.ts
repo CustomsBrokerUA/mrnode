@@ -30,8 +30,13 @@ export async function getDeclarations() {
             }
         },
         include: {
-            summary: true
-        },
+            summary: true,
+            hsCodes: {
+                select: {
+                    hsCode: true
+                }
+            }
+        } as any,
         orderBy: {
             date: 'desc'
         }
@@ -304,7 +309,9 @@ export async function getDeclarationsPaginated(
                     sortColumn === 'type' || sortColumn === 'consignor' ||
                     sortColumn === 'consignee' || sortColumn === 'invoiceValue' ||
                     sortColumn === 'goodsCount' || sortColumn === 'registeredDate'
-            }
+                ,
+                hsCodes: activeTab === 'list61'
+            } as any
         })
     ]);
 
