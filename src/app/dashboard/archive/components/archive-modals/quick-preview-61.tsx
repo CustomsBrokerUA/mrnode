@@ -83,12 +83,12 @@ export function QuickPreview61({ doc }: QuickPreview61Props) {
                                 </div>
                             </div>
                         )}
-                        {mappedData.goods && (
-                            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-                                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Кількість товарів</div>
-                                <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{mappedData.goods.length}</div>
+                        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Кількість товарів</div>
+                            <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                                {mappedData?.header?.totalItems ?? (doc as any).summary?.totalItems ?? 0}
                             </div>
-                        )}
+                        </div>
                         {mappedData.header.customsOffice && (
                             <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
                                 <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Митниця</div>
