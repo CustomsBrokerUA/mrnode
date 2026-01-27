@@ -1,0 +1,25 @@
+# Normalize line endings in repo to avoid cross-platform diff noise
+# Use LF in repository; Git will convert to CRLF on Windows working tree where appropriate
+
+* text=auto eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Keep binary files binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.7z binary
+*.gz binary
+*.tgz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
