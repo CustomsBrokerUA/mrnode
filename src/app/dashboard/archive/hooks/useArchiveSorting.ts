@@ -86,8 +86,8 @@ export function useArchiveSorting({
                         bValue = mappedB?.header?.invoiceValue || 0;
                         break;
                     case 'goodsCount':
-                        aValue = mappedA?.goods?.length || 0;
-                        bValue = mappedB?.goods?.length || 0;
+                        aValue = mappedA?.header?.totalItems || 0;
+                        bValue = mappedB?.header?.totalItems || 0;
                         break;
                     default:
                         return 0;

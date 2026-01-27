@@ -199,7 +199,7 @@ export default function VirtualizedTableView({
                                         }
                                     </div>
                                     <div className="px-4 py-3 text-slate-600 dark:text-slate-300 text-sm">
-                                        {mappedData?.goods?.length || 0}
+                                        {mappedData?.header?.totalItems ?? (doc as any).summary?.totalItems ?? 0}
                                     </div>
                                 </>
                             )}

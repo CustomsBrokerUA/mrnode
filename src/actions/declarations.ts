@@ -29,7 +29,14 @@ export async function getDeclarations() {
                 deletedAt: null
             }
         },
-        include: {
+        select: {
+            id: true,
+            customsId: true,
+            mrn: true,
+            status: true,
+            date: true,
+            updatedAt: true,
+            companyId: true,
             summary: true,
             hsCodes: {
                 select: {

@@ -186,24 +186,14 @@ export function useArchiveData(
         if (activeTab !== 'list61') return [];
         
         return declarations.map(doc => {
-            if (!doc.xmlData || !doc.summary) {
+            if (!doc.summary) {
                 return { ...doc, mappedData: null, has61_1: false };
             }
 
-            // Lightweight check: do we have 61.1 payload? (avoid heavy XML parsing)
-            let has61_1Data = false;
-            try {
-                const trimmed = doc.xmlData.trim();
-                if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-                    const parsed = JSON.parse(doc.xmlData);
-                    has61_1Data = !!(parsed && typeof parsed === 'object' && parsed.data61_1);
-                } else if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
-                    has61_1Data = true;
-                }
-            } catch {
-                has61_1Data = false;
-            }
-
+            // We no longer load xmlData for archive list (performance). Use denormalized DB fields
+            // as a proxy for "61.1 details available".
+            const hsCount = Array.isArray((doc as any).hsCodes) ? (doc as any).hsCodes.length : 0;
+            const has61_1Data = hsCount > 0 || !!doc.summary.contractHolder;
             if (!has61_1Data) {
                 return { ...doc, mappedData: null, has61_1: false };
             }

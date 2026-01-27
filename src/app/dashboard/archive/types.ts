@@ -7,7 +7,7 @@ export type Declaration = {
     customsId: string | null;
     mrn: string | null;
     status: string;
-    xmlData: string | null;
+    xmlData?: string | null;
     date: Date;
     updatedAt: Date;
     companyId: string;
@@ -43,7 +43,7 @@ export type DeclarationWithRawData = Declaration & {
         ccd_registered?: string;
         ccd_status?: string;
         ccd_type?: string;
-        trn_all?: string;
+        trn_all?: string | string[];
         ccd_07_01?: string;
         ccd_07_02?: string;
         ccd_07_03?: string;
