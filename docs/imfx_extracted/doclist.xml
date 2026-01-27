@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<DocList version="3">
+  <SenderCode>400040000</SenderCode>
+  <SenderName>ВМО №1 МП "Хмельницький" Хмельницька митниця</SenderName>
+  <CreationDate>20260112T114311</CreationDate>
+  <Document>
+    <ID>1</ID>
+    <DocCode>62</DocCode>
+    <DocNumber>995762</DocNumber>
+    <ModificationDate>20260112T114311</ModificationDate>
+    <FileName>doc1.xml</FileName>
+    <Comment>Протокол обробки електронного документа</Comment>
+    <Protection>
+      <MethodID>1</MethodID>
+      <SelfSigned>0</SelfSigned>
+      <SignFileName>doc1.xml.p7s</SignFileName>
+    </Protection>
+  </Document>
+  <Document>
+    <ID>2</ID>
+    <DocCode>2</DocCode>
+    <DocNumber>995762</DocNumber>
+    <ModificationDate>20260112T114311</ModificationDate>
+    <FileName>doc2.xml</FileName>
+    <Comment>ВМД</Comment>
+    <Protection>
+      <MethodID>1</MethodID>
+      <SelfSigned>0</SelfSigned>
+      <SignFileName>doc2.xml.p7s</SignFileName>
+    </Protection>
+  </Document>
+  <Document>
+    <ID>3</ID>
+    <DocCode>80</DocCode>
+    <DocNumber>995762</DocNumber>
+    <ModificationDate>20260112T114311</ModificationDate>
+    <FileName>doc3.xps</FileName>
+    <Comment>XPS/PDF</Comment>
+    <Protection>
+      <MethodID>1</MethodID>
+      <SelfSigned>0</SelfSigned>
+      <SignFileName>doc3.xps.p7s</SignFileName>
+    </Protection>
+  </Document>
+</DocList>

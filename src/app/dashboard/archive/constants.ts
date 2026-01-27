@@ -1,0 +1,60 @@
+export const statusStyles = {
+    CLEARED: "bg-green-100 text-green-700 border-green-200",
+    PROCESSING: "bg-blue-100 text-blue-700 border-blue-200",
+    REJECTED: "bg-red-100 text-red-700 border-red-200",
+};
+
+export const statusLabels = {
+    CLEARED: "Оформлено",
+    PROCESSING: "В роботі",
+    REJECTED: "Помилка",
+};
+
+export const DEFAULT_STATS_SETTINGS = {
+    total: true,
+    customsValue: true,
+    invoiceValue: false,
+    totalItems: false,
+    topConsignors: true,
+    topConsignees: true,
+    topContractHolders: true,
+    topHSCodes: true,
+    topDeclarationTypes: true,
+    topCustomsOffices: true,
+};
+
+export const DEFAULT_EXPORT_COLUMNS = {
+    mdNumber: true,
+    registeredDate: true,
+    status: true,
+    type: true,
+    transport: true,
+    consignor: true,
+    consignee: true,
+    invoiceValue: true,
+    invoiceCurrency: true,
+    goodsCount: true,
+    customsOffice: true,
+    declarantName: true,
+    guid: true,
+    mrn: true,
+    goodsIndex: true,
+    goodsDescription: true,
+    goodsHSCode: true,
+    goodsPrice: true,
+    goodsInvoiceValueUah: true,
+    goodsInvoiceValueUsd: true,
+    goodsCustomsValue: true,
+    goodsPayments: true,
+    invoiceNumber: true,
+    invoiceDate: true,
+    cmrNumber: true,
+    cmrDate: true,
+    contractNumber: true,
+    contractDate: true,
+    manufacturer: true,
+    invoiceValueCurrency: true,
+    deliveryTermsIncoterms: true,
+    deliveryTermsDetails: true,
+    carrierName: true,
+};

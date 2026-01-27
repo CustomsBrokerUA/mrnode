@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Envelope version="1">
+  <MessageId>6650faa0-a3cf-479d-bfe4-9a3332efd03a</MessageId>
+  <ReplyId>2A4C5AB2-9E81-4E35-87BA-E27FBFF22942</ReplyId>
+  <Sender>A400.HC</Sender>
+  <Receiver>brokimeksmd1@gmail.com</Receiver>
+  <CreationDate>20260112T114311</CreationDate>
+  <Direction>2</Direction>
+  <MsgType>3</MsgType>
+  <Comment>ВМО №1 МП "Хмельницький" Хмельницька митниця</Comment>
+  <DocListFile>
+    <FileName>doclist.xml</FileName>
+    <Protection>
+      <MethodID>1</MethodID>
+      <SelfSigned>0</SelfSigned>
+      <SignFileName>doclist.xml.p7s</SignFileName>
+    </Protection>
+  </DocListFile>
+</Envelope>

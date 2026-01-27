@@ -1,0 +1,287 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  fullName       String?
+  role           String   @default("BROKER") // ADMIN, BROKER, MANAGER
+  activeCompanyId String? // ID активної компанії (для швидкого доступу)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  companyId String? // Deprecated: залишено для зворотної сумісності
+  company   Company? @relation("UserCompanyLegacy", fields: [companyId], references: [id], onDelete: SetNull)
+  activeCompany Company? @relation("UserActiveCompany", fields: [activeCompanyId], references: [id], onDelete: SetNull)
+  
+  companies UserCompany[] // Many-to-many через UserCompany
+  notifications Notification[]
+}
+
+model Company {
+  id           String   @id @default(uuid())
+  name         String
+  edrpou       String   @unique
+  customsToken String? // Encrypted token
+  syncSettings Json?    // JSON with sync settings (налаштування синхронізації для цієї компанії)
+  isActive     Boolean  @default(true)
+  deletedAt    DateTime? // М'яке видалення - дата видалення (null = не видалена)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users        User[] @relation("UserCompanyLegacy") // Deprecated: залишено для зворотної сумісності
+  activeUsers  User[] @relation("UserActiveCompany") // Користувачі з цією активною компанією
+  userCompanies UserCompany[] // Many-to-many через UserCompany
+  invitations   CompanyInvitation[] // Запрошення до компанії
+  auditLogs     CompanyAuditLog[] // Історія змін
+  declarations  Declaration[]
+  syncHistory   SyncHistory[]
+  syncJobs      SyncJob[]
+}
+
+model Declaration {
+  id        String  @id @default(uuid())
+  customsId String? // Internal ID from Customs (guid)
+  mrn       String? // Movement Reference Number
+  xmlData   String? @db.Text // Full JSON/XML content
+  status    String  @default("DRAFT") // DRAFT, PROCESSING, CLEARED, REJECTED
+
+  declarantName String?
+  senderName    String?
+  recipientName String?
+
+  date      DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  summary  DeclarationSummary?
+  comments DeclarationComment[]
+
+  @@index([companyId])
+  @@index([companyId, status])
+  @@index([companyId, date])
+  @@index([customsId])
+  @@index([mrn])
+  @@index([status])
+  @@index([date])
+}
+
+model DeclarationSummary {
+  id            String      @id @default(uuid())
+  declarationId String      @unique
+  declaration   Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+
+  // Cached data from XML parsing
+  customsValue     Float?
+  currency         String?
+  totalItems       Int?
+  customsOffice    String?
+  declarantName    String?
+  senderName       String?
+  recipientName    String?
+  declarationType  String?
+  registeredDate   DateTime?
+  invoiceValue     Float?
+  invoiceCurrency  String?
+  invoiceValueUah  Float?
+  exchangeRate     Float?
+  transportDetails String?
+
+  updatedAt DateTime @updatedAt
+}
+
+model ExchangeRate {
+  id           String   @id @default(uuid())
+  date         DateTime @db.Date
+  currencyCode String // USD, EUR, etc.
+  rate         Float
+  currencyName String? // Назва валюти (опціонально)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, currencyCode])
+  @@index([date])
+  @@index([currencyCode])
+}
+
+model DeclarationComment {
+  id            String      @id @default(uuid())
+  declarationId String
+  declaration   Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+  userId        String? // Optional: for future user tracking
+  text          String      @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([declarationId])
+  @@index([createdAt])
+}
+
+model SyncHistory {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  type         String // "60.1" | "61.1"
+  status       String // "success" | "error" | "processing"
+  itemsCount   Int       @default(0) // Number of items processed
+  errorsCount  Int       @default(0) // Number of errors (for 61.1)
+  dateFrom     DateTime? // Start date for 60.1 sync
+  dateTo       DateTime? // End date for 60.1 sync
+  errorMessage String?   @db.Text // Error message if status is "error"
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+model SyncJob {
+  id        String  @id @default(uuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  status String // "processing" | "completed" | "cancelled" | "error"
+
+  // Progress tracking for 60.1 (chunks)
+  totalChunks60_1     Int @default(0)
+  completedChunks60_1 Int @default(0)
+
+  // Progress tracking for 61.1 (details)
+  totalGuids    Int @default(0) // Total GUIDs collected from 60.1
+  completed61_1 Int @default(0) // Completed 61.1 requests
+
+  // Date range
+  dateFrom DateTime
+  dateTo   DateTime
+
+  errorMessage String?   @db.Text
+  cancelledAt  DateTime?
+
+  // Relation to errors
+  errors SyncJobError[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SyncJobError {
+  id        String  @id @default(uuid())
+  syncJobId String
+  syncJob   SyncJob @relation(fields: [syncJobId], references: [id], onDelete: Cascade)
+
+  chunkNumber  Int // Номер chunk (1-based)
+  dateFrom     DateTime // Дата початку періоду chunk
+  dateTo       DateTime // Дата кінця періоду chunk
+  errorMessage String   @db.Text // Текст помилки
+  errorCode    String? // Код помилки (400, 500, ECONNRESET, тощо)
+
+  retryAttempts Int     @default(0) // Кількість спроб retry
+  isRetried     Boolean @default(false) // Чи була спроба retry
+
+  createdAt DateTime @default(now())
+
+  @@index([syncJobId])
+  @@index([chunkNumber])
+}
+
+// Many-to-Many зв'язок між User та Company
+model UserCompany {
+  id        String   @id @default(uuid())
+  userId    String
+  companyId String
+  role      String   @default("OWNER") // OWNER, MEMBER, VIEWER
+  isActive  Boolean  @default(true) // Чи активний доступ
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@index([userId])
+  @@index([companyId])
+  @@index([userId, isActive])
+}
+
+// Запрошення до компанії
+model CompanyInvitation {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  email     String   // Email запрошеного користувача
+  role      String   @default("MEMBER") // OWNER, MEMBER, VIEWER
+  token     String   @unique // Унікальний токен для запрошення
+  targetUserId String? // ID користувача, якого запросили (якщо він вже зареєстрований)
+  invitedBy String   // ID користувача, який надіслав запрошення
+  
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED, EXPIRED
+  expiresAt DateTime // Термін дії запрошення (наприклад, 7 днів)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  acceptedAt DateTime?
+  
+  @@index([companyId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+}
+
+// Історія змін (аудит)
+model CompanyAuditLog {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  userId    String   // ID користувача, який зробив зміну
+  userName  String?  // Ім'я користувача (для швидкого доступу)
+  action    String   // ACTION_TYPE: ADD_MEMBER, REMOVE_MEMBER, CHANGE_ROLE, UPDATE_SETTINGS, DELETE_COMPANY
+  targetUserId String? // ID користувача, на якого вплинула зміна (для дій з учасниками)
+  targetUserName String? // Ім'я цільового користувача
+  oldValue  String?  // Старе значення (JSON для складних змін)
+  newValue  String?  // Нове значення (JSON для складних змін)
+  
+  details   String?  @db.Text // Додаткові деталі
+  
+  createdAt DateTime @default(now())
+  
+  @@index([companyId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // COMPANY_INVITE, etc.
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  data      Json?    // { invitationId: string, companyId: string, ... }
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+}

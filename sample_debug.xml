@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<ccd version="2">
+  <ccd_submitted>20251229T144932</ccd_submitted>
+  <guid>1010a0e1-1a69-4241-b2d0-28639128f069</guid>
+  <ccd_typeid>14</ccd_typeid>
+  <ccd_registered>20251229T152131</ccd_registered>
+  <ccd_modified>20251229T152708</ccd_modified>
+  <ccd_status>R</ccd_status>
+  <ccd_01_01> ЕК</ccd_01_01>
+  <ccd_01_02>10</ccd_01_02>
+  <ccd_01_03>АА</ccd_01_03>
+  <ccd_md8>0</ccd_md8>
+  <ccd_03_01>1</ccd_03_01>
+  <ccd_05_01>1</ccd_05_01>
+  <ccd_06_01>24</ccd_06_01>
+  <ccd_07_01>UA400030</ccd_07_01>
+  <ccd_07_02>2025</ccd_07_02>
+  <ccd_07_03>6065</ccd_07_03>
+  <ccd_07_04>2715</ccd_07_04>
+  <ccd_11_01>DE</ccd_11_01>
+  <ccd_17_01>DE</ccd_17_01>
+  <ccd_19_01>0</ccd_19_01>
+  <ccd_20_01>DAP</ccd_20_01>
+  <ccd_20_cnt>DE</ccd_20_cnt>
+  <ccd_20_02>Woldegk</ccd_20_02>
+  <ccd_22_01>EUR</ccd_22_01>
+  <ccd_22_cur>978</ccd_22_cur>
+  <ccd_22_date>20251229T144932</ccd_22_date>
+  <ccd_22_02>3487.5000</ccd_22_02>
+  <ccd_22_03>3487.5000</ccd_22_03>
+  <ccd_23_01>49.55520000</ccd_23_01>
+  <ccd_24_01>11</ccd_24_01>
+  <ccd_24_02>EUR</ccd_24_02>
+  <ccd_25_01>30</ccd_25_01>
+  <ccd_26_01>30</ccd_26_01>
+  <ccd_29_01>UA209060</ccd_29_01>
+  <ccd_30_01>C</ccd_30_01>
+  <ccd_52_01>20260108</ccd_52_01>
+  <ccd_54_02>Осташевський А.О.</ccd_54_02>
+  <ccd_54_04>3615503190</ccd_54_04>
+  <ccd_54_05>ostashbrok@gmail.com</ccd_54_05>
+  <ccd_54_06>+380973691757</ccd_54_06>
+  <ccd_ext_mov>1</ccd_ext_mov>
+  <ccd_int_mov>1</ccd_int_mov>
+  <ccd_ip>M</ccd_ip>
+  <ccd_vp>6.495</ccd_vp>
+  <ccd_ep>3615503190</ccd_ep>
+  <ccd_fp>2</ccd_fp>
+  <ccd_ks>2063344043</ccd_ks>
+  <ccd_cust_dest>UALCP024000147</ccd_cust_dest>
+  <ccd_ed>1</ccd_ed>
+  <ccd_cr>0</ccd_cr>
+  <MRN>25UA400030006065U3</MRN>
+  <version_start>20251229T152955</version_start>
+  <ccd_clients>
+    <ccd_cl_gr>2</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>25284010</ccd_cl_code>
+    <ccd_cl_name>Підприємство «ДОЙЧЕ АГРАРТЕХНІК»</ccd_cl_name>
+    <ccd_cl_adr>01133, місто Київ, Б. Приймаченко Марії, будинок 1/27</ccd_cl_adr>
+    <ccd_cl_uori>UA10025284010</ccd_cl_uori>
+  </ccd_clients>
+  <ccd_clients>
+    <ccd_cl_gr>8</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>DE</ccd_cl_cnt>
+    <ccd_cl_name>"Bio Energy GmbH"</ccd_cl_name>
+    <ccd_cl_adr>D-17348, Woldegk, Carolinenhof 1, Deutschland</ccd_cl_adr>
+  </ccd_clients>
+  <ccd_clients>
+    <ccd_cl_gr>9</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>25284010</ccd_cl_code>
+    <ccd_cl_name>Підприємство «ДОЙЧЕ АГРАРТЕХНІК»</ccd_cl_name>
+    <ccd_cl_adr>01133, місто Київ, Б. Приймаченко Марії, будинок 1/27</ccd_cl_adr>
+    <ccd_cl_uori>UA10025284010</ccd_cl_uori>
+  </ccd_clients>
+  <ccd_clients>
+    <ccd_cl_gr>14</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>3615503190</ccd_cl_code>
+    <ccd_cl_name>ФОП Осташевський Андрій Олексійович</ccd_cl_name>
+    <ccd_cl_adr>29008, Хмельницька обл., м. Хмельницький, вул. Огієнка, буд. 4</ccd_cl_adr>
+    <ccd_cl_uori>UA03615503190</ccd_cl_uori>
+  </ccd_clients>
+  <ccd_clients>
+    <ccd_cl_gr>50</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>3567150</ccd_cl_code>
+    <ccd_cl_name>ТОВ "К-Т-С"</ccd_cl_name>
+    <ccd_cl_adr>Рівненська обл., м. Рівне, вул. Київська, буд. 64А</ccd_cl_adr>
+    <ccd_cl_uori>UA10003567150</ccd_cl_uori>
+    <ccd_cl_tel>+380362642710</ccd_cl_tel>
+    <ccd_cl_email>rstimetr@gmail.com</ccd_cl_email>
+  </ccd_clients>
+  <ccd_bank>
+    <ccd_bn_gr>28</ccd_bn_gr>
+    <ccd_bn_pos>1</ccd_bn_pos>
+    <ccd_cl_gr>9</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_bn_cnt>UA</ccd_bn_cnt>
+    <ccd_bn_name>АК БАНК"АЛЬЯНС"</ccd_bn_name>
+    <ccd_bn_code>14360506</ccd_bn_code>
+    <ccd_bn_mfo>300119</ccd_bn_mfo>
+  </ccd_bank>
+  <ccd_licences>
+    <ccd_lic_gr>14</ccd_lic_gr>
+    <ccd_lic_pos>1</ccd_lic_pos>
+    <ccd_lic_type>1</ccd_lic_type>
+    <ccd_lic_num>UACBR125000103</ccd_lic_num>
+    <ccd_lic_date>20250816</ccd_lic_date>
+  </ccd_licences>
+  <ccd_marks>
+    <ccd_mk_type>2</ccd_mk_type>
+    <ccd_mk_cust>400</ccd_mk_cust>
+    <ccd_mk_number>7028</ccd_mk_number>
+    <ccd_mk_date>20251229</ccd_mk_date>
+  </ccd_marks>
+  <ccd_marks>
+    <ccd_mk_type>1</ccd_mk_type>
+    <ccd_mk_cust>400</ccd_mk_cust>
+    <ccd_mk_number>7028</ccd_mk_number>
+    <ccd_mk_date>20251229</ccd_mk_date>
+  </ccd_marks>
+  <ccd_transport>
+    <ccd_trn_gr>18</ccd_trn_gr>
+    <ccd_trn_name>BK5598IH</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>18</ccd_trn_gr>
+    <ccd_trn_name>BK3929XF</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>21</ccd_trn_gr>
+    <ccd_trn_name>BK5598IH</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>21</ccd_trn_gr>
+    <ccd_trn_name>BK3929XF</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_goods>
+    <ccd_32_01>1</ccd_32_01>
+    <ccd_31_01>1. Кукурудзяні висівки не гранульовані, українського походження, для технічних цілей, з вмістом крохмалю не менше 35%. Всього: 22,5 т. Країна виробництва - UA.</ccd_31_01>
+    <ccd_31_02>0</ccd_31_02>
+    <ccd_31_03>24</ccd_31_03>
+    <ccd_31_03p>0</ccd_31_03p>
+    <ccd_33_01>2302109000</ccd_33_01>
+    <ccd_33_03>0</ccd_33_03>
+    <ccd_34_01>UA</ccd_34_01>
+    <ccd_35_01>22533.00000000</ccd_35_01>
+    <ccd_37_01>10</ccd_37_01>
+    <ccd_37_02>0</ccd_37_02>
+    <ccd_37_03>ZZ</ccd_37_03>
+    <ccd_37_04>00</ccd_37_04>
+    <ccd_38_01>22500.00000000</ccd_38_01>
+    <ccd_42_01>3487.5000</ccd_42_01>
+    <ccd_42_02>3487.5000</ccd_42_02>
+    <ccd_46_01>172.82376</ccd_46_01>
+    <ccd_dcc_method>1</ccd_dcc_method>
+    <ccd_goods_docs>
+      <ccd_doc_code>0380</ccd_doc_code>
+      <ccd_doc_name>519/C</ccd_doc_name>
+      <ccd_doc_date_beg>20251210</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>0730</ccd_doc_code>
+      <ccd_doc_name>б/н</ccd_doc_name>
+      <ccd_doc_date_beg>20251210</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>0862</ccd_doc_code>
+      <ccd_doc_name>519/C</ccd_doc_name>
+      <ccd_doc_date_beg>20251210</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_part>d</ccd_doc_part>
+      <ccd_doc_code>1621</ccd_doc_code>
+      <ccd_doc_name>UASSE024000073</ccd_doc_name>
+      <ccd_doc_date_beg>20240508</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_part>d</ccd_doc_part>
+      <ccd_doc_code>1623</ccd_doc_code>
+      <ccd_doc_name>UALCP024000147</ccd_doc_name>
+      <ccd_doc_date_beg>20240508</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_part>d</ccd_doc_part>
+      <ccd_doc_code>1810</ccd_doc_code>
+      <ccd_doc_name>H47804081</ccd_doc_name>
+      <ccd_doc_date_beg>20251229</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>3000</ccd_doc_code>
+      <ccd_doc_name>Видаткова накладна № 1018</ccd_doc_name>
+      <ccd_doc_date_beg>20251216</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>4100</ccd_doc_code>
+      <ccd_doc_name>280825</ccd_doc_name>
+      <ccd_doc_date_beg>20250828</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>4103</ccd_doc_code>
+      <ccd_doc_name>1</ccd_doc_name>
+      <ccd_doc_date_beg>20250828</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>4202</ccd_doc_code>
+      <ccd_doc_name>11/04-25</ccd_doc_name>
+      <ccd_doc_date_beg>20250411</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>4203</ccd_doc_code>
+      <ccd_doc_name>8</ccd_doc_name>
+      <ccd_doc_date_beg>20251128</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_part>d</ccd_doc_part>
+      <ccd_doc_code>4207</ccd_doc_code>
+      <ccd_doc_name>0501-Д</ccd_doc_name>
+      <ccd_doc_date_beg>20230501</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>9000</ccd_doc_code>
+      <ccd_doc_name>документи по сировині</ccd_doc_name>
+      <ccd_doc_date_beg>20240709</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>9000</ccd_doc_code>
+      <ccd_doc_name>довідка про склад сировини</ccd_doc_name>
+      <ccd_doc_date_beg>20250321</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>9402</ccd_doc_code>
+      <ccd_doc_name>72</ccd_doc_name>
+      <ccd_doc_date_beg>20251128</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_goods_docs>
+      <ccd_doc_code>9801</ccd_doc_code>
+      <ccd_doc_name>FP807440</ccd_doc_name>
+      <ccd_doc_date_beg>20180718</ccd_doc_date_beg>
+    </ccd_goods_docs>
+    <ccd_inv_pos>
+      <ccd_inv_pos>1</ccd_inv_pos>
+      <ccd_inv_name>Кукурудзяні висівки</ccd_inv_name>
+      <ccd_inv_price>155.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>3487.5000</ccd_inv_sum_cur>
+      <ccd_inv_qty>22.50000000</ccd_inv_qty>
+      <ccd_inv_unit>168</ccd_inv_unit>
+      <ccd_inv_tm>немає даних</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Агро Фелікс"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_goods_pack>
+      <pk_id>636188963</pk_id>
+      <ccd_pk_code>ZB</ccd_pk_code>
+      <ccd_pk_qty>24.000</ccd_pk_qty>
+    </ccd_goods_pack>
+  </ccd_goods>
+  <ccd_cmn_docs>
+    <ccd_doc_code>1001</ccd_doc_code>
+    <ccd_doc_name>2</ccd_doc_name>
+  </ccd_cmn_docs>
+  <ccd_int_obl>
+    <ccd_obl_type>0</ccd_obl_type>
+    <ccd_obl_subj>5</ccd_obl_subj>
+    <ccd_obl_cnt>UA</ccd_obl_cnt>
+    <ccd_obl_pas_num>FP807440</ccd_obl_pas_num>
+    <ccd_obl_surname>Баранов</ccd_obl_surname>
+    <ccd_obl_name>Максим</ccd_obl_name>
+  </ccd_int_obl>
+  <ccd_seals>
+    <ccd_number>H47804081</ccd_number>
+    <ccd_type>7</ccd_type>
+    <ccd_quant>1</ccd_quant>
+    <seal_name>Одноразова пломба українського декларанта</seal_name>
+    <ccd_created>20251229T143000</ccd_created>
+  </ccd_seals>
+  <ccd_proc>
+    <pr_code>1</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T144932</pr_date>
+    <pr_srv_date>20251229T144933</pr_srv_date>
+    <proc_name>Прийняття митної декларації до митного оформлення</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>12</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T144956</pr_date>
+    <pr_srv_date>20251229T144933</pr_srv_date>
+    <proc_name>Реєстрація митної декларації</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>9</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T145009</pr_date>
+    <pr_srv_date>20251229T144946</pr_srv_date>
+    <proc_name>Контроль із застосуванням системи управління ризиками</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>2</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T145329</pr_date>
+    <pr_srv_date>20251229T152035</pr_srv_date>
+    <proc_name>Перевірка правильності класифікації та кодування товарів</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>17</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T145740</pr_date>
+    <pr_srv_date>20251229T152046</pr_srv_date>
+    <proc_name>Перевірка правильності визначення країни походження товарів</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>18</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T150149</pr_date>
+    <pr_srv_date>20251229T152053</pr_srv_date>
+    <proc_name>Перевірка дотримання встановлених до товарів заходів нетарифного регулювання</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>11</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T150657</pr_date>
+    <pr_srv_date>20251229T152100</pr_srv_date>
+    <proc_name>Перевірка наявності задекларованих товарів у реєстрі товарів, що містять об’єкти інтелектуальної власності</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>4</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T151106</pr_date>
+    <pr_srv_date>20251229T152114</pr_srv_date>
+    <proc_name>Перевірка правильності нарахування митних платежів</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>10</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T151618</pr_date>
+    <pr_srv_date>20251229T152122</pr_srv_date>
+    <proc_name>Перевірка відомостей про виконання митних формальностей, сформованих за результатами оцінки ризику</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>5</pr_code>
+    <pr_user>U028507</pr_user>
+    <pr_pib>Ящук Олег Петрович</pr_pib>
+    <pr_ksiva>3</pr_ksiva>
+    <pr_date>20251229T152131</pr_date>
+    <pr_srv_date>20251229T152136</pr_srv_date>
+    <proc_name>Завершення митного оформлення</proc_name>
+    <pr_pib_ins>Ящук Олег Петрович</pr_pib_ins>
+    <pr_ksiva_ins>3</pr_ksiva_ins>
+  </ccd_proc>
+</ccd>

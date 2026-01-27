@@ -1,0 +1,199 @@
+
+/**
+ * Отримати список учасників компанії
+ */
+export async function getCompanyMembers(companyId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Неавторизований доступ" };
+    }
+
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+
+    if (!access.success) {
+      return { error: access.error };
+    }
+
+    const members = await db.userCompany.findMany({
+      where: {
+        companyId: companyId,
+        isActive: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          }
+        }
+      },
+      orderBy: {
+        role: 'desc', // OWNER first (lexicographically O comes after M/V, wait... OWNER > MEMBER > VIEWER?)
+        // OWNER, MEMBER, VIEWER. O > M > V. perfect.
+      }
+    });
+
+    return {
+      success: true,
+      members: members.map(m => ({
+        userId: m.userId,
+        email: m.user.email,
+        fullName: m.user.fullName,
+        role: m.role,
+        joinedAt: m.createdAt,
+      }))
+    };
+  } catch (error: any) {
+    console.error("Error getting company members:", error);
+    return { error: "Помилка отримання списку учасників" };
+  }
+}
+
+/**
+ * Змінити роль учасника (тільки OWNER)
+ */
+export async function updateMemberRole(companyId: string, userId: string, newRole: 'MEMBER' | 'VIEWER') {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Неавторизований доступ" };
+    }
+
+    // Тільки власник може змінювати ролі
+    const { canPerformAction, checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+
+    if (!access.success) return { error: access.error };
+    if (access.role !== 'OWNER') {
+      return { error: "Тільки власник може змінювати ролі учасників" };
+    }
+
+    // Не можна змінювати роль самому собі через цю функцію
+    if (userId === session.user.id) {
+        return { error: "Не можна змінити власну роль" };
+    }
+
+    const targetUserCompany = await db.userCompany.findUnique({
+      where: {
+        userId_companyId: {
+          userId: userId,
+          companyId: companyId,
+        }
+      }
+    });
+
+    if (!targetUserCompany || !targetUserCompany.isActive) {
+      return { error: "Користувач не є учасником компанії" };
+    }
+
+    if (targetUserCompany.role === 'OWNER') {
+        return { error: "Не можна змінити роль власника. Використайте передачу власності." };
+    }
+
+    await db.userCompany.update({
+      where: { id: targetUserCompany.id },
+      data: { role: newRole }
+    });
+
+    const targetUser = await db.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } });
+
+    // Audit log
+    await db.companyAuditLog.create({
+      data: {
+        companyId: companyId,
+        userId: session.user.id,
+        userName: session.user.name || session.user.email,
+        action: "CHANGE_ROLE",
+        targetUserId: userId,
+        targetUserName: targetUser?.fullName || targetUser?.email,
+        oldValue: targetUserCompany.role,
+        newValue: newRole,
+        details: `Роль змінено з ${targetUserCompany.role} на ${newRole}`,
+      }
+    });
+
+    revalidatePath("/dashboard/companies");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating member role:", error);
+    return { error: "Помилка зміни ролі" };
+  }
+}
+
+/**
+ * Видалити учасника з компанії (тільки OWNER)
+ */
+export async function removeCompanyMember(companyId: string, userId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Неавторизований доступ" };
+    }
+
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+
+    if (!access.success) return { error: access.error };
+    if (access.role !== 'OWNER') {
+      return { error: "Тільки власник може видаляти учасників" };
+    }
+
+    if (userId === session.user.id) {
+        return { error: "Не можна видалити самого себе. Використайте видалення компанії." };
+    }
+
+    const targetUserCompany = await db.userCompany.findUnique({
+      where: {
+        userId_companyId: {
+          userId: userId,
+          companyId: companyId,
+        }
+      }
+    });
+
+    if (!targetUserCompany || !targetUserCompany.isActive) {
+        return { error: "Користувач не є учасником компанії" };
+    }
+
+    if (targetUserCompany.role === 'OWNER') {
+        return { error: "Не можна видалити власника" };
+    }
+
+    // Hard delete linkage? Or Soft?
+    // UserCompany table has no deletedAt, so hard delete or set isActive=false
+    // The plan schema shows isActive Boolean.
+    await db.userCompany.delete({
+        where: { id: targetUserCompany.id }
+    });
+    // Or: await db.userCompany.update({ where: { id: targetUserCompany.id }, data: { isActive: false } });
+    // Plan migration step 3: "activeCompanyId" logic relies on userCompanies list.
+    // If we delete, it's gone. If isActive=false, it's inactive access.
+    // Let's delete to keep it clean, or update isActive if we want history.
+    // Given the previous code uses `findUnique` and checking isActive, let's delete for now as per `leaveCompany` implementation.
+    // Wait, `leaveCompany` uses `delete`. So consistent.
+
+    const targetUser = await db.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } });
+
+    // Audit log
+    await db.companyAuditLog.create({
+        data: {
+          companyId: companyId,
+          userId: session.user.id,
+          userName: session.user.name || session.user.email,
+          action: "REMOVE_MEMBER",
+          targetUserId: userId,
+          targetUserName: targetUser?.fullName || targetUser?.email,
+          details: `Учасника видалено з компанії`,
+        }
+      });
+
+    revalidatePath("/dashboard/companies");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error removing member:", error);
+    return { error: "Помилка видалення учасника" };
+  }
+}

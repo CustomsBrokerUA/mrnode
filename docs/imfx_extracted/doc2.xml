@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<ccd version="2">
+  <ccd_submitted>20260112T111422</ccd_submitted>
+  <guid>5f5e6b48-a2a7-433c-8628-96293c70c73e</guid>
+  <ccd_typeid>14</ccd_typeid>
+  <ccd_registered>20260112T114448</ccd_registered>
+  <ccd_status>R</ccd_status>
+  <ccd_01_01> ЕК</ccd_01_01>
+  <ccd_01_02>10</ccd_01_02>
+  <ccd_01_03>АА</ccd_01_03>
+  <ccd_md8>0</ccd_md8>
+  <ccd_03_01>2</ccd_03_01>
+  <ccd_05_01>2</ccd_05_01>
+  <ccd_06_01>81</ccd_06_01>
+  <ccd_07_01>UA400040</ccd_07_01>
+  <ccd_07_02>2026</ccd_07_02>
+  <ccd_07_03>324</ccd_07_03>
+  <ccd_07_04>2810</ccd_07_04>
+  <ccd_11_01>DE</ccd_11_01>
+  <ccd_17_01>DE</ccd_17_01>
+  <ccd_19_01>0</ccd_19_01>
+  <ccd_20_01>FCA</ccd_20_01>
+  <ccd_20_cnt>UA</ccd_20_cnt>
+  <ccd_20_02>Хмельницький</ccd_20_02>
+  <ccd_22_01>EUR</ccd_22_01>
+  <ccd_22_cur>978</ccd_22_cur>
+  <ccd_22_date>20260112T111422</ccd_22_date>
+  <ccd_22_02>33091.0000</ccd_22_02>
+  <ccd_22_03>33091.0000</ccd_22_03>
+  <ccd_23_01>50.14440000</ccd_23_01>
+  <ccd_24_01>11</ccd_24_01>
+  <ccd_24_02>EUR</ccd_24_02>
+  <ccd_25_01>30</ccd_25_01>
+  <ccd_26_01>30</ccd_26_01>
+  <ccd_29_01>UA209030</ccd_29_01>
+  <ccd_30_01>A</ccd_30_01>
+  <ccd_52_01>20260122</ccd_52_01>
+  <ccd_54_02>Осташевський А.О.</ccd_54_02>
+  <ccd_54_04>3615503190</ccd_54_04>
+  <ccd_54_05>customs@brokerua.com</ccd_54_05>
+  <ccd_54_06>+380973691757</ccd_54_06>
+  <ccd_sar_color>0</ccd_sar_color>
+  <ccd_ext_mov>1</ccd_ext_mov>
+  <ccd_int_mov>1</ccd_int_mov>
+  <ccd_cust_dest>400-205-1-1</ccd_cust_dest>
+  <ccd_cr>0</ccd_cr>
+  <MRN>26UA400040000324U0</MRN>
+  <ccd_client>
+    <ccd_cl_gr>2</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>37921017</ccd_cl_code>
+    <ccd_cl_name>ТОВ "Дювельсдорф Україна"</ccd_cl_name>
+    <ccd_cl_adr>м. Хмельницький, вул. Курчатова 8/4Е.</ccd_cl_adr>
+    <ccd_cl_uori>UA10037921017</ccd_cl_uori>
+  </ccd_client>
+  <ccd_client>
+    <ccd_cl_gr>8</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>DE</ccd_cl_cnt>
+    <ccd_cl_name>Duvelsdorf Handelsgesellschaft mbH</ccd_cl_name>
+    <ccd_cl_adr>Im Forth 10, Ottersberg-Bhf.28870 Deutschland</ccd_cl_adr>
+  </ccd_client>
+  <ccd_client>
+    <ccd_cl_gr>9</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>37921017</ccd_cl_code>
+    <ccd_cl_name>ТОВ "Дювельсдорф Україна"</ccd_cl_name>
+    <ccd_cl_adr>м. Хмельницький, вул.Курчатова 8/4Е.</ccd_cl_adr>
+    <ccd_cl_uori>UA10037921017</ccd_cl_uori>
+  </ccd_client>
+  <ccd_client>
+    <ccd_cl_gr>14</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>3615503190</ccd_cl_code>
+    <ccd_cl_name>ФОП Осташевський Андрій Олексійович</ccd_cl_name>
+    <ccd_cl_adr>29008, Хмельницька обл., м. Хмельницький, вул. Огієнка, буд. 4</ccd_cl_adr>
+    <ccd_cl_uori>UA03615503190</ccd_cl_uori>
+  </ccd_client>
+  <ccd_client>
+    <ccd_cl_gr>50</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_cl_cnt>UA</ccd_cl_cnt>
+    <ccd_cl_code>35435322</ccd_cl_code>
+    <ccd_cl_name>ПП Дока-Транс</ccd_cl_name>
+    <ccd_cl_adr>м.Хмельницький, Проспект миру 94А, оф.36.</ccd_cl_adr>
+    <ccd_cl_uori>UA10035435322</ccd_cl_uori>
+    <ccd_cl_tel>+380382615171</ccd_cl_tel>
+  </ccd_client>
+  <ccd_bank>
+    <ccd_bn_gr>28</ccd_bn_gr>
+    <ccd_bn_pos>1</ccd_bn_pos>
+    <ccd_cl_gr>9</ccd_cl_gr>
+    <ccd_cl_pos>1</ccd_cl_pos>
+    <ccd_bn_cnt>UA</ccd_bn_cnt>
+    <ccd_bn_name>АТ "УКРСИББАНК"</ccd_bn_name>
+    <ccd_bn_code>9807750</ccd_bn_code>
+    <ccd_bn_mfo>351005</ccd_bn_mfo>
+  </ccd_bank>
+  <ccd_licence>
+    <ccd_lic_gr>14</ccd_lic_gr>
+    <ccd_lic_pos>1</ccd_lic_pos>
+    <ccd_lic_type>1</ccd_lic_type>
+    <ccd_lic_num>UACBR125000103</ccd_lic_num>
+    <ccd_lic_date>20250816</ccd_lic_date>
+  </ccd_licence>
+  <ccd_marks>
+    <ccd_mk_type>2</ccd_mk_type>
+    <ccd_mk_cust>400</ccd_mk_cust>
+    <ccd_mk_number>7025</ccd_mk_number>
+    <ccd_mk_date>20260112</ccd_mk_date>
+  </ccd_marks>
+  <ccd_marks>
+    <ccd_mk_type>1</ccd_mk_type>
+    <ccd_mk_cust>400</ccd_mk_cust>
+    <ccd_mk_number>7025</ccd_mk_number>
+    <ccd_mk_date>20260112</ccd_mk_date>
+  </ccd_marks>
+  <ccd_transport>
+    <ccd_trn_gr>18</ccd_trn_gr>
+    <ccd_trn_name>BX0637IA</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>18</ccd_trn_gr>
+    <ccd_trn_name>BX3443XO</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>21</ccd_trn_gr>
+    <ccd_trn_name>BX0637IA</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_transport>
+    <ccd_trn_gr>21</ccd_trn_gr>
+    <ccd_trn_name>BX3443XO</ccd_trn_name>
+    <ccd_trn_cnt>UA</ccd_trn_cnt>
+  </ccd_transport>
+  <ccd_goods>
+    <ccd_32_01>1</ccd_32_01>
+    <ccd_31_01>1. Частини сільскогосподарських машин для підготовки або оброблення грунту, виготовлені з чорних металів різанням, зварюванням, остаточно фарбовані:
+- Сегмент ДУ.СБ.02.001 (зірка чавунна) / Kombistern (артикул 2516005), кількість 400 шт.;
+- Кільце для полотна велике / Ring Eggennetz, Au?endurchmesser 150 mm (артикул 2516020), кількість 300 шт.;
+- Полотно для борони 2м,3-х рядної / Netz 2 m, 3-reihig (артикул 2518210), кількість 2 шт.;
+- Полотно для борони 3м,3-х рядної / Netz 3 m, 3-reihig (артикул 2518310), кількість 4 шт.;
+- Полотно для борони 5м,3-х рядної / Netz 5 m 3-reihig (артикул 2518510), кількість 6 шт.;
+- Полотно для борони 6м,3-х рядної / Netz 6 m 3-reihig (артикул 2518610), кількість 20 шт.;
+- Полотно для борони 6м,4-х рядної / Netz 6 m 4-reihig (артикул 2518611), кількість 30 шт.;
+- Полотно для борони 8м,4-х рядної / Netz 8 m 4-reihig (артикул 2518621), кількість 15 шт.;
+Торговельна марка Дювельсдорф
+Виробник ТОВ "Дювельсдорф Україна"
+Країна виробництва UA</ccd_31_01>
+    <ccd_31_02>0</ccd_31_02>
+    <ccd_31_03>79</ccd_31_03>
+    <ccd_31_03p>0</ccd_31_03p>
+    <ccd_33_01>8432900000</ccd_33_01>
+    <ccd_33_03>0</ccd_33_03>
+    <ccd_34_01>UA</ccd_34_01>
+    <ccd_35_01>15184.60000000</ccd_35_01>
+    <ccd_37_01>10</ccd_37_01>
+    <ccd_37_02>0</ccd_37_02>
+    <ccd_37_03>ZZ</ccd_37_03>
+    <ccd_37_04>00</ccd_37_04>
+    <ccd_38_01>15062.00000000</ccd_38_01>
+    <ccd_42_01>31391.0000</ccd_42_01>
+    <ccd_42_02>31391.0000</ccd_42_02>
+    <ccd_46_01>1574.08286</ccd_46_01>
+    <ccd_dcc_method>1</ccd_dcc_method>
+    <ccd_inv_pos>
+      <ccd_inv_pos>1</ccd_inv_pos>
+      <ccd_inv_name>Сегмент ДУ.СБ.02.001 (зірка чавунна) / Kombistern</ccd_inv_name>
+      <ccd_inv_art>2516005</ccd_inv_art>
+      <ccd_inv_price>3.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>1200.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>830.00000000</ccd_inv_wb>
+      <ccd_inv_wn>800.00000000</ccd_inv_wn>
+      <ccd_inv_qty>400.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>2</ccd_inv_pos>
+      <ccd_inv_name>Кільце для полотна велике / Ring Eggennetz, Au?endurchmesser 150 mm</ccd_inv_name>
+      <ccd_inv_art>2516020</ccd_inv_art>
+      <ccd_inv_price>4.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>1200.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>180.00000000</ccd_inv_wb>
+      <ccd_inv_wn>168.00000000</ccd_inv_wn>
+      <ccd_inv_qty>300.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>3</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 2м,3-х рядної / Netz 2 m, 3-reihig</ccd_inv_name>
+      <ccd_inv_art>2518210</ccd_inv_art>
+      <ccd_inv_price>122.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>244.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>112.00000000</ccd_inv_wb>
+      <ccd_inv_wn>110.00000000</ccd_inv_wn>
+      <ccd_inv_qty>2.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>4</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 3м,3-х рядної / Netz 3 m, 3-reihig</ccd_inv_name>
+      <ccd_inv_art>2518310</ccd_inv_art>
+      <ccd_inv_price>163.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>652.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>296.00000000</ccd_inv_wb>
+      <ccd_inv_wn>294.00000000</ccd_inv_wn>
+      <ccd_inv_qty>4.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>5</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 5м,3-х рядної / Netz 5 m 3-reihig</ccd_inv_name>
+      <ccd_inv_art>2518510</ccd_inv_art>
+      <ccd_inv_price>255.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>1530.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>780.00000000</ccd_inv_wb>
+      <ccd_inv_wn>780.00000000</ccd_inv_wn>
+      <ccd_inv_qty>6.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>6</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 6м,3-х рядної / Netz 6 m 3-reihig</ccd_inv_name>
+      <ccd_inv_art>2518610</ccd_inv_art>
+      <ccd_inv_price>306.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>6120.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>3000.00000000</ccd_inv_wb>
+      <ccd_inv_wn>2980.00000000</ccd_inv_wn>
+      <ccd_inv_qty>20.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>7</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 6м,4-х рядної / Netz 6 m 4-reihig</ccd_inv_name>
+      <ccd_inv_art>2518611</ccd_inv_art>
+      <ccd_inv_price>398.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>11940.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>5934.30000000</ccd_inv_wb>
+      <ccd_inv_wn>5900.00000000</ccd_inv_wn>
+      <ccd_inv_qty>30.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_inv_pos>
+      <ccd_inv_pos>8</ccd_inv_pos>
+      <ccd_inv_name>Полотно для борони 8м,4-х рядної / Netz 8 m 4-reihig</ccd_inv_name>
+      <ccd_inv_art>2518621</ccd_inv_art>
+      <ccd_inv_price>567.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>8505.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>4052.30000000</ccd_inv_wb>
+      <ccd_inv_wn>4030.00000000</ccd_inv_wn>
+      <ccd_inv_qty>15.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_goods_pack>
+      <pk_id>5324016</pk_id>
+      <ccd_pk_code>BR</ccd_pk_code>
+      <ccd_pk_qty>79.000</ccd_pk_qty>
+    </ccd_goods_pack>
+  </ccd_goods>
+  <ccd_goods>
+    <ccd_32_01>2</ccd_32_01>
+    <ccd_31_01>1. Частини, призначені виключно або переважно для обладнання завантажувального, спеціально призначеного для використання у сільському господарстві:
+- Робоча платформа цинкована DAH 1,6 EURO, Stapler / Arbeitsbuhne erhoht verzinkt 1,6 m Breite EURO und Stapleraufnahme (артикул 3523135), кількість 2 шт.;
+Торговельна марка Дювельсдорф
+Виробник ТОВ "Дювельсдорф Україна"
+Країна виробництва UA</ccd_31_01>
+    <ccd_31_02>0</ccd_31_02>
+    <ccd_31_03>2</ccd_31_03>
+    <ccd_31_03p>0</ccd_31_03p>
+    <ccd_33_01>8431390000</ccd_33_01>
+    <ccd_33_03>0</ccd_33_03>
+    <ccd_34_01>UA</ccd_34_01>
+    <ccd_35_01>446.00000000</ccd_35_01>
+    <ccd_37_01>10</ccd_37_01>
+    <ccd_37_02>0</ccd_37_02>
+    <ccd_37_03>ZZ</ccd_37_03>
+    <ccd_37_04>00</ccd_37_04>
+    <ccd_38_01>442.00000000</ccd_38_01>
+    <ccd_42_01>1700.0000</ccd_42_01>
+    <ccd_42_02>1700.0000</ccd_42_02>
+    <ccd_46_01>85.24548</ccd_46_01>
+    <ccd_dcc_method>1</ccd_dcc_method>
+    <ccd_inv_pos>
+      <ccd_inv_pos>1</ccd_inv_pos>
+      <ccd_inv_name>Робоча платформа цинкована DAH 1,6 EURO, Stapler / Arbeitsbuhne erhoht verzinkt 1,6 m Breite EURO und Stapleraufnahme</ccd_inv_name>
+      <ccd_inv_art>3523135</ccd_inv_art>
+      <ccd_inv_price>850.00000000</ccd_inv_price>
+      <ccd_inv_sum_cur>1700.0000</ccd_inv_sum_cur>
+      <ccd_inv_wb>446.00000000</ccd_inv_wb>
+      <ccd_inv_wn>442.00000000</ccd_inv_wn>
+      <ccd_inv_qty>2.00000000</ccd_inv_qty>
+      <ccd_inv_unit>796</ccd_inv_unit>
+      <ccd_inv_tm>Дювельсдорф</ccd_inv_tm>
+      <ccd_inv_prod_name>ТОВ "Дювельсдорф Україна"</ccd_inv_prod_name>
+      <ccd_inv_prod_cnt>UA</ccd_inv_prod_cnt>
+    </ccd_inv_pos>
+    <ccd_goods_pack>
+      <pk_id>5324017</pk_id>
+      <ccd_pk_code>BR</ccd_pk_code>
+      <ccd_pk_qty>2.000</ccd_pk_qty>
+    </ccd_goods_pack>
+  </ccd_goods>
+  <ccd_cmn_doc>
+    <ccd_doc_code>0380</ccd_doc_code>
+    <ccd_doc_name>2-26</ccd_doc_name>
+    <ccd_doc_date_beg>20260108</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>0730</ccd_doc_code>
+    <ccd_doc_name>A715696</ccd_doc_name>
+    <ccd_doc_date_beg>20260109</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>0862</ccd_doc_code>
+    <ccd_doc_name>2-26</ccd_doc_name>
+    <ccd_doc_date_beg>20260108</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>1001</ccd_doc_code>
+    <ccd_doc_name>2</ccd_doc_name>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>2800</ccd_doc_code>
+    <ccd_doc_name>СТМ088510</ccd_doc_name>
+    <ccd_doc_date_beg>20231220</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>2800</ccd_doc_code>
+    <ccd_doc_name>СТХ318449</ccd_doc_name>
+    <ccd_doc_date_beg>20211210</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4103</ccd_doc_code>
+    <ccd_doc_name>2-26</ccd_doc_name>
+    <ccd_doc_date_beg>20260108</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4103</ccd_doc_code>
+    <ccd_doc_name>Доп.4</ccd_doc_name>
+    <ccd_doc_date_beg>20131201</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4103</ccd_doc_code>
+    <ccd_doc_name>Доп.11</ccd_doc_name>
+    <ccd_doc_date_beg>20250618</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4103</ccd_doc_code>
+    <ccd_doc_name>Доп.10</ccd_doc_name>
+    <ccd_doc_date_beg>20220103</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4103</ccd_doc_code>
+    <ccd_doc_name>Доп.12</ccd_doc_name>
+    <ccd_doc_date_beg>20251208</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4104</ccd_doc_code>
+    <ccd_doc_name>№01/12 Е</ccd_doc_name>
+    <ccd_doc_date_beg>20120910</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_cmn_doc>
+    <ccd_doc_code>4207</ccd_doc_code>
+    <ccd_doc_name>0731-Д</ccd_doc_name>
+    <ccd_doc_date_beg>20250731</ccd_doc_date_beg>
+  </ccd_cmn_doc>
+  <ccd_int_obl>
+    <ccd_obl_type>0</ccd_obl_type>
+    <ccd_obl_subj>5</ccd_obl_subj>
+    <ccd_obl_cnt>UA</ccd_obl_cnt>
+    <ccd_obl_pas_num>GF321876</ccd_obl_pas_num>
+    <ccd_obl_surname>Дичок</ccd_obl_surname>
+    <ccd_obl_name>Володимир</ccd_obl_name>
+  </ccd_int_obl>
+  <ccd_seals>
+    <ccd_cust>UA400040</ccd_cust>
+    <ccd_number>07025</ccd_number>
+    <ccd_type>1</ccd_type>
+    <ccd_quant>1</ccd_quant>
+    <ccd_creator>U059769</ccd_creator>
+    <ccd_created>20260112T112519</ccd_created>
+  </ccd_seals>
+  <ccd_proc>
+    <pr_code>12</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T111240</pr_date>
+    <pr_srv_date>20260112T111426</pr_srv_date>
+    <proc_name>Реєстрація митної декларації</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>9</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T111301</pr_date>
+    <pr_srv_date>20260112T111444</pr_srv_date>
+    <proc_name>Контроль із застосуванням системи управління ризиками</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>1</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T111422</pr_date>
+    <pr_srv_date>20260112T111426</pr_srv_date>
+    <proc_name>Прийняття митної декларації до митного оформлення</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>2</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T111738</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка правильності класифікації та кодування товарів</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>17</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T112041</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка правильності визначення країни походження товарів</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>18</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T112343</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка дотримання встановлених до товарів заходів нетарифного регулювання</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>11</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T112645</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка наявності задекларованих товарів у реєстрі товарів, що містять об’єкти інтелектуальної власності</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>4</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T112948</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка правильності нарахування митних платежів</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>10</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T113350</pr_date>
+    <pr_srv_date>20260112T114217</pr_srv_date>
+    <proc_name>Перевірка відомостей про виконання митних формальностей, сформованих за результатами оцінки ризику</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+  <ccd_proc>
+    <pr_code>5</pr_code>
+    <pr_user>U059769</pr_user>
+    <pr_pib>Чахоян Саркіс Володимирович</pr_pib>
+    <pr_cert>070597</pr_cert>
+    <pr_date>20260112T114448</pr_date>
+    <pr_srv_date>20260112T114450</pr_srv_date>
+    <proc_name>Завершення митного оформлення</proc_name>
+    <pr_pib_ins>Чахоян Саркіс Володимирович</pr_pib_ins>
+    <pr_cert_ins>070597</pr_cert_ins>
+  </ccd_proc>
+</ccd>

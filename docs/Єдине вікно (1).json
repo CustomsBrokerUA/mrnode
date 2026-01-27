@@ -1,0 +1,725 @@
+{
+  "name": "Єдине вікно",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -256
+      ],
+      "id": "57e98480-66fa-44b1-9f45-9338d660a213",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sw4.customs.gov.ua/AskCustomsR2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        480
+      ],
+      "id": "ee6725cf-cd0e-4e54-8b4e-ec3516410121",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "messageBody",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        688
+      ],
+      "id": "0a87b40f-8985-4b2b-bf85-31f89969c6a1",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        688
+      ],
+      "id": "db28904d-51f1-4fc8-b9ce-ecac897d08b9",
+      "name": "Compression"
+    },
+    {
+      "parameters": {
+        "operation": "xml",
+        "binaryPropertyName": "file_0",
+        "options": {
+          "encoding": "windows1251"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        528,
+        688
+      ],
+      "id": "ff10b800-7e18-4645-8984-c417b04676e3",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        736,
+        688
+      ],
+      "id": "6154d6c2-8742-4962-bbc3-fa8cfec0e0d1",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "18htZJpAi_AiG1Lg9K9biGcYSxqm7Vqp7Q28EXBYiZSs",
+          "mode": "list",
+          "cachedResultName": "Платежі Полонець",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18htZJpAi_AiG1Lg9K9biGcYSxqm7Vqp7Q28EXBYiZSs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1879398296,
+          "mode": "list",
+          "cachedResultName": "2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18htZJpAi_AiG1Lg9K9biGcYSxqm7Vqp7Q28EXBYiZSs/edit#gid=1879398296"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        896
+      ],
+      "id": "1d612635-ee13-4ab7-b06b-b073699610de",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "COIgwMZrWI6DYxo5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Дані для запиту\nconst innerData = {\n    \"creation_date\": \"20251006T000000\",\n    \"cli_code\": \"2381109020\",\n    \"guid\": $input.first().json.guid\n};\n\n// 2. Формуємо XML-рядок для R61.1\nconst xmlBody = `<UA.SFS.REQ.61.1><creation_date>${innerData.creation_date}</creation_date><cli_code>${innerData.cli_code}</cli_code><guid>${innerData.guid}</guid></UA.SFS.REQ.61.1>`;\n\n// 3. Створюємо фінальний JSON-об'єкт для відправки\nconst finalPayload = {\n  \"MessageType\": \"UA.SFS.REQ.61.1\",\n  \"MessageBody\": xmlBody,\n  \"Token\": \"1u+7VuElHNfOrLOA/u2/2pk7BR6JdZksochuNb6zTfs=\" // Ваш токен\n};\n\n// 4. Повертаємо результат для вузла HTTP Request\nreturn finalPayload;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        480
+      ],
+      "id": "8de07dc2-f9b4-4680-8179-1de181d8776f",
+      "name": "Отримання даних декларації"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "messageBody",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "ee20499b-3e1c-45b2-b542-87fbe4131542",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        -32
+      ],
+      "id": "a3a38e37-5e0b-4c65-87f0-9520b1909713",
+      "name": "Compression1"
+    },
+    {
+      "parameters": {
+        "operation": "xml",
+        "binaryPropertyName": "file_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -32
+      ],
+      "id": "430a5c6c-0264-4b6f-be13-9beaa9443b80",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        192
+      ],
+      "id": "d6880483-c5ae-4e3b-a5e6-5e37bfe36d76",
+      "name": "XML1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "['UA.SFS.RSP.60.1'].md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        128,
+        192
+      ],
+      "id": "878be518-9a69-4146-8202-aba37eda1459",
+      "name": "Список декларацій1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sw4.customs.gov.ua/AskCustomsR2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        -256
+      ],
+      "id": "e6cb5b78-3701-43cc-848f-6649bf25b2a5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -144,
+        464
+      ],
+      "id": "cfe4ad94-3242-402d-b9e5-9a1acce8d630",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4355139a-74f8-4f47-936c-cbba75b6fd6b",
+              "name": "guid",
+              "value": "={{ $json.guid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        176
+      ],
+      "id": "6c859ba0-eef9-4b97-a56b-98848c8c67df",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Отримуємо поточний елемент з вхідних даних\nconst item = $input.item.json;\n\n// Перевіряємо, чи існує поле ccd.ccd_payments\nif (item.ccd && item.ccd.ccd_payments) {\n  // Якщо поле існує, але НЕ є масивом (тобто, це один об'єкт)\n  if (!Array.isArray(item.ccd.ccd_payments)) {\n    // Ми \"загортаємо\" цей один об'єкт у масив\n    item.ccd.ccd_payments = [item.ccd.ccd_payments];\n  }\n  // Якщо це вже масив, ми нічого не робимо\n} else {\n  // Якщо поле ccd.ccd_payments взагалі відсутнє,\n  // створюємо порожній масив, щоб уникнути помилок далі\n  if (item.ccd) {\n      item.ccd.ccd_payments = [];\n  }\n}\n\n// Повертаємо елемент з виправленою структурою\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        896
+      ],
+      "id": "65886477-8a16-48c5-b2c1-ecbf95d52107",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "75307ebc-0e4a-42e2-b46c-41005d1907bb",
+              "leftValue": "={{ $json.ccd_type }}",
+              "rightValue": "ІМ ЕЕ",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        192
+      ],
+      "id": "6bc1fc93-f3f1-4fd0-b7bf-04fe620136ca",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        480
+      ],
+      "id": "54f7c401-ded1-4e5a-b2e1-2f06356c92b6",
+      "name": "Wait",
+      "webhookId": "81399b84-65df-48f5-9885-988de90033fe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "30acdc24-1748-4456-bc14-94c632beed0e",
+              "name": "MRN",
+              "value": "={{ $json.ccd.ccd_07_01 }}/{{ $json.ccd.ccd_07_02 }}/{{ $json.ccd.ccd_07_03 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        1136
+      ],
+      "id": "e3d616aa-ecf8-42d5-9d88-492fa65baab5",
+      "name": "Edit Fields 2022"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code2\nconst src = $json;\n\n// Стабільні поля\nconst base = {\n  date_final: src.ccd?.version_start ?? '',\n  MRN: src.MRN ?? '',\n  ccd_01_01: src.ccd?.ccd_01_01 ?? '',\n  ccd_01_02: src.ccd?.ccd_01_02 ?? '',\n  ccd_01_03: src.ccd?.ccd_01_03 ?? '',\n  customs: src.ccd?.ccd_07_01 ?? '',\n  delivery_terms: src.ccd?.ccd_20_01 ?? '',\n  broker: src.ccd?.ccd_54_02 ?? '',\n  customs_value: Number(String(src.ccd?.ccd_12_01 ?? '0').replace(',', '.')),\n  invoice_value: Number(String(src.ccd?.ccd_22_03 ?? '0').replace(',', '.')),\n  ccd_23_01: Number(String(src.ccd?.ccd_23_01 ?? '0').replace(',', '.')),\n};\n\n// Масив платежів\nlet pays = src.ccd?.ccd_payments ?? [];\nif (!Array.isArray(pays)) pays = pays ? [pays] : [];\n\n// Тільки спосіб платежу \"01\"\nconst dyn = {};\nfor (const p of pays) {\n  if (String(p.ccd_pay_sp) !== '01') continue;\n  const code = String(p.ccd_pay_code || '').trim();\n  if (!code) continue;\n  const sum = Number(String(p.ccd_pay_sum || '0').replace(/\\s/g, '').replace(',', '.')) || 0;\n  const k = `pay_${code}`;\n  dyn[k] = (dyn[k] ?? 0) + sum; // якщо в документі кілька рядків з тим самим кодом — агрегуємо\n}\n\n// ВАЖЛИВО: повертаємо лише те, що піде в аркуш\nreturn [{ json: { ...base, ...dyn } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        1136
+      ],
+      "id": "2e647c34-2bc7-48a2-b6f1-09b7be53a697",
+      "name": "Code 2022"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code2\nconst src = $json;\n\n// Стабільні поля\nconst base = {\n  date_final: src.ccd?.version_start ?? '',\n  MRN: src.ccd?.MRN ?? '',\n  ccd_01_01: src.ccd?.ccd_01_01 ?? '',\n  ccd_01_02: src.ccd?.ccd_01_02 ?? '',\n  ccd_01_03: src.ccd?.ccd_01_03 ?? '',\n  customs: src.ccd?.ccd_07_01 ?? '',\n  delivery_terms: src.ccd?.ccd_20_01 ?? '',\n  customs_value: Number(String(src.ccd?.ccd_12_01 ?? '0').replace(',', '.')),\n  invoice_value: Number(String(src.ccd?.ccd_22_03 ?? '0').replace(',', '.')),\n  ccd_23_01: Number(String(src.ccd?.ccd_23_01 ?? '0').replace(',', '.')),\n  status: $input.first().json.declaration_status,\n};\n\n// Масив платежів\nlet pays = src.ccd?.ccd_payments ?? [];\nif (!Array.isArray(pays)) pays = pays ? [pays] : [];\n\n// Тільки спосіб платежу \"01\"\nconst dyn = {};\nfor (const p of pays) {\n  if (String(p.ccd_pay_sp) !== '01') continue;\n  const code = String(p.ccd_pay_code || '').trim();\n  if (!code) continue;\n  const sum = Number(String(p.ccd_pay_sum || '0').replace(/\\s/g, '').replace(',', '.')) || 0;\n  const k = `pay_${code}`;\n  dyn[k] = (dyn[k] ?? 0) + sum; // якщо в документі кілька рядків з тим самим кодом — агрегуємо\n}\n\n// ВАЖЛИВО: повертаємо лише те, що піде в аркуш\nreturn [{ json: { ...base, ...dyn } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        896
+      ],
+      "id": "b66f4041-35bf-4209-9477-d47bf1363464",
+      "name": "Code2023+"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Дані для запиту\nconst innerData = {\n    \"creation_date\": \"20250819T000000\",\n    \"cli_code\": \"3615503190\",\n    \"date_begin\": \"20230302T000000\",\n    \"date_end\": \"20230401T235959\",\n    \"date_type\": 1,\n    \"status\": \"R\"\n};\n\n// 2. Формуємо XML-рядок, де кореневий тег відповідає MessageType\nconst xmlBody = `<UA.SFS.REQ.60.1><creation_date>${innerData.creation_date}</creation_date><cli_code>${innerData.cli_code}</cli_code><date_begin>${innerData.date_begin}</date_begin><date_end>${innerData.date_end}</date_end><date_type>${innerData.date_type}</date_type><status>${innerData.status}</status></UA.SFS.REQ.60.1>`;\n\n// 3. Створюємо фінальний JSON-об'єкт для відправки\nconst finalPayload = {\n  \"MessageType\": \"UA.SFS.REQ.60.1\",\n  \"MessageBody\": xmlBody,\n  \"Token\": \"DzhAprmlLxChuuzULZOsvjDzuprUIUGh/W0SHsEGGnA=\" // Ваш токен\n};\n\n// 4. Повертаємо результат для вузла HTTP Request\nreturn finalPayload;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -496
+      ],
+      "id": "3e63c328-515f-46c1-95b6-d81652421a33",
+      "name": "Запит списку Осташевський"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Дані для запиту\nconst innerData = {\n    \"creation_date\": \"20250817T000000\",\n    \"cli_code\": \"37921043\",\n    \"date_begin\": \"20250602T000000\",\n    \"date_end\": \"20250630T235959\",\n    \"date_type\": 1,\n    \"status\": \"R\"\n};\n\n// 2. Формуємо XML-рядок, де кореневий тег відповідає MessageType\nconst xmlBody = `<UA.SFS.REQ.60.1><creation_date>${innerData.creation_date}</creation_date><cli_code>${innerData.cli_code}</cli_code><date_begin>${innerData.date_begin}</date_begin><date_end>${innerData.date_end}</date_end><date_type>${innerData.date_type}</date_type><status>${innerData.status}</status></UA.SFS.REQ.60.1>`;\n\n// 3. Створюємо фінальний JSON-об'єкт для відправки\nconst finalPayload = {\n  \"MessageType\": \"UA.SFS.REQ.60.1\",\n  \"MessageBody\": xmlBody,\n  \"Token\": \"grnuxuW9vd2V01bslH/zppBHFZ462L97z9kOjBxV/tE=\" // Ваш токен\n};\n\n// 4. Повертаємо результат для вузла HTTP Request\nreturn finalPayload;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        -496
+      ],
+      "id": "e76469a0-813c-4c6f-b41b-959c8fb6a8f6",
+      "name": "Запит списку Брок Імекс"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Дані для запиту\nconst innerData = {\n    \"creation_date\": \"20251006T000000\",\n    \"cli_code\": \"2381109020\",\n    \"date_begin\": \"20250101T000000\",\n    \"date_end\": \"20250201T235959\",\n    \"date_type\": 1,\n    \"status\": \"R\"\n};\n\n// 2. Формуємо XML-рядок, де кореневий тег відповідає MessageType\nconst xmlBody = `<UA.SFS.REQ.60.1><creation_date>${innerData.creation_date}</creation_date><cli_code>${innerData.cli_code}</cli_code><date_begin>${innerData.date_begin}</date_begin><date_end>${innerData.date_end}</date_end><date_type>${innerData.date_type}</date_type><status>${innerData.status}</status></UA.SFS.REQ.60.1>`;\n\n// 3. Створюємо фінальний JSON-об'єкт для відправки\nconst finalPayload = {\n  \"MessageType\": \"UA.SFS.REQ.60.1\",\n  \"MessageBody\": xmlBody,\n  \"Token\": \"1u+7VuElHNfOrLOA/u2/2pk7BR6JdZksochuNb6zTfs=\" // Ваш токен\n};\n\n// 4. Повертаємо результат для вузла HTTP Request\nreturn finalPayload;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -256
+      ],
+      "id": "93d9c2e8-1668-4b99-8dda-ac49336949df",
+      "name": "Запит списку Полонець"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node — перевірка чи є \"Завершення митного оформлення\"\n\n// вхідний об'єкт\nconst src = $json;\n\n// normalize string: NBSP -> space, collapse spaces, unicode normalize, trim, lowercase\nfunction normalizeStr(s) {\n  if (typeof s !== 'string') return '';\n  return s\n    .normalize('NFKC')\n    .replace(/\\u00A0/g, ' ')   // non-breaking space -> normal space\n    .replace(/\\s+/g, ' ')\n    .trim()\n    .toLowerCase();\n}\n\n// рекурсивно шукає масиви об'єктів з полем proc_name\nfunction findProcArrays(obj, depth = 0, maxDepth = 6, found = []) {\n  if (!obj || depth > maxDepth) return found;\n  if (Array.isArray(obj)) {\n    // перевіряємо чи елементи масиву — об'єкти з ключем proc_name\n    const sample = obj.find(el => el && typeof el === 'object' && ('proc_name' in el));\n    if (sample) {\n      found.push(obj);\n    } else {\n      // інакше рекурсивно заглядаємо в елементи\n      for (const el of obj) {\n        if (el && typeof el === 'object') findProcArrays(el, depth + 1, maxDepth, found);\n      }\n    }\n    return found;\n  }\n  if (typeof obj === 'object') {\n    for (const k of Object.keys(obj)) {\n      findProcArrays(obj[k], depth + 1, maxDepth, found);\n    }\n  }\n  return found;\n}\n\n// знайдемо всі кандидатні масиви\nconst procArrays = findProcArrays(src);\n\n// зберемо всі знайдені proc_name (на випадок, якщо подій кілька місць)\nlet allProcNames = [];\nfor (const arr of procArrays) {\n  for (const el of arr) {\n    if (el && typeof el === 'object' && 'proc_name' in el) {\n      allProcNames.push(String(el.proc_name || ''));\n    }\n  }\n}\n\n// нормалізовані назви\nconst normalized = allProcNames.map(normalizeStr);\n\n// шукаємо ключову фразу\nconst needle = normalizeStr('Завершення митного оформлення');\nconst isCompleted = normalized.some(s => s.includes(needle));\n\n// Підсумковий статус\nconst status = isCompleted ? 'Оформлена' : 'Не оформлена';\n\n// Повертаємо item у форматі n8n\nreturn [\n  {\n    json: {\n      ...src,\n      declaration_status: status,\n      // debug — можна прибрати пізніше; поки корисно при налагодженні\n      _debug_proc_names_found: allProcNames.slice(0, 50)\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        896
+      ],
+      "id": "f3358fc4-7f50-4af4-9005-dc95fc20821e",
+      "name": "Code1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Запит списку Полонець",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Compression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Отримання даних декларації": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Compression1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "XML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML1": {
+      "main": [
+        [
+          {
+            "node": "Список декларацій1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Список декларацій1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Отримання даних декларації",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields 2022": {
+      "main": [
+        [
+          {
+            "node": "Code 2022",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2023+": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Запит списку Осташевський": {
+      "main": [
+        []
+      ]
+    },
+    "Запит списку Брок Імекс": {
+      "main": [
+        []
+      ]
+    },
+    "Запит списку Полонець": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Code2023+",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1dd24802-9184-4416-846c-3d3f1ce2d1b0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c4d6fa76388cf63c89dc7adc8760311f4ad879cff3630ea28f81fa5aa353a707"
+  },
+  "id": "HgR0vcPLJduExLw3",
+  "tags": []
+}

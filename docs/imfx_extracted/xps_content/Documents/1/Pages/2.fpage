@@ -1,0 +1,395 @@
+<FixedPage Width="793.76" Height="1122.56" xmlns="http://schemas.microsoft.com/xps/2005/06" xml:lang="und">
+	<!-- Microsoft XPS Document Converter (MXDC) Generated! Version: 0.3.17134.753 -->
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="77.44" OriginY="46.56" Indices="589;580,59;586;570;562,29;583;570" UnicodeString="УКРАЇНА" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="539.68" OriginY="36.48" Indices="36" UnicodeString="A" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="546.08" OriginY="36.32" Indices="585,71;561,29;574,67;586,66;584,79;577,59;574,67;561,29;581;3,29;572;561,29;574,66;585;586;570;572;581,67;575,66;583;583,71;601,71;18,29;575;580,57;587,71;585;584,79;586,66;588,62;589;18,29;585;586;578,71;577;583,71;570;593;575;583,71;583;601" UnicodeString="ПІДРОЗДІЛ ВІДПРАВЛЕННЯ/ЕКСПОРТУ/ПРИЗНАЧЕННЯ" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="424.48" OriginY="43.2" Indices="20" UnicodeString="1" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="429.76" OriginY="43.04" Indices="574,67;3;575;3,29;580,57;3,29;581;3,29;570;3,29;586;3;570;3,29;592;3,29;561;3,29;601" UnicodeString="Д Е К Л А Р А Ц І Я" />
+	<Glyphs Fill="#ff808080" Clip="M 445.92,75.68 L 451.68,75.68 451.68,87.68 445.92,87.68 z"  FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="445.92" OriginY="85.28" Indices="38" UnicodeString="C" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="510.08" OriginY="85.12" Indices="37;44,29;54" UnicodeString="BIS" />
+	<Path Data="F1 M 421.44,36 L 532.96,36"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 421.44,85.12 L 532.96,85.12"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 421.44,36 L 421.44,85.12"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 532.96,36 L 532.96,85.12"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 459.36,52.96 L 459.36,85.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 478.24,52.96 L 478.24,85.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 421.44,117.28 L 770.4,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 421.44,85.12 L 421.44,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 451.68,102.08 L 451.68,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 478.24,85.12 L 478.24,117.28"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 505.76,85.12 L 505.76,117.28"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 532.96,85.12 L 532.96,117.28"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="423.36" OriginY="91.2" Indices="22" UnicodeString="3" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="428.64" OriginY="91.04" Indices="590;616,55;618,55;614;610" UnicodeString="Форми" />
+	<Path Data="F1 M 73.76,52.96 L 421.44,52.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,117.28 L 421.44,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,52.96 L 73.76,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 81.28,71.84 L 88.96,71.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 81.28,83.2 L 88.96,83.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 81.28,71.84 L 81.28,83.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 88.96,71.84 L 88.96,83.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="61.12" Indices="21" UnicodeString="2" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="81.92" OriginY="60.96" Indices="572;602,55;615,54;620;602,55;608,66;616,55;604,52;639,24;606,60;617,55;618,54;602,55;604,52;615;610,55;612,43;18;575;612,43;619;617,55;616,55;618,55;620,45;607,55;618" UnicodeString="Вантажовідправник/Експортер" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="225.92" OriginY="61.12" Indices="27" UnicodeString="8" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="231.36" OriginY="60.96" Indices="584,79;606,59;607,55;618,55;608,66;621;604;602,54;625,53;3;3,29;3,29;3;3,29;3,29;3;3,29;3;3,29;651" UnicodeString="Одержувач          №" />
+	<Path Data="F1 M 19.04,117.28 L 73.76,117.28"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="125.28" Indices="22,55;20" UnicodeString="31" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="125.12" Indices="585,71;602,55;612,43;616,55;604,52;602,55;615;615,54;633" UnicodeString="Паковання" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="130.88" Indices="620,45;602,55;3,29;616,54;617,55;610,55;619" UnicodeString="та опис" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="136.48" Indices="620,45;616,55;604,52;602,55;618,55;639,24;604" UnicodeString="товарів" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="125.12" Indices="582;602,55;618,55;612,42;616,55;604;602,54;615;615,54;633,55;3,29;620,45;602,55;3;615;616,55;614;607,55;618,55;610,54;3,29;16;3,29;583,71;616,55;614;607,55;618,55;3;612,43;616,55;615;620,45;607,55;611,54;615;607,55;618,54;602,55;3,31;11;615;616,54;614;607,55;618,55;610,55;3,29;612,42;616,55;615;620,45;607,55;611,54;615;607,55;618,55;639,23;604;12;3;16,34;3;580;639,23;613,60;630;612,43;639,24;619;620,45;630;3,29;639,24;3;604;610,54;606" UnicodeString="Марковання та номери - Номер контейнера (номери контейнерів) - Кількість і вид" />
+	<Path Data="F1 M 19.04,260.8 L 73.76,260.8"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,260.8 L 508.48,260.8"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,117.28 L 73.76,260.8"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="462.24" OriginY="125.28" Indices="22,55;21" UnicodeString="32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="471.68" OriginY="125.12" Indices="588,62;616,55;604,52;602,55;618,55;3;651" UnicodeString="Товар №" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="125.28" Indices="22,55;22" UnicodeString="33" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="125.12" Indices="580,57;616,55;606,59;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Код товару" />
+	<Path Data="F1 M 459.36,149.44 L 493.28,149.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 485.76,149.44 L 769.28,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 459.36,117.28 L 459.36,149.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 493.28,133.44 L 493.28,149.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,117.28 L 508.48,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,133.44 L 591.52,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 629.44,133.44 L 629.44,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 669.12,124.8 L 669.12,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 718.24,124.8 L 718.24,149.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="157.44" Indices="22,55;23" UnicodeString="34" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="157.28" Indices="580,57;616,53;606,59;3,41;612,42;618,55;602" UnicodeString="Код кра" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="543.84" OriginY="157.28" Indices="640" UnicodeString="ї" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="545.76" OriginY="157.28" Indices="615;610,59;3" UnicodeString="ни " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="164.96" Indices="617,55;616,55;623,52;616,52;606,60;608,66;17" UnicodeString="походж." />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="157.44" Indices="22,55;24" UnicodeString="35" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="157.28" Indices="582;602,55;619;602,55;3;603;618,55;621;620,45;620,45;616,55;11,34;612,42;605;12" UnicodeString="Маса брутто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="157.44" Indices="22,55;25" UnicodeString="36" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="157.28" Indices="585,71;618,55;607,55;622,83;607,55;618,55;607,55;615,54;624;639,24;633" UnicodeString="Преференція" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="179.84" Indices="68" UnicodeString="a" />
+	<Path Data="F1 M 516,173.92 L 516,181.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="558.56" OriginY="179.84" Indices="69" UnicodeString="b" />
+	<Path Data="F1 M 563.2,173.92 L 563.2,181.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,181.44 L 591.52,181.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,181.44 L 769.28,181.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,149.44 L 508.48,181.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,166.4 L 555.68,181.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,149.44 L 591.52,181.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,149.44 L 708.8,181.44"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="189.6" Indices="22,55;26" UnicodeString="37" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="189.44" Indices="585,71;586;584,79;592;575,66;574,67;589;586,68;570" UnicodeString="ПРОЦЕДУРА" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="189.6" Indices="22,55;27" UnicodeString="38" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="189.44" Indices="582;602,55;619;602,55;3;615;607,55;620,45;620,45;616,55;11;612,43;605,35;12" UnicodeString="Маса нетто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="189.6" Indices="22,55;28" UnicodeString="39" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="189.44" Indices="580,57;604;616,54;620,45;602" UnicodeString="Квота" />
+	<Path Data="F1 M 508.48,213.6 L 591.52,213.6"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,213.6 L 769.28,213.6"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,181.44 L 508.48,213.6"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,200.32 L 555.68,214.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,181.44 L 591.52,213.6"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,181.44 L 708.8,213.6"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="221.6" Indices="23,55;19" UnicodeString="40" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="221.44" Indices="577;602,54;605;602,54;613,59;630,53;615;602,54;3,29;606,59;607,55;612,43;613,59;602,55;618,55;602,55;624;639,23;633,55;18,29;617;616,55;617,55;607,54;618,55;607,55;606,60;615,54;639,24;611,55;3;606,60;616,55;612,43;621;614;607,55;615;620" UnicodeString="Загальна декларація/попередній документ" />
+	<Path Data="F1 M 508.48,245.76 L 769.28,245.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,213.6 L 508.48,245.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="253.76" Indices="23,55;20" UnicodeString="41" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="253.6" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;639,24;3;616,55;606,60;610,55;615,54;610,55;624;639" UnicodeString="Додаткові одиниці" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="253.76" Indices="23,55;21" UnicodeString="42" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="253.6" Indices="592;639,24;615,54;602,55;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Ціна товару" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="729.44" OriginY="253.76" Indices="23,55;22" UnicodeString="43" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="253.6" Indices="582;572;3,29;582;572,73;3" UnicodeString="МВ МВ " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="261.28" Indices="580,57;616,53;606" UnicodeString="Код" />
+	<Path Data="F1 M 508.48,277.92 L 769.28,277.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,277.92 L 746.56,277.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,245.76 L 508.48,277.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 621.76,245.76 L 621.76,277.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,245.76 L 727.68,277.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 746.56,262.72 L 746.56,277.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 19.04,260.8 L 73.76,260.8"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="268.96" Indices="23,55;23" UnicodeString="44" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="268.8" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;602" UnicodeString="Додаткова" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="274.4" Indices="639,24;615;622,83;616,54;618,55;614;602,55;624;639,24;633" UnicodeString="інформація" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="280.16" Indices="18,29;584;622,84;616,54;618,55;614;613,60;607,55;615;639" UnicodeString="/Оформлені" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="285.76" Indices="606,60;616,54;612,43;621;614;607,55;615;620,45;610" UnicodeString="документи" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="291.36" Indices="18,29;587,71;607,55;618,55;620,45;610,55;622,83;639,24;612,43;602,54;16" UnicodeString="/Сертифіка-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="297.12" Indices="620,45;610,55;3,29;620,45;602,55;3;602,55;604,52;620;616,55;16" UnicodeString="ти та авто-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="302.72" Indices="618,55;610,55;609,45;602,55;624;639,23;640" UnicodeString="ризації" />
+	<Path Data="F1 M 73.76,342.08 L 769.28,342.08"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,213.6 L 73.76,342.08"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="664.48" OriginY="285.92" Indices="23,55;24" UnicodeString="45" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="673.92" OriginY="285.76" Indices="580,57;616,55;618,55;610,54;605;621;604,52;602,55;615;615,54;633" UnicodeString="Коригування" />
+	<Path Data="F1 M 659.68,277.92 L 659.68,309.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,294.88 L 621.76,309.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,309.92 L 659.68,309.92"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 659.68,309.92 L 769.28,309.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="318.08" Indices="23,55;25" UnicodeString="46" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="317.92" Indices="587,71;620;602,55;620,45;610,55;619;620,45;610,55;625;615;602,54;3,29;604,52;602,55;618,55;620,45;639,24;619;620,45;630" UnicodeString="Статистична вартість" />
+	<Path Data="F1 M 621.76,309.92 L 621.76,342.08"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,309.92 L 508.48,342.08"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,309.92 L 621.76,309.92"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 19.04,342.08 L 73.76,342.08"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="350.24" Indices="22,55;20" UnicodeString="31" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="350.08" Indices="585,71;602,55;612,43;616,55;604,52;602,55;615;615,54;633" UnicodeString="Паковання" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="355.68" Indices="620,45;602,55;3,29;616,54;617,55;610,55;619" UnicodeString="та опис" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="361.28" Indices="620,45;616,55;604,52;602,55;618,55;639,24;604" UnicodeString="товарів" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="350.08" Indices="582;602,55;618,55;612,42;616,55;604;602,54;615;615,54;633,55;3,29;620,45;602,55;3;615;616,55;614;607,55;618,55;610,54;3,29;16;3,29;583,71;616,55;614;607,55;618,55;3;612,43;616,55;615;620,45;607,55;611,54;615;607,55;618,54;602,55;3,31;11;615;616,54;614;607,55;618,55;610,55;3,29;612,42;616,55;615;620,45;607,55;611,54;615;607,55;618,55;639,23;604;12;3;16,34;3;580;639,23;613,60;630;612,43;639,24;619;620,45;630;3,29;639,24;3;604;610,54;606" UnicodeString="Марковання та номери - Номер контейнера (номери контейнерів) - Кількість і вид" />
+	<Path Data="F1 M 19.04,485.76 L 73.76,485.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,485.76 L 508.48,485.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,342.08 L 73.76,485.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="462.24" OriginY="350.24" Indices="22,55;21" UnicodeString="32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="471.68" OriginY="350.08" Indices="588,62;616,55;604,52;602,55;618,55;3;651" UnicodeString="Товар №" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="350.24" Indices="22,55;22" UnicodeString="33" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="350.08" Indices="580,57;616,55;606,59;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Код товару" />
+	<Path Data="F1 M 459.36,374.24 L 493.28,374.24"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 485.76,374.24 L 769.28,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 459.36,342.08 L 459.36,374.24"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 493.28,358.4 L 493.28,374.24"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,342.08 L 508.48,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,358.4 L 591.52,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 629.44,358.4 L 629.44,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 669.12,349.76 L 669.12,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 718.24,349.76 L 718.24,374.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="382.24" Indices="22,55;23" UnicodeString="34" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="382.08" Indices="580,57;616,53;606,59;3,41;612,42;618,55;602" UnicodeString="Код кра" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="543.84" OriginY="382.08" Indices="640" UnicodeString="ї" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="545.76" OriginY="382.08" Indices="615;610,59;3" UnicodeString="ни " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="389.76" Indices="617,55;616,55;623,52;616,52;606,60;608,66;17" UnicodeString="походж." />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="382.24" Indices="22,55;24" UnicodeString="35" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="382.08" Indices="582;602,55;619;602,55;3;603;618,55;621;620,45;620,45;616,55;11,34;612,42;605;12" UnicodeString="Маса брутто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="382.24" Indices="22,55;25" UnicodeString="36" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="382.08" Indices="585,71;618,55;607,55;622,83;607,55;618,55;607,55;615,54;624;639,24;633" UnicodeString="Преференція" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="404.8" Indices="68" UnicodeString="a" />
+	<Path Data="F1 M 516,398.88 L 516,406.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="558.56" OriginY="404.8" Indices="69" UnicodeString="b" />
+	<Path Data="F1 M 563.2,398.88 L 563.2,406.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,406.4 L 591.52,406.4"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,406.4 L 769.28,406.4"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,374.24 L 508.48,406.4"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,391.2 L 555.68,406.4"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,374.24 L 591.52,406.4"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,374.24 L 708.8,406.4"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="414.4" Indices="22,55;26" UnicodeString="37" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="414.24" Indices="585,71;586;584,79;592;575,66;574,67;589;586,68;570" UnicodeString="ПРОЦЕДУРА" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="414.4" Indices="22,55;27" UnicodeString="38" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="414.24" Indices="582;602,55;619;602,55;3;615;607,55;620,45;620,45;616,55;11;612,43;605,35;12" UnicodeString="Маса нетто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="414.4" Indices="22,55;28" UnicodeString="39" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="414.24" Indices="580,57;604;616,54;620,45;602" UnicodeString="Квота" />
+	<Path Data="F1 M 508.48,438.56 L 591.52,438.56"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,438.56 L 769.28,438.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,406.4 L 508.48,438.56"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,425.28 L 555.68,439.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,406.4 L 591.52,438.56"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,406.4 L 708.8,438.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="446.56" Indices="23,55;19" UnicodeString="40" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="446.4" Indices="577;602,54;605;602,54;613,59;630,53;615;602,54;3,29;606,59;607,55;612,43;613,59;602,55;618,55;602,55;624;639,23;633,55;18,29;617;616,55;617,55;607,54;618,55;607,55;606,60;615,54;639,24;611,55;3;606,60;616,55;612,43;621;614;607,55;615;620" UnicodeString="Загальна декларація/попередній документ" />
+	<Path Data="F1 M 508.48,470.56 L 769.28,470.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,438.56 L 508.48,470.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="478.72" Indices="23,55;20" UnicodeString="41" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="478.56" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;639,24;3;616,55;606,60;610,55;615,54;610,55;624;639" UnicodeString="Додаткові одиниці" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="478.72" Indices="23,55;21" UnicodeString="42" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="478.56" Indices="592;639,24;615,54;602,55;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Ціна товару" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="729.44" OriginY="478.72" Indices="23,55;22" UnicodeString="43" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="478.56" Indices="582;572;3,29;582;572,73;3" UnicodeString="МВ МВ " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="486.08" Indices="580,57;616,53;606" UnicodeString="Код" />
+	<Path Data="F1 M 508.48,502.72 L 769.28,502.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,502.72 L 746.56,502.72"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,470.56 L 508.48,502.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 621.76,470.56 L 621.76,502.72"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,470.56 L 727.68,502.72"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 746.56,487.68 L 746.56,502.72"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 19.04,485.76 L 73.76,485.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="493.76" Indices="23,55;23" UnicodeString="44" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="493.6" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;602" UnicodeString="Додаткова" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="499.36" Indices="639,24;615;622,83;616,54;618,55;614;602,55;624;639,24;633" UnicodeString="інформація" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="504.96" Indices="18,29;584;622,84;616,54;618,55;614;613,60;607,55;615;639" UnicodeString="/Оформлені" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="510.72" Indices="606,60;616,54;612,43;621;614;607,55;615;620,45;610" UnicodeString="документи" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="516.32" Indices="18,29;587,71;607,55;618,55;620,45;610,55;622,83;639,24;612,43;602,54;16" UnicodeString="/Сертифіка-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="521.92" Indices="620,45;610,55;3,29;620,45;602,55;3;602,55;604,52;620;616,55;16" UnicodeString="ти та авто-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="527.68" Indices="618,55;610,55;609,45;602,55;624;639,23;640" UnicodeString="ризації" />
+	<Path Data="F1 M 73.76,567.04 L 769.28,567.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,438.56 L 73.76,567.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="664.48" OriginY="510.88" Indices="23,55;24" UnicodeString="45" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="673.92" OriginY="510.72" Indices="580,57;616,55;618,55;610,54;605;621;604,52;602,55;615;615,54;633" UnicodeString="Коригування" />
+	<Path Data="F1 M 659.68,502.72 L 659.68,534.88"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,519.68 L 621.76,534.88"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,534.88 L 659.68,534.88"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 659.68,534.88 L 769.28,534.88"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="542.88" Indices="23,55;25" UnicodeString="46" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="542.72" Indices="587,71;620;602,55;620,45;610,55;619;620,45;610,55;625;615;602,54;3,29;604,52;602,55;618,55;620,45;639,24;619;620,45;630" UnicodeString="Статистична вартість" />
+	<Path Data="F1 M 621.76,534.88 L 621.76,567.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,534.88 L 508.48,567.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,534.88 L 621.76,534.88"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 19.04,567.04 L 73.76,567.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="575.04" Indices="22,55;20" UnicodeString="31" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="574.88" Indices="585,71;602,55;612,43;616,55;604,52;602,55;615;615,54;633" UnicodeString="Паковання" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="580.64" Indices="620,45;602,55;3,29;616,54;617,55;610,55;619" UnicodeString="та опис" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="586.24" Indices="620,45;616,55;604,52;602,55;618,55;639,24;604" UnicodeString="товарів" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="574.88" Indices="582;602,55;618,55;612,42;616,55;604;602,54;615;615,54;633,55;3,29;620,45;602,55;3;615;616,55;614;607,55;618,55;610,54;3,29;16;3,29;583,71;616,55;614;607,55;618,55;3;612,43;616,55;615;620,45;607,55;611,54;615;607,55;618,54;602,55;3,31;11;615;616,54;614;607,55;618,55;610,55;3,29;612,42;616,55;615;620,45;607,55;611,54;615;607,55;618,55;639,23;604;12;3;16,34;3;580;639,23;613,60;630;612,43;639,24;619;620,45;630;3,29;639,24;3;604;610,54;606" UnicodeString="Марковання та номери - Номер контейнера (номери контейнерів) - Кількість і вид" />
+	<Path Data="F1 M 19.04,710.56 L 73.76,710.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,710.56 L 508.48,710.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,567.04 L 73.76,710.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="462.24" OriginY="575.04" Indices="22,55;21" UnicodeString="32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="471.68" OriginY="574.88" Indices="588,62;616,55;604,52;602,55;618,55;3;651" UnicodeString="Товар №" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="575.04" Indices="22,55;22" UnicodeString="33" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="574.88" Indices="580,57;616,55;606,59;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Код товару" />
+	<Path Data="F1 M 459.36,599.2 L 493.28,599.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 485.76,599.2 L 769.28,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 459.36,567.04 L 459.36,599.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 493.28,583.2 L 493.28,599.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,567.04 L 508.48,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,583.2 L 591.52,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 629.44,583.2 L 629.44,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 669.12,574.56 L 669.12,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 718.24,574.56 L 718.24,599.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="607.2" Indices="22,55;23" UnicodeString="34" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="607.04" Indices="580,57;616,53;606,59;3,41;612,42;618,55;602" UnicodeString="Код кра" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="543.84" OriginY="607.04" Indices="640" UnicodeString="ї" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="545.76" OriginY="607.04" Indices="615;610,59;3" UnicodeString="ни " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="614.72" Indices="617,55;616,55;623,52;616,52;606,60;608,66;17" UnicodeString="походж." />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="607.2" Indices="22,55;24" UnicodeString="35" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="607.04" Indices="582;602,55;619;602,55;3;603;618,55;621;620,45;620,45;616,55;11,34;612,42;605;12" UnicodeString="Маса брутто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="607.2" Indices="22,55;25" UnicodeString="36" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="607.04" Indices="585,71;618,55;607,55;622,83;607,55;618,55;607,55;615,54;624;639,24;633" UnicodeString="Преференція" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="629.6" Indices="68" UnicodeString="a" />
+	<Path Data="F1 M 516,623.68 L 516,631.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="558.56" OriginY="629.6" Indices="69" UnicodeString="b" />
+	<Path Data="F1 M 563.2,623.68 L 563.2,631.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,631.2 L 591.52,631.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,631.2 L 769.28,631.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,599.2 L 508.48,631.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,616.16 L 555.68,631.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,599.2 L 591.52,631.2"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,599.2 L 708.8,631.2"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="639.36" Indices="22,55;26" UnicodeString="37" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="639.2" Indices="585,71;586;584,79;592;575,66;574,67;589;586,68;570" UnicodeString="ПРОЦЕДУРА" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="592.64" OriginY="639.36" Indices="22,55;27" UnicodeString="38" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="602.08" OriginY="639.2" Indices="582;602,55;619;602,55;3;615;607,55;620,45;620,45;616,55;11;612,43;605,35;12" UnicodeString="Маса нетто(кг)" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="710.56" OriginY="639.36" Indices="22,55;28" UnicodeString="39" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="720" OriginY="639.2" Indices="580,57;604;616,54;620,45;602" UnicodeString="Квота" />
+	<Path Data="F1 M 508.48,663.36 L 591.52,663.36"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 591.52,663.36 L 769.28,663.36"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,631.2 L 508.48,663.36"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 555.68,650.08 L 555.68,664.48"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 591.52,631.2 L 591.52,663.36"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 708.8,631.2 L 708.8,663.36"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="511.36" OriginY="671.36" Indices="23,55;19" UnicodeString="40" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="520.8" OriginY="671.2" Indices="577;602,54;605;602,54;613,59;630,53;615;602,54;3,29;606,59;607,55;612,43;613,59;602,55;618,55;602,55;624;639,23;633,55;18,29;617;616,55;617,55;607,54;618,55;607,55;606,60;615,54;639,24;611,55;3;606,60;616,55;612,43;621;614;607,55;615;620" UnicodeString="Загальна декларація/попередній документ" />
+	<Path Data="F1 M 508.48,695.52 L 769.28,695.52"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,663.36 L 508.48,695.52"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="510.24" OriginY="703.52" Indices="23,55;20" UnicodeString="41" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="519.68" OriginY="703.36" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;639,24;3;616,55;606,60;610,55;615,54;610,55;624;639" UnicodeString="Додаткові одиниці" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="703.52" Indices="23,55;21" UnicodeString="42" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="703.36" Indices="592;639,24;615,54;602,55;3,29;620,45;616,55;604,52;602,55;618,55;621" UnicodeString="Ціна товару" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="729.44" OriginY="703.52" Indices="23,55;22" UnicodeString="43" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="703.36" Indices="582;572;3,29;582;572,73;3" UnicodeString="МВ МВ " />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="738.88" OriginY="711.04" Indices="580,57;616,53;606" UnicodeString="Код" />
+	<Path Data="F1 M 508.48,727.68 L 769.28,727.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,727.68 L 746.56,727.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 508.48,695.52 L 508.48,727.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 621.76,695.52 L 621.76,727.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 727.68,695.52 L 727.68,727.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 746.56,712.48 L 746.56,727.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 19.04,710.56 L 73.76,710.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="718.72" Indices="23,55;23" UnicodeString="44" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="718.56" Indices="574,67;616,54;606,60;602,55;620,45;612,43;616,55;604,52;602" UnicodeString="Додаткова" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="724.16" Indices="639,24;615;622,83;616,54;618,55;614;602,55;624;639,24;633" UnicodeString="інформація" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="729.92" Indices="18,29;584;622,84;616,54;618,55;614;613,60;607,55;615;639" UnicodeString="/Оформлені" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="735.52" Indices="606,60;616,54;612,43;621;614;607,55;615;620,45;610" UnicodeString="документи" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="741.12" Indices="18,29;587,71;607,55;618,55;620,45;610,55;622,83;639,24;612,43;602,54;16" UnicodeString="/Сертифіка-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="746.88" Indices="620,45;610,55;3,29;620,45;602,55;3;602,55;604,52;620;616,55;16" UnicodeString="ти та авто-" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="752.48" Indices="618,55;610,55;609,45;602,55;624;639,23;640" UnicodeString="ризації" />
+	<Path Data="F1 M 73.76,791.84 L 769.28,791.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,663.36 L 73.76,791.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="664.48" OriginY="735.68" Indices="23,55;24" UnicodeString="45" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="673.92" OriginY="735.52" Indices="580,57;616,55;618,55;610,54;605;621;604,52;602,55;615;615,54;633" UnicodeString="Коригування" />
+	<Path Data="F1 M 659.68,727.68 L 659.68,759.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,744.64 L 621.76,759.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 621.76,759.68 L 659.68,759.68"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 659.68,759.68 L 769.28,759.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="623.52" OriginY="767.84" Indices="23,55;25" UnicodeString="46" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="633.12" OriginY="767.68" Indices="587,71;620;602,55;620,45;610,55;619;620,45;610,55;625;615;602,54;3,29;604,52;602,55;618,55;620,45;639,24;619;620,45;630" UnicodeString="Статистична вартість" />
+	<Path Data="F1 M 621.76,759.68 L 621.76,791.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,759.68 L 508.48,791.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 508.48,759.68 L 621.76,759.68"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 19.04,791.84 L 769.92,791.84"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 73.76,930.56 L 766.24,930.56"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 419.68,950.56 L 419.68,1109.44"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="22.72" OriginY="800" Indices="23,55;26" UnicodeString="47" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="32.16" OriginY="799.84" Indices="586;616,55;609,45;618,55;602,54;623,53;621;615;616,54;612" UnicodeString="Розрахунок" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="33.6" OriginY="807.36" Indices="617,55;616,55;606,59;602,55;620,45;612,43;639,24;604" UnicodeString="податків" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="805.44" Indices="572;610,55;606,443;584;619;615;616,55;604,52;602,55;3;615;602,55;618,55;602,54;623,53;621;604,52;602,55;615;615,54;633,550;587;620,45;602,54;604;612,43;602,1138;587,71;621;614;602,1300;587;585" UnicodeString="ВидОснова нарахуванняСтавкаСумаСП" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="112.64" OriginY="952.8" Indices="589;619,51;630;616,55;605;616,54;3;617,55;616,55;3,29;617;607,55;618,55;626,81;616,55;614;621;3;620;616,55;604,52;602,55;618,55;621;29" UnicodeString="Усього по першому товару:" />
+	<Path Data="F1 M 73.76,807.04 L 419.68,807.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,941.12 L 419.68,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,958.24 L 419.68,958.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,799.52 L 73.76,958.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 111.52,799.52 L 111.52,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 209.76,799.52 L 209.76,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 304.32,799.52 L 304.32,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 404.48,799.52 L 404.48,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 419.68,799.52 L 419.68,958.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="76.64" OriginY="964.16" Indices="572;610,55;606,443;584;619;615;616,55;604,52;602,55;3;615;602,55;618,55;602,54;623,53;621;604,52;602,55;615;615,54;633,550;587;620,45;602,54;604;612,43;602,1138;587,71;621;614;602,1300;587;585" UnicodeString="ВидОснова нарахуванняСтавкаСумаСП" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="112.64" OriginY="1111.52" Indices="589;619,51;630;616,55;605;616,54;3;617,55;616,55;3,29;620,45;618,55;607,54;620;630;616,55;614;621;3,29;620,45;616,55;604,52;602,55;618,55;621;29" UnicodeString="Усього по третьому товару:" />
+	<Path Data="F1 M 73.76,965.76 L 419.68,965.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,1099.84 L 419.68,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,1116.96 L 419.68,1116.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 73.76,958.24 L 73.76,1116.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 111.52,958.24 L 111.52,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 209.76,958.24 L 209.76,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 304.32,958.24 L 304.32,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 404.48,958.24 L 404.48,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 419.68,958.24 L 419.68,1116.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="422.88" OriginY="805.44" Indices="572;610,55;606,440;584,79;619;615;616,54;604,52;602,55;3,29;615;602,54;618,55;602,55;623,52;621;604,52;602,55;615;615,54;633,553;587,71;620,45;602,55;604;612,42;602,1138;587;621;614;602,1300;587,71;585" UnicodeString="ВидОснова нарахуванняСтавкаСумаСП" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="458.88" OriginY="952.8" Indices="589;619,51;630;616,55;605;616,54;3;617,55;616,55;3,29;606,59;618,55;621;605;616,54;614;621;3,29;620,45;616,55;604,52;602,55;618,55;621;29" UnicodeString="Усього по другому товару:" />
+	<Path Data="F1 M 420,807.04 L 765.76,807.04"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 420,941.12 L 765.76,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 420,958.24 L 765.76,958.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 420,799.52 L 420,958.24"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 457.76,799.52 L 457.76,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 556,799.52 L 556,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 650.56,799.52 L 650.56,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 750.72,799.52 L 750.72,941.12"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="424.48" OriginY="964.16" Indices="572;610,55;606,469;587,71;621;614;602,1243;587;585,209;31,60;16;16;16;3;589,65;587,71;598,67;584;573,55;584" UnicodeString="ВидСумаСП&lt;--- УСЬОГО" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="467.84" OriginY="1111.52" Indices="589;619,51;630;616,55;605;616,54;29" UnicodeString="Усього:" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/86934F95-501E-4EB9-8723-E9C41311092E.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="579.36" OriginY="1040" Indices="38" UnicodeString="C" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="6.72026" StyleSimulations="None" OriginX="585.76" OriginY="1039.84" Indices="582;578,71;588,62;583;578,71;592;601,71;3,29;572,66;561,29;574,67;585,71;586;570;572;581,67;575,66;583;583,71;601" UnicodeString="МИТНИЦЯ ВІДПРАВЛЕННЯ" />
+	<Path Data="F1 M 419.68,965.76 L 767.36,965.76"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 576.48,965.76 L 731.36,965.76"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 604.8,965.76 L 604.8,1026.24"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 574.56,996 L 763.52,996"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 574.56,1026.24 L 763.52,1026.24"  Stroke="#ff808080" StrokeThickness="0.8" />
+	<Path Data="F1 M 419.68,1099.84 L 574.56,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 419.68,1116.96 L 574.56,1116.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 459.36,958.24 L 459.36,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 555.68,958.24 L 555.68,1099.84"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Path Data="F1 M 574.56,958.24 L 574.56,1116.96"  Stroke="#ff808080" StrokeThickness="0.32" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="16.0006" StyleSimulations="None" OriginX="488.8" OriginY="109.12" Indices="22,189;27" UnicodeString="38" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="16.0006" StyleSimulations="None" OriginX="583.2" OriginY="989.6" Indices="22" UnicodeString="3" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="16.0006" StyleSimulations="None" OriginX="583.2" OriginY="1018.08" Indices="27" UnicodeString="8" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="651.36" OriginY="980.96" Indices="585;618,55;610,55;614;639,23;618,55;615;610,55;612,43;3,29;606;613;633" UnicodeString="Примірник для" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="628" OriginY="988.48" Indices="604,54;639;606;617,53;618;602,55;604,54;615;610,55;612;602,55;18;607;612,43;619,51;617;616,55;618,55;620,47;607,55;618,55;602" UnicodeString="відправника/експортера" />
+	<Glyphs Fill="#ff808080" FontUri="/Documents/1/Resources/Fonts/834B64ED-03D4-46DA-A49D-875EE8D30EF7.odttf" FontRenderingEmSize="10.7204" StyleSimulations="None" OriginX="620" OriginY="1011.2" Indices="585;618,55;610,55;614;639,23;618,55;615;610,55;612,43;3,29;606;613;633,53;3;616;606;607,55;618;608;621,49;604,54;602,55;625,53;602" UnicodeString="Примірник для одержувача" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="425.92" OriginY="61.92" Indices="3,61;575,62;580,101;20,61;19,207;570,61;570" UnicodeString=" ЕК10АА" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="424" OriginY="111.04" Indices="3,61;3,62;21,49;3,61;3,63;21" UnicodeString="  2  2" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="548.64" OriginY="54.4" Indices="21,62;25,62;56,61;36,62;23,62;19,62;19,61;19,62;23,62;19,62;19,61;19,62;19,62;22,62;21,61;23,61;56,63;19" UnicodeString="26UA400040000324U0" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="136.32" Indices="20,62;17,62;3,61;593,62;602,62;619,62;620,61;610,62;615,62;610,62;15,61;3,62;617,62;618,62;610,61;609,61;615,63;602,61;625,62;607,61;615,63;639,61;3,62;604,61;610,63;612,61;613,62;632,61;625,63;615,61;616,61;3,62;602,62;603,62;616,61;3,62;617,62;607,62;618,61;607" UnicodeString="1. Частини, призначені виключно або пере" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="148.48" Indices="604,62;602,62;608,61;615,62;616,62;3,62;606,61;613,62;633,62;3,62;616,61;603,62;613,62;602,62;606,61;615,61;602,63;615,61;615,62;633,61;3,63;609,61;602,62;604,61;602,63;615,61;620,62;602,61;608,63;621,61;604,61;602,62;613,62;630,62;615,61;616,62;605,62;616,62;15" UnicodeString="важно для обладнання завантажувального," />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="160.64" Indices="619,62;617,62;607,61;624,62;639,62;602,62;613,61;630,62;615,62;616,62;3,61;617,62;618,62;610,62;609,61;615,61;602,63;625,61;607,62;615,61;616,63;605,61;616,62;3,61;606,63;613,61;633,62;3,61;604,63;610,61;612,61;616,62;618,62;610,62;619,61;620,62;602,62;615,62;615,61;633" UnicodeString="спеціально призначеного для використання" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="172.64" Indices="3,62;621,62;3,61;619,62;639,62;613,62;630,61;619,62;630,62;612,62;616,61;614,62;621,62;3,62;605,61;616,61;619,63;617,61;616,62;606,61;602,63;618,61;619,62;620,61;604,63;639,61;29" UnicodeString=" у сільському господарстві:" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="184.8" Indices="16,62;3,62;586,61;616,62;603,62;616,62;625,61;602,62;3,62;617,62;613,61;602,62;620,62;622,62;616,61;618,61;614,63;602,61;3,62;624,61;610,63;615,61;612,62;616,61;604,63;602,61;615,62;602,61;3,63;39,61;36,61;43,62;3,62;20,62;15,61;25,62;3,62;40,62;56,61;53" UnicodeString="- Робоча платформа цинкована DAH 1,6 EUR" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="196.8" Indices="50,62;15,62;3,61;54,62;87,62;68,62;83,61;79,62;72,62;85,62;3,61;18,62;3,62;36,62;85,61;69,61;72,63;76,61;87,62;86,61;69,63;88,61;75,62;81,61;72,63;3,61;72,62;85,61;75,63;82,61;75,61;87,62;3,62;89,62;72,61;85,62;93,62;76,62;81,61;78" UnicodeString="O, Stapler / Arbeitsbuhne erhoht verzink" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="208.96" Indices="87,62;3,62;20,61;15,62;25,62;3,62;80,61;3,62;37,62;85,62;72,61;76,62;87,62;72,62;3,61;40,61;56,63;53,61;50,62;3,61;88,63;81,61;71,62;3,61;54,63;87,61;68,62;83,61;79,63;72,61;85,61;68,62;88,62;73,62;81,61;68,62;75,62;80,62;72" UnicodeString="t 1,6 m Breite EURO und Stapleraufnahme" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="221.12" Indices="11,62;602,62;618,61;620,62;610,62;612,62;621,61;613,62;3,62;22,62;24,61;21,62;22,62;20,62;22,61;24,61;12,63;15,61;3,62;612,61;639,63;613,61;630,62;612,61;639,63;619,61;620,62;630,61;3,63;21,61;3,61;626,62;620,62;17,62;30" UnicodeString="(артикул 3523135), кількість 2 шт.;" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="233.12" Indices="588,62;616,62;618,61;605,62;616,62;604,62;607,61;613,62;630,62;615,62;602,61;3,62;614,62;602,62;618,61;612,61;602,63;3,61;574,62;632,61;604,63;607,61;613,62;630,61;619,63;606,61;616,62;618,61;622" UnicodeString="Торговельна марка Дювельсдорф" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="245.28" Indices="572,62;610,62;618,61;616,62;603,62;615,62;610,61;612,62;3,62;588,62;584,61;572,62;3,62;5,62;574,61;632,61;604,63;607,61;613,62;630,61;619,63;606,61;616,62;618,61;622,63;3,61;589,62;612,61;618,63;602,61;640,61;615,62;602,62;5" UnicodeString="Виробник ТОВ &quot;Дювельсдорф Україна&quot;" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="78.08" OriginY="257.28" Indices="574,62;610,62;604,61;17,62;3,62;606,62;616,61;617,62;17" UnicodeString="Див. доп." />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="467.36" OriginY="145.12" Indices="21" UnicodeString="2" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="512.8" OriginY="145.12" Indices="27,61;23,62;22,62;20,62;22,61;28,62;19,62;19,62;3,61;19,62;19" UnicodeString="84313900 00" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="722.56" OriginY="145.12" Indices="19" UnicodeString="0" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="518.4" OriginY="179.04" Indices="3,62;56,62;36" UnicodeString=" UA" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/EE170BAC-05F3-4286-9109-D7FDD7F15B05.odttf" FontRenderingEmSize="12.0005" StyleSimulations="None" OriginX="652.64" OriginY="177.76" Indices="23,45;23;25" UnicodeString="446" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="512.8" OriginY="211.2" Indices="20,61;19,62;19,62;19" UnicodeString="1000" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/EE170BAC-05F3-4286-9109-D7FDD7F15B05.odttf" FontRenderingEmSize="12.0005" StyleSimulations="None" OriginX="563.2" OriginY="211.84" Indices="61,51;61;19;19" UnicodeString="ZZ00" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/EE170BAC-05F3-4286-9109-D7FDD7F15B05.odttf" FontRenderingEmSize="12.0005" StyleSimulations="None" OriginX="652.64" OriginY="209.92" Indices="23,45;23;21" UnicodeString="442" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/EE170BAC-05F3-4286-9109-D7FDD7F15B05.odttf" FontRenderingEmSize="12.0005" StyleSimulations="None" OriginX="675.52" OriginY="274.24" Indices="20,45;26;19,45;19;17;19,45;19;19,45;19" UnicodeString="1700.0000" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="687.04" OriginY="336" Indices="27,61;24,62;17,61;21,63;23,61;24,62;23,61;27" UnicodeString="85.24548" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="512.8" OriginY="369.92" Indices="91,61;91,62;91,62;91,62;91,61;91,62;91,62;91,62;91,61;91" UnicodeString="xxxxxxxxxx" />
+	<Glyphs Fill="#ff000000" FontUri="/Documents/1/Resources/Fonts/490863C0-1868-428E-85DC-3A2DEF0BF8BC.odttf" FontRenderingEmSize="15.3606" StyleSimulations="None" OriginX="512.8" OriginY="594.88" Indices="91,61;91,62;91,62;91,62;91,61;91,62;91,62;91,62;91,61;91" UnicodeString="xxxxxxxxxx" />
+</FixedPage>

@@ -1,0 +1,36 @@
+'use client';
+
+import Link from "next/link";
+import { DemoButton } from "./demo-button";
+
+export function LandingHeader() {
+    return (
+        <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+                <Link href="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center">
+                        <div className="w-3 h-3 bg-brand-teal rounded-full" />
+                    </div>
+                    <span className="text-xl font-bold text-brand-blue tracking-tight">MRNode</span>
+                </Link>
+                <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                    <Link href="/features" className="hover:text-brand-blue transition-colors">Можливості</Link>
+                    <Link href="/#how-it-works" className="hover:text-brand-blue transition-colors">Як це працює</Link>
+                    <DemoButton variant="ghost" text="Демо" showIcon={false} className="text-sm font-medium text-slate-600" />
+                    <Link href="/pricing" className="hover:text-brand-blue transition-colors">Ціни</Link>
+                </nav>
+                <div className="flex items-center gap-4">
+                    <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-brand-blue px-4 py-2">
+                        Увійти
+                    </Link>
+                    <Link
+                        href="/register"
+                        className="px-5 py-2.5 bg-brand-blue text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-brand-blue/20"
+                    >
+                        Реєстрація
+                    </Link>
+                </div>
+            </div>
+        </header>
+    );
+}
