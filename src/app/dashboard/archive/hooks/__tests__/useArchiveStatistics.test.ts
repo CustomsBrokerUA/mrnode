@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useArchiveStatistics } from '../useArchiveStatistics';
 import { DeclarationWithRawData } from '../../types';
+import { clearStatisticsCache } from '../../utils/statistics-cache';
 
 describe('useArchiveStatistics', () => {
+    // Important: useArchiveStatistics memoizes results via a shared module cache.
+    // Clear between tests so repeated IDs don't cause cross-test pollution.
+    beforeEach(() => {
+        clearStatisticsCache();
+    });
+
     const mockDeclaration60 = (id: string, status: string = 'CLEARED', summary?: any) => ({
         id,
         mrn: `MRN-${id}`,
@@ -18,7 +25,7 @@ describe('useArchiveStatistics', () => {
         summary
     } as DeclarationWithRawData);
 
-    const mockDeclaration61 = (id: string, status: string, consignor: string, consignee: string, customsValue: number, mappedData?: any) => ({
+    const mockDeclaration61 = (id: string, status: string, consignor: string, consignee: string, customsValue: number, hsCodes?: string[], customsOffice: string = 'Митниця 1') => ({
         id,
         mrn: `MRN-${id}`,
         status: status as 'CLEARED' | 'PROCESSING' | 'REJECTED',
@@ -28,25 +35,16 @@ describe('useArchiveStatistics', () => {
             ccd_registered: '20250116T120000',
             ccd_status: status === 'CLEARED' ? 'R' : status
         },
-        mappedData: mappedData || {
-            header: {
-                mrn: `MRN-${id}`,
-                consignor,
-                consignee,
-                invoiceValue: customsValue,
-                invoiceCurrency: 'USD',
-                customsOffice: 'Митниця 1'
-            },
-            goods: [
-                { hsCode: '12345678', customsValue: customsValue / 2 },
-                { hsCode: '87654321', customsValue: customsValue / 2 }
-            ]
-        },
         summary: {
             customsValue,
             invoiceValueUah: customsValue * 36.5,
-            totalItems: 2
-        }
+            totalItems: 2,
+            senderName: consignor,
+            recipientName: consignee,
+            customsOffice,
+            declarationType: 'ІМ / 40 / ЕЕ',
+        },
+        hsCodes: (hsCodes || ['12345678', '87654321']).map(hsCode => ({ hsCode })),
     } as any);
 
     describe('basic statistics', () => {
@@ -164,7 +162,7 @@ describe('useArchiveStatistics', () => {
             const topConsignors = result.current.topConsignors;
             expect(topConsignors.length).toBeGreaterThan(0);
             
-            const consignorA = topConsignors.find(c => c.name === 'Відправник А');
+            const consignorA = topConsignors.find((c: { name: string; count: number; totalValue: number }) => c.name === 'Відправник А');
             expect(consignorA).toBeDefined();
             expect(consignorA?.count).toBe(3);
             expect(consignorA?.totalValue).toBe(3500); // 1000 + 2000 + 500
@@ -183,35 +181,15 @@ describe('useArchiveStatistics', () => {
             }));
 
             const topConsignees = result.current.topConsignees;
-            const consigneeA = topConsignees.find(c => c.name === 'Отримувач А');
+            const consigneeA = topConsignees.find((c: { name: string; count: number; totalValue: number }) => c.name === 'Отримувач А');
             expect(consigneeA).toBeDefined();
             expect(consigneeA?.count).toBe(2);
         });
 
         it('should calculate top HSCodes', () => {
             const docs = [
-                mockDeclaration61('1', 'CLEARED', 'Відправник А', 'Отримувач 1', 1000, {
-                    header: {
-                        mrn: 'MRN-1',
-                        consignor: 'Відправник А',
-                        consignee: 'Отримувач 1'
-                    },
-                    goods: [
-                        { hsCode: '12345678', customsValue: 600 },
-                        { hsCode: '87654321', customsValue: 400 }
-                    ]
-                }),
-                mockDeclaration61('2', 'CLEARED', 'Відправник Б', 'Отримувач 2', 2000, {
-                    header: {
-                        mrn: 'MRN-2',
-                        consignor: 'Відправник Б',
-                        consignee: 'Отримувач 2'
-                    },
-                    goods: [
-                        { hsCode: '12345678', customsValue: 1200 },
-                        { hsCode: '11111111', customsValue: 800 }
-                    ]
-                })
+                mockDeclaration61('1', 'CLEARED', 'Відправник А', 'Отримувач 1', 1000, ['12345678', '87654321']),
+                mockDeclaration61('2', 'CLEARED', 'Відправник Б', 'Отримувач 2', 2000, ['12345678', '11111111'])
             ];
 
             const { result } = renderHook(() => useArchiveStatistics({
@@ -220,41 +198,17 @@ describe('useArchiveStatistics', () => {
             }));
 
             const topHSCodes = result.current.topHSCodes;
-            const code12345678 = topHSCodes.find(c => c.code === '12345678');
+            const code12345678 = topHSCodes.find((c: { code: string; count: number; totalValue: number }) => c.code === '12345678');
             expect(code12345678).toBeDefined();
             expect(code12345678?.count).toBe(2);
-            expect(code12345678?.totalValue).toBe(1800); // 600 + 1200
+            expect(code12345678?.totalValue).toBe(1500); // (1000/2) + (2000/2)
         });
 
         it('should calculate top customs offices', () => {
             const docs = [
-                mockDeclaration61('1', 'CLEARED', 'Відправник А', 'Отримувач 1', 1000, {
-                    header: {
-                        mrn: 'MRN-1',
-                        consignor: 'Відправник А',
-                        consignee: 'Отримувач 1',
-                        customsOffice: 'Митниця 1'
-                    },
-                    goods: []
-                }),
-                mockDeclaration61('2', 'CLEARED', 'Відправник Б', 'Отримувач 2', 2000, {
-                    header: {
-                        mrn: 'MRN-2',
-                        consignor: 'Відправник Б',
-                        consignee: 'Отримувач 2',
-                        customsOffice: 'Митниця 1'
-                    },
-                    goods: []
-                }),
-                mockDeclaration61('3', 'CLEARED', 'Відправник В', 'Отримувач 3', 1500, {
-                    header: {
-                        mrn: 'MRN-3',
-                        consignor: 'Відправник В',
-                        consignee: 'Отримувач 3',
-                        customsOffice: 'Митниця 2'
-                    },
-                    goods: []
-                })
+                mockDeclaration61('1', 'CLEARED', 'Відправник А', 'Отримувач 1', 1000, ['12345678'], 'Митниця 1'),
+                mockDeclaration61('2', 'CLEARED', 'Відправник Б', 'Отримувач 2', 2000, ['87654321'], 'Митниця 1'),
+                mockDeclaration61('3', 'CLEARED', 'Відправник В', 'Отримувач 3', 1500, ['11111111'], 'Митниця 2')
             ];
 
             const { result } = renderHook(() => useArchiveStatistics({
@@ -263,7 +217,7 @@ describe('useArchiveStatistics', () => {
             }));
 
             const topCustomsOffices = result.current.topCustomsOffices;
-            const office1 = topCustomsOffices.find(o => o.office === 'Митниця 1');
+            const office1 = topCustomsOffices.find((o: { office: string; count: number; totalValue: number }) => o.office === 'Митниця 1');
             expect(office1).toBeDefined();
             expect(office1?.count).toBe(2);
         });

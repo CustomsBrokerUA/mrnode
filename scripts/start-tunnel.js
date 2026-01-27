@@ -48,6 +48,9 @@ function updateEnv(url) {
 let retryCount = 0;
 const MAX_RETRIES = 15;
 
+let serverRetryCount = 0;
+const MAX_SERVER_RETRIES = 60;
+
 async function checkTunnelApi() {
     http.get('http://127.0.0.1:4040/api/tunnels', (res) => {
         let data = '';
@@ -87,38 +90,70 @@ function retry() {
 }
 
 console.log('📡 Starting Ngrok process...');
-const ngrokArgs = ['-y', 'ngrok', 'http', PORT, '--authtoken', authToken, '--host-header', 'localhost:3000'];
-if (staticDomain) {
-    console.log(`💎 Using static domain: ${staticDomain}`);
-    ngrokArgs.push('--domain', staticDomain);
+function waitForServer() {
+    http.get(`http://127.0.0.1:${PORT}/`, (res) => {
+        res.resume();
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 500) {
+            startNgrok();
+            return;
+        }
+        retryServerWait();
+    }).on('error', () => {
+        retryServerWait();
+    });
 }
-const ngrok = spawn('npx', ngrokArgs, { shell: true });
 
-ngrok.stdout.on('data', (data) => {
-    // Usually ngrok doesn't output much to stdout in this mode
-});
-
-ngrok.stderr.on('data', (data) => {
-    const output = data.toString();
-    if (output.includes('error')) {
-        console.error('\n⚠️ Ngrok reported an error:', output.trim());
+function retryServerWait() {
+    serverRetryCount++;
+    if (serverRetryCount < MAX_SERVER_RETRIES) {
+        process.stdout.write('.');
+        setTimeout(waitForServer, 1000);
+    } else {
+        console.log(`\n❌ Local server did not become ready on http://127.0.0.1:${PORT} in time.`);
+        console.log('Start the app first (npm run dev) and try again.');
     }
-});
+}
 
-ngrok.on('exit', (code) => {
-    if (code !== 0) {
-        console.log(`\n❌ Ngrok process exited with code ${code}`);
+let ngrok;
+
+function startNgrok() {
+    console.log('\n✅ Local server is reachable. Starting ngrok...');
+    const ngrokArgs = ['-y', 'ngrok', 'http', `http://127.0.0.1:${PORT}`, '--authtoken', authToken, '--host-header', 'localhost:3000'];
+    if (staticDomain) {
+        console.log(`💎 Using static domain: ${staticDomain}`);
+        ngrokArgs.push('--domain', staticDomain);
     }
-});
+    ngrok = spawn('npx', ngrokArgs, { shell: true });
 
-console.log('⏳ Connecting to tunnel API');
-checkTunnelApi();
+    ngrok.stdout.on('data', (data) => {
+        // Usually ngrok doesn't output much to stdout in this mode
+    });
 
-process.on('SIGINT', () => {
-    console.log('\n🛑 Stopping tunnel...');
-    try {
-        // Kill ngrok and its children on Windows
-        execSync(`taskkill /F /T /PID ${ngrok.pid} 2>nul`);
-    } catch (e) { }
-    process.exit();
-});
+    ngrok.stderr.on('data', (data) => {
+        const output = data.toString();
+        if (output.includes('error')) {
+            console.error('\n⚠️ Ngrok reported an error:', output.trim());
+        }
+    });
+
+    ngrok.on('exit', (code) => {
+        if (code !== 0) {
+            console.log(`\n❌ Ngrok process exited with code ${code}`);
+        }
+    });
+
+    console.log('⏳ Connecting to tunnel API');
+    checkTunnelApi();
+
+    process.on('SIGINT', () => {
+        console.log('\n🛑 Stopping tunnel...');
+        try {
+            // Kill ngrok and its children on Windows
+            execSync(`taskkill /F /T /PID ${ngrok.pid} 2>nul`);
+        } catch (e) { }
+        process.exit();
+    });
+}
+
+process.stdout.write('⏳ Waiting for local server on http://127.0.0.1:3000');
+waitForServer();

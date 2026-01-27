@@ -147,7 +147,7 @@ describe('useArchiveSorting', () => {
 
     describe('list61 sorting', () => {
         it('should sort by consignor ascending', () => {
-            const docs = [
+            const docs: any[] = [
                 mockDeclaration61('1', 'MRN1', 'Відправник Б', 1000),
                 mockDeclaration61('2', 'MRN2', 'Відправник А', 2000),
                 mockDeclaration61('3', 'MRN3', 'Відправник В', 1500)
@@ -167,7 +167,7 @@ describe('useArchiveSorting', () => {
         });
 
         it('should sort by invoiceValue descending', () => {
-            const docs = [
+            const docs: any[] = [
                 mockDeclaration61('1', 'MRN1', 'Відправник А', 500),
                 mockDeclaration61('2', 'MRN2', 'Відправник Б', 2000),
                 mockDeclaration61('3', 'MRN3', 'Відправник В', 1000)
@@ -187,14 +187,14 @@ describe('useArchiveSorting', () => {
         });
 
         it('should sort by goodsCount', () => {
-            const docs = [
+            const docs: any[] = [
                 mockDeclaration61('1', 'MRN1', 'Відправник А', 1000),
                 mockDeclaration61('2', 'MRN2', 'Відправник Б', 2000),
                 mockDeclaration61('3', 'MRN3', 'Відправник В', 1500)
             ];
-            docs[0].mappedData.goods = [{}, {}]; // 2 goods
-            docs[1].mappedData.goods = [{}]; // 1 good
-            docs[2].mappedData.goods = [{}, {}, {}]; // 3 goods
+            docs[0].mappedData.header.totalItems = 2;
+            docs[1].mappedData.header.totalItems = 1;
+            docs[2].mappedData.header.totalItems = 3;
 
             const { result } = renderHook(() => useArchiveSorting({
                 filteredDocs: docs,
@@ -204,13 +204,13 @@ describe('useArchiveSorting', () => {
             }));
 
             const sorted = result.current.sortedDocs;
-            expect(sorted[0].mappedData.goods.length).toBe(1);
-            expect(sorted[1].mappedData.goods.length).toBe(2);
-            expect(sorted[2].mappedData.goods.length).toBe(3);
+            expect(sorted[0].mappedData.header.totalItems).toBe(1);
+            expect(sorted[1].mappedData.header.totalItems).toBe(2);
+            expect(sorted[2].mappedData.header.totalItems).toBe(3);
         });
 
         it('should handle empty strings (sorted as regular strings)', () => {
-            const docs = [
+            const docs: any[] = [
                 mockDeclaration61('1', 'MRN1', 'Відправник А', 1000),
                 mockDeclaration61('2', 'MRN2', '', 2000), // empty consignor
                 mockDeclaration61('3', 'MRN3', 'Відправник Б', 1500)
@@ -231,7 +231,7 @@ describe('useArchiveSorting', () => {
         });
 
         it('should handle numeric comparison correctly', () => {
-            const docs = [
+            const docs: any[] = [
                 mockDeclaration61('1', 'MRN1', 'Відправник А', 100),
                 mockDeclaration61('2', 'MRN2', 'Відправник Б', 2000),
                 mockDeclaration61('3', 'MRN3', 'Відправник В', 50)

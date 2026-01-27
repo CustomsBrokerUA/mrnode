@@ -5,12 +5,44 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import iconv from "iconv-lite";
 
+async function getShowEeDeclarationsForCompany(companyId: string): Promise<boolean> {
+    try {
+        const company = await db.company.findUnique({
+            where: { id: companyId },
+            select: { syncSettings: true }
+        });
+        return (company?.syncSettings as any)?.showEeDeclarations === true;
+    } catch {
+        return false;
+    }
+}
+
 export async function getDeclarations() {
     const session = await auth();
 
     if (!session || !session.user || !session.user.email) {
         return [];
     }
+
+    const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
+    const access = await getActiveCompanyWithAccess();
+    if (!access.success || !access.companyId) {
+        return [];
+    }
+
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+
+    const eeExcludeClause = showEeDeclarations
+        ? {}
+        : {
+            NOT: {
+                summary: {
+                    declarationType: {
+                        endsWith: 'ЕЕ'
+                    }
+                }
+            }
+        };
 
     // Load declarations from all companies the user has access to
     // Use relation query for better reliability (doesn't rely on IDs in session)
@@ -27,13 +59,15 @@ export async function getDeclarations() {
                 },
                 // Also ensure company itself is not deleted
                 deletedAt: null
-            }
+            },
+            ...eeExcludeClause
         },
         select: {
             id: true,
             customsId: true,
             mrn: true,
             status: true,
+            xmlData: true,
             date: true,
             updatedAt: true,
             companyId: true,
@@ -49,7 +83,38 @@ export async function getDeclarations() {
         }
     });
 
-    return declarations;
+    return declarations.map((d: any) => {
+        const xmlData = d?.xmlData;
+        if (!xmlData || typeof xmlData !== 'string') {
+            return { ...d, xmlData: null };
+        }
+
+        const trimmed = xmlData.trim();
+        if (!trimmed) {
+            return { ...d, xmlData: null };
+        }
+
+        // Keep payload small: for JSON format store only data60_1 (used by list60.1 columns)
+        // and drop data61_1 (can be large XML).
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (parsed && typeof parsed === 'object' && ('data60_1' in parsed || 'data61_1' in parsed)) {
+                    const reduced = { data60_1: (parsed as any).data60_1 || null };
+                    return { ...d, xmlData: JSON.stringify(reduced) };
+                }
+            } catch {
+                // ignore
+            }
+        }
+
+        // Old format (61.1 XML only) isn't needed for list60 columns
+        if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
+            return { ...d, xmlData: null };
+        }
+
+        return { ...d, xmlData: null };
+    });
 }
 
 /**
@@ -99,6 +164,8 @@ export async function getDeclarationsPaginated(
         return { declarations: [], total: 0, page, pageSize, totalPages: 0 };
     }
 
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+
     // Determine which companies to query
     let targetCompanyIds: string[];
 
@@ -129,6 +196,18 @@ export async function getDeclarationsPaginated(
 
     // Build AND array for complex filters
     const andConditions: any[] = [];
+
+    if (!showEeDeclarations) {
+        andConditions.push({
+            NOT: {
+                summary: {
+                    declarationType: {
+                        endsWith: 'ЕЕ'
+                    }
+                }
+            }
+        });
+    }
 
     // Status filter
     if (filters.status && filters.status !== 'all') {
@@ -372,6 +451,8 @@ export async function getArchiveStatistics(
         return null;
     }
 
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+
     // Determine which companies to query
     let targetCompanyIds: string[];
 
@@ -401,6 +482,18 @@ export async function getArchiveStatistics(
     };
 
     const andConditions: any[] = [];
+
+    if (!showEeDeclarations) {
+        andConditions.push({
+            NOT: {
+                summary: {
+                    declarationType: {
+                        endsWith: 'ЕЕ'
+                    }
+                }
+            }
+        });
+    }
 
     // Status filter
     if (filters.status && filters.status !== 'all') {
@@ -524,7 +617,7 @@ export async function getArchiveStatistics(
     // Try to get cached statistics first
     // Create unique cache key based on filters, tab and companyIds
     const { getCachedArchiveStatistics, setCachedArchiveStatistics } = await import("@/lib/statistics-cache");
-    const filtersKey = JSON.stringify({ filters, companyIds: targetCompanyIds });
+    const filtersKey = JSON.stringify({ filters, companyIds: targetCompanyIds, showEeDeclarations });
     const cacheKey = `stats_archive_${activeTab}_${Buffer.from(filtersKey).toString('base64').substring(0, 50)}`;
     const cached = getCachedArchiveStatistics(cacheKey);
     if (cached) {

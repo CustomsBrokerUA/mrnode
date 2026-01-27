@@ -7,6 +7,9 @@ import { revalidatePath } from "next/cache";
 export interface SyncSettings {
     // Automatic sync (simplified - only enable/disable, runs on login)
     autoSyncEnabled: boolean;
+
+    // UI/data filter settings
+    showEeDeclarations: boolean;
     
     // Performance settings
     requestDelay: number; // Delay between requests in seconds (1-10)
@@ -23,6 +26,7 @@ export interface SyncSettings {
 
 const DEFAULT_SYNC_SETTINGS: SyncSettings = {
     autoSyncEnabled: false,
+    showEeDeclarations: false,
     requestDelay: 2,
     chunkSize: 7,
     emailNotifications: {
@@ -101,17 +105,18 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
         }
 
         // Parse form data
-        const autoSyncEnabled = formData.get('autoSyncEnabled') === 'true';
+        const autoSyncEnabled = formData.get('autoSyncEnabled') === 'true' || formData.get('autoSyncEnabled') === 'on';
+        const showEeDeclarations = formData.get('showEeDeclarations') === 'true' || formData.get('showEeDeclarations') === 'on';
         const requestDelay = parseInt(formData.get('requestDelay') as string) || 2;
         const chunkSize = parseInt(formData.get('chunkSize') as string) || 7;
         
         const emailNotifications = {
-            onSyncComplete: formData.get('emailNotifications.onSyncComplete') === 'true',
-            onSyncError: formData.get('emailNotifications.onSyncError') === 'true',
-            onCriticalError: formData.get('emailNotifications.onCriticalError') === 'true',
+            onSyncComplete: formData.get('emailNotifications.onSyncComplete') === 'true' || formData.get('emailNotifications.onSyncComplete') === 'on',
+            onSyncError: formData.get('emailNotifications.onSyncError') === 'true' || formData.get('emailNotifications.onSyncError') === 'on',
+            onCriticalError: formData.get('emailNotifications.onCriticalError') === 'true' || formData.get('emailNotifications.onCriticalError') === 'on',
         };
         
-        const browserNotifications = formData.get('browserNotifications') === 'true';
+        const browserNotifications = formData.get('browserNotifications') === 'true' || formData.get('browserNotifications') === 'on';
 
         // Validate
         if (requestDelay < 1 || requestDelay > 10) {
@@ -124,6 +129,7 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
 
         const settings: SyncSettings = {
             autoSyncEnabled,
+            showEeDeclarations,
             requestDelay,
             chunkSize,
             emailNotifications,
@@ -132,10 +138,15 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
 
         await db.company.update({
             where: { id: access.companyId },
-            data: { syncSettings: settings }
+            data: { syncSettings: settings as any }
         });
 
         revalidatePath("/dashboard/settings");
+        revalidatePath("/dashboard");
+        revalidatePath("/dashboard/archive");
+
+        const { clearAllStatisticsCache } = await import("@/lib/statistics-cache");
+        clearAllStatisticsCache();
         return { success: true, message: "Налаштування синхронізації успішно збережено" };
     } catch (error: any) {
         console.error("Error updating sync settings:", error);

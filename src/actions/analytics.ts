@@ -7,6 +7,18 @@ import {
     setCachedCompanyStatistics
 } from "@/lib/statistics-cache";
 
+async function getShowEeDeclarationsForCompany(companyId: string): Promise<boolean> {
+    try {
+        const company = await db.company.findUnique({
+            where: { id: companyId },
+            select: { syncSettings: true }
+        });
+        return (company?.syncSettings as any)?.showEeDeclarations === true;
+    } catch {
+        return false;
+    }
+}
+
 export async function getDeclarationById(id: string) {
     const session = await auth();
     if (!session?.user?.email) return null;
@@ -65,9 +77,24 @@ export async function getDashboardAnalytics(params?: {
         return null;
     }
 
+    // Use active company settings for EE visibility (single toggle for current context)
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+
+    const eeExcludeClause = showEeDeclarations
+        ? {}
+        : {
+            NOT: {
+                summary: {
+                    declarationType: {
+                        endsWith: 'ЕЕ'
+                    }
+                }
+            }
+        };
+
     // Try to get cached statistics only for default load
     if (!companyIds && !dateFrom && !dateTo && targetCompanyIds.length === 1) {
-        const cached = getCachedCompanyStatistics(targetCompanyIds[0]);
+        const cached = getCachedCompanyStatistics(`${targetCompanyIds[0]}_${showEeDeclarations ? 'ee1' : 'ee0'}`);
         if (cached) return cached;
     }
 
@@ -76,6 +103,7 @@ export async function getDashboardAnalytics(params?: {
         companyId: targetCompanyIds.length === 1
             ? targetCompanyIds[0]
             : { in: targetCompanyIds },
+        ...eeExcludeClause,
     };
 
     if (dateFrom || dateTo) {
@@ -161,7 +189,7 @@ export async function getDashboardAnalytics(params?: {
 
     // Cache for default view only
     if (!companyIds && !dateFrom && !dateTo && targetCompanyIds.length === 1) {
-        setCachedCompanyStatistics(targetCompanyIds[0], analytics);
+        setCachedCompanyStatistics(`${targetCompanyIds[0]}_${showEeDeclarations ? 'ee1' : 'ee0'}`, analytics);
     }
 
     return analytics;

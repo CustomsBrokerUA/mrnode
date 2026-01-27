@@ -25,26 +25,23 @@ describe('useArchiveFilters', () => {
         status: 'CLEARED' as const,
         customsId: `customs-${id}`,
         xmlData: JSON.stringify({ data61_1: 'xml content' }),
+        has61_1: true,
         rawData: {
             MRN: `MRN-${id}`,
             ccd_registered: '20250116T120000',
             ccd_status: 'R'
         },
-        mappedData: {
-            header: {
-                mrn: `MRN-${id}`,
-                consignor,
-                consignee,
-                invoiceValue,
-                invoiceCurrency: currency,
-                customsOffice: 'Митниця 1',
-                contractHolder: 'Контрагент 1',
-                type: '01 / 02 / 03'
-            },
-            goods: [
-                { hsCode: '12345678', customsValue: invoiceValue / 2 }
-            ]
+        summary: {
+            senderName: consignor,
+            recipientName: consignee,
+            invoiceValue,
+            invoiceCurrency: currency,
+            customsOffice: 'Митниця 1',
+            contractHolder: 'Контрагент 1',
+            declarationType: '01 / 02 / 03',
+            totalItems: 1,
         },
+        hsCodes: [{ hsCode: '12345678' }],
         extractedData: {
             ccd_registered: '20250116T120000',
             ccd_01_01: '01',
@@ -58,7 +55,7 @@ describe('useArchiveFilters', () => {
         dateFrom: '',
         dateTo: '',
         customsOffice: '',
-        currency: '',
+        currency: 'all',
         invoiceValueFrom: '',
         invoiceValueTo: '',
         consignor: '',
@@ -141,7 +138,7 @@ describe('useArchiveFilters', () => {
 
             expect(result.current.filteredDocs61.length).toBe(2);
             expect(result.current.filteredDocs61.every(d => 
-                d.mappedData?.header?.consignor === 'Відправник А'
+                d.summary?.senderName === 'Відправник А'
             )).toBe(true);
         });
 
@@ -177,7 +174,7 @@ describe('useArchiveFilters', () => {
             }));
 
             expect(result.current.filteredDocs61.length).toBe(1);
-            expect(result.current.filteredDocs61[0].mappedData.header.invoiceValue).toBe(1500);
+            expect(result.current.filteredDocs61[0].summary.invoiceValue).toBe(1500);
         });
 
         it('should filter by currency', () => {
@@ -196,7 +193,7 @@ describe('useArchiveFilters', () => {
 
             expect(result.current.filteredDocs61.length).toBe(2);
             expect(result.current.filteredDocs61.every(d => 
-                d.mappedData?.header?.invoiceCurrency === 'USD'
+                d.summary?.invoiceCurrency === 'USD'
             )).toBe(true);
         });
 
@@ -205,8 +202,8 @@ describe('useArchiveFilters', () => {
                 mockDeclaration61('1', 'Відправник А', 'Отримувач 1', 1000),
                 mockDeclaration61('2', 'Відправник Б', 'Отримувач 2', 2000)
             ];
-            docs[0].mappedData.goods = [{ hsCode: '12345678' }];
-            docs[1].mappedData.goods = [{ hsCode: '87654321' }];
+            docs[0].hsCodes = [{ hsCode: '12345678' }];
+            docs[1].hsCodes = [{ hsCode: '87654321' }];
 
             const { result } = renderHook(() => useArchiveFilters({
                 declarationsWithRawData: [],
@@ -223,8 +220,8 @@ describe('useArchiveFilters', () => {
                 mockDeclaration61('1', 'Відправник А', 'Отримувач 1', 1000),
                 mockDeclaration61('2', 'Відправник Б', 'Отримувач 2', 2000)
             ];
-            docs[0].mappedData.header.customsOffice = 'Митниця 1';
-            docs[1].mappedData.header.customsOffice = 'Митниця 2';
+            docs[0].summary.customsOffice = 'Митниця 1';
+            docs[1].summary.customsOffice = 'Митниця 2';
 
             const { result } = renderHook(() => useArchiveFilters({
                 declarationsWithRawData: [],
@@ -239,7 +236,7 @@ describe('useArchiveFilters', () => {
         it('should exclude docs without mappedData', () => {
             const docs = [
                 mockDeclaration61('1', 'Відправник А', 'Отримувач 1'),
-                { ...mockDeclaration61('2', 'Відправник Б', 'Отримувач 2'), mappedData: null }
+                { ...mockDeclaration61('2', 'Відправник Б', 'Отримувач 2'), summary: null }
             ];
 
             const { result } = renderHook(() => useArchiveFilters({
@@ -258,8 +255,8 @@ describe('useArchiveFilters', () => {
                 mockDeclaration61('1', 'Відправник А', 'Отримувач 1', 1000),
                 mockDeclaration61('2', 'Відправник Б', 'Отримувач 2', 2000)
             ];
-            docs[0].mappedData.header.type = '01 / 02';
-            docs[1].mappedData.header.type = '03 / 04';
+            docs[0].summary.declarationType = '01 / 02';
+            docs[1].summary.declarationType = '03 / 04';
 
             const { result } = renderHook(() => useArchiveFilters({
                 declarationsWithRawData: [],

@@ -45,6 +45,11 @@ export function useArchiveStatistics({
         }
         const stats = {
             total: filteredDocs.length,
+            byStatus: {
+                CLEARED: 0,
+                PROCESSING: 0,
+                REJECTED: 0,
+            } as Record<'CLEARED' | 'PROCESSING' | 'REJECTED', number>,
             totalCustomsValue: 0,
             totalInvoiceValue: 0,
             totalItems: 0,
@@ -65,6 +70,11 @@ export function useArchiveStatistics({
         const customsOfficesMap = new Map<string, { count: number; totalValue: number }>();
 
         filteredDocs.forEach(doc => {
+            // Count by status
+            if (doc.status && doc.status in stats.byStatus) {
+                stats.byStatus[doc.status as 'CLEARED' | 'PROCESSING' | 'REJECTED'] += 1;
+            }
+
             // Calculate customs value, invoice value, and total items
             let customsValue = 0;
             let invoiceValueUah = 0;

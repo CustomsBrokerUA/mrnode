@@ -5,6 +5,96 @@ import { DeclarationWithRawData, ActiveTab } from './types';
 import { getRawData, formatRegisteredDate, getMDNumber } from './utils';
 import { statusLabels, DEFAULT_EXPORT_COLUMNS } from './constants';
 
+type ExtendedExportProgress = {
+    phase: 'fetching_details' | 'generating_rows' | 'writing_file';
+    current: number;
+    total: number;
+};
+
+function getXmlData61_1(xmlData: string | null | undefined): string | null {
+    if (!xmlData) return null;
+
+    const trimmed = xmlData.trim();
+    if (!trimmed) return null;
+
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (parsed && typeof parsed === 'object' && parsed.data61_1) {
+                return String(parsed.data61_1);
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    }
+
+    if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
+        return xmlData;
+    }
+
+    return null;
+}
+
+async function fetchDeclarationXmlData(id: string): Promise<string | null> {
+    const res = await fetch(`/api/declarations/${encodeURIComponent(id)}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json().catch(() => null);
+    if (!data || typeof data !== 'object') return null;
+    return typeof (data as any).xmlData === 'string' ? (data as any).xmlData : null;
+}
+
+async function enrichDocsWith61Details(
+    docs: any[],
+    concurrency = 5,
+    onProgress?: (p: ExtendedExportProgress) => void
+): Promise<any[]> {
+    const result = [...docs];
+    let cursor = 0;
+    let done = 0;
+    const total = result.length;
+
+    async function worker() {
+        while (cursor < result.length) {
+            const idx = cursor++;
+            const doc = result[idx];
+
+            const mappedData = (doc as any).mappedData;
+            if (mappedData?.goods && mappedData.goods.length > 0) continue;
+
+            const id = (doc as any).id as string | undefined;
+            if (!id) continue;
+
+            try {
+                const xmlData = await fetchDeclarationXmlData(id);
+                const xml61 = getXmlData61_1(xmlData);
+                if (!xml61) continue;
+
+                const mapped = mapXmlToDeclaration(xml61);
+                if (mapped) {
+                    (result[idx] as any) = { ...doc, mappedData: mapped };
+                }
+            } catch {
+                continue;
+            } finally {
+                done++;
+                onProgress?.({ phase: 'fetching_details', current: done, total });
+            }
+        }
+    }
+
+    const workers = Array.from({ length: Math.max(1, concurrency) }, () => worker());
+    await Promise.all(workers);
+    return result;
+}
+
 /**
  * Експортує декларації в Excel файл (базовий формат).
  * 
@@ -134,19 +224,20 @@ export async function exportToExcel(
         ws['!cols'] = colWidths;
 
         // Add worksheet to workbook
-        XLSX.utils.book_append_sheet(wb, ws, 'Р”РµРєР»Р°СЂР°С†С–С—');
+        XLSX.utils.book_append_sheet(wb, ws, 'Декларації');
 
         // Generate filename with current date
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
-        const filename = `Р”РµРєР»Р°СЂР°С†С–С—_${activeTab === 'list60' ? 'РЎРїРёСЃРѕРє' : 'Р”РµС‚Р°Р»С–'}_${dateStr}.xlsx`;
+        const filename = `Декларації_${activeTab === 'list60' ? 'Список' : 'Деталі'}_${dateStr}.xlsx`;
 
         // Write file
         XLSX.writeFile(wb, filename);
 
     } catch (error) {
-        console.error('РџРѕРјРёР»РєР° РµРєСЃРїРѕСЂС‚Сѓ РІ Excel:', error);
-        alert('РџРѕРјРёР»РєР° РїСЂРё РµРєСЃРїРѕСЂС‚С– РІ Excel. РЎРїСЂРѕР±СѓР№С‚Рµ С‰Рµ СЂР°Р·.');
+        console.error('Помилка експорту в Excel:', error);
+        const message = error instanceof Error ? error.message : String(error);
+        alert(`Помилка при експорті в Excel. Спробуйте ще раз.\n${message}`);
     }
 }
 
@@ -370,19 +461,20 @@ export async function exportExtendedToExcel(
         ws['!cols'] = colWidths;
 
         // Add worksheet to workbook
-        XLSX.utils.book_append_sheet(wb, ws, 'Р”РµРєР»Р°СЂР°С†С–С— РґРµС‚Р°Р»СЊРЅРѕ');
+        XLSX.utils.book_append_sheet(wb, ws, 'Декларації детально');
 
         // Generate filename with current date
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
-        const filename = `Р”РµРєР»Р°СЂР°С†С–С—_Р РѕР·С€РёСЂРµРЅРёР№_${dateStr}.xlsx`;
+        const filename = `Декларації_Розширений_${dateStr}.xlsx`;
 
         // Write file
         XLSX.writeFile(wb, filename);
 
     } catch (error) {
-        console.error('РџРѕРјРёР»РєР° СЂРѕР·С€РёСЂРµРЅРѕРіРѕ РµРєСЃРїРѕСЂС‚Сѓ РІ Excel:', error);
-        alert('РџРѕРјРёР»РєР° РїСЂРё СЂРѕР·С€РёСЂРµРЅРѕРјСѓ РµРєСЃРїРѕСЂС‚С– РІ Excel. РЎРїСЂРѕР±СѓР№С‚Рµ С‰Рµ СЂР°Р·.');
+        console.error('Помилка розширеного експорту в Excel:', error);
+        const message = error instanceof Error ? error.message : String(error);
+        alert(`Помилка при розширеному експорті в Excel. Спробуйте ще раз.\n${message}`);
     }
 }
 
@@ -428,7 +520,8 @@ export async function exportExtendedGoodsToExcel(
     sortedDocs: any[],
     activeTab: ActiveTab,
     exportColumns?: { [key: string]: boolean },
-    columnOrder?: string[]
+    columnOrder?: string[],
+    onProgress?: (p: ExtendedExportProgress) => void
 ): Promise<void> {
     try {
         const declarationsWithDetails = sortedDocs.filter(doc => {
@@ -438,7 +531,9 @@ export async function exportExtendedGoodsToExcel(
             return false;
         });
 
-        if (declarationsWithDetails.length === 0) {
+        const docsWithFullDetails = await enrichDocsWith61Details(declarationsWithDetails, 5, onProgress);
+
+        if (docsWithFullDetails.length === 0) {
             alert('Немає декларацій з деталями для розширеного експорту');
             return;
         }
@@ -487,7 +582,7 @@ export async function exportExtendedGoodsToExcel(
 
         // Collect all unique payment codes across all declarations
         const allPaymentCodes = new Set<string>();
-        declarationsWithDetails.forEach(doc => {
+        docsWithFullDetails.forEach(doc => {
             const mappedData = (doc as any).mappedData;
             if (mappedData?.generalPayments) {
                 mappedData.generalPayments.forEach((payment: any) => {
@@ -519,8 +614,13 @@ export async function exportExtendedGoodsToExcel(
 
         const rows: any[] = [headers];
 
-        for (const doc of declarationsWithDetails) {
+        const totalDocsForRows = docsWithFullDetails.length;
+        let docsDoneForRows = 0;
+
+        for (const doc of docsWithFullDetails) {
             const mappedData = (doc as any).mappedData;
+            docsDoneForRows++;
+            onProgress?.({ phase: 'generating_rows', current: docsDoneForRows, total: totalDocsForRows });
             if (!mappedData || !mappedData.goods || mappedData.goods.length === 0) continue;
 
             const header = mappedData.header;
@@ -642,6 +742,13 @@ export async function exportExtendedGoodsToExcel(
                 rows.push(row);
             }
         }
+
+        if (rows.length <= 1) {
+            alert('Немає даних по товарах для розширеного експорту');
+            return;
+        }
+
+        onProgress?.({ phase: 'writing_file', current: 1, total: 1 });
 
         // Create workbook and worksheet
         const wb = XLSX.utils.book_new();

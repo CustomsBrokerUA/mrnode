@@ -56,12 +56,19 @@ export default function ArchivePageClient({
 }: ArchivePageClientProps) {
     // Safety check: ensure declarations is always an array
     const safeDeclarations = Array.isArray(declarations) ? declarations : [];
-    const [activeTab, setActiveTab] = useState<'list60' | 'list61'>('list60');
+    const [activeTab, setActiveTab] = useState<'list60' | 'list61'>('list61');
     const [searchTerm, setSearchTerm] = useState("");
     const [showDeletePeriodModal, setShowDeletePeriodModal] = useState(false);
     const [deletePeriodFrom, setDeletePeriodFrom] = useState("");
     const [deletePeriodTo, setDeletePeriodTo] = useState("");
     const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
+
+    const [isExtendedExporting, setIsExtendedExporting] = useState(false);
+    const [extendedExportProgress, setExtendedExportProgress] = useState<{
+        phase: 'fetching_details' | 'generating_rows' | 'writing_file';
+        current: number;
+        total: number;
+    } | null>(null);
 
     // View mode state (table, cards, compact)
     const [viewMode, setViewMode] = useState<'table' | 'cards' | 'compact'>('table');
@@ -409,8 +416,34 @@ export default function ArchivePageClient({
 
     // Extended export function (one row per goods item)
     const handleExtendedExport = async () => {
-        await exportExtendedGoodsToExcel(sortedDocs, activeTab, exportColumns, exportColumnOrder);
-        setShowExportModal(false);
+        setIsExtendedExporting(true);
+        setExtendedExportProgress({ phase: 'fetching_details', current: 0, total: sortedDocs.length || 1 });
+        try {
+            await exportExtendedGoodsToExcel(
+                sortedDocs,
+                activeTab,
+                exportColumns,
+                exportColumnOrder,
+                (p) => setExtendedExportProgress(p)
+            );
+            setShowExportModal(false);
+        } finally {
+            setIsExtendedExporting(false);
+            setExtendedExportProgress(null);
+        }
+    };
+
+    const extendedExportPhaseLabel = (phase: string) => {
+        switch (phase) {
+            case 'fetching_details':
+                return 'Підвантаження деталей (61.1)';
+            case 'generating_rows':
+                return 'Формування рядків Excel';
+            case 'writing_file':
+                return 'Збереження файлу';
+            default:
+                return 'Експорт...';
+        }
     };
 
     // Save view mode to localStorage
@@ -455,23 +488,42 @@ export default function ArchivePageClient({
         if (selectAllCheckboxRef.current) {
             selectAllCheckboxRef.current.indeterminate = someSelected;
         }
-    }, [someSelected]);
 
+    }, [someSelected]);
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
-            {/* Debug Info (Hidden) */}
-            {searchTerm === 'debug-company' && (
-                <div className="bg-slate-100 p-4 rounded-lg text-xs font-mono mb-4 border border-slate-300">
-                    <h4 className="font-bold mb-2">Debug Info:</h4>
-                    <p>Total safeDeclarations: {safeDeclarations.length}</p>
-                    <p>Selected Company IDs: {JSON.stringify(selectedCompanyIds)}</p>
-                    <p>Active Company ID (Prop): {activeCompanyId}</p>
-                    <div className="mt-2">
-                        <p className="font-bold">Counts by company in safeDeclarations:</p>
-                        {Array.from(new Set(safeDeclarations.map(d => d.companyId))).map(id => (
-                            <p key={id}>- {id}: {safeDeclarations.filter(d => d.companyId === id).length} docs</p>
-                        ))}
+            {isExtendedExporting && extendedExportProgress && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 md:p-10">
+                    <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" />
+                    <div className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                            Розширений експорт
+                        </div>
+                        <div className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                            {extendedExportPhaseLabel(extendedExportProgress.phase)}
+                        </div>
+
+                        <div className="mt-4">
+                            <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded">
+                                <div
+                                    className="h-2 bg-brand-blue rounded"
+                                    style={{
+                                        width: `${Math.min(
+                                            100,
+                                            Math.round((Math.max(0, extendedExportProgress.current) / Math.max(1, extendedExportProgress.total)) * 100)
+                                        )}%`
+                                    }}
+                                />
+                            </div>
+                            <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                                {extendedExportProgress.current} / {extendedExportProgress.total}
+                            </div>
+                        </div>
+
+                        <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                            Не закривай вкладку під час експорту.
+                        </div>
                     </div>
                 </div>
             )}
@@ -977,7 +1029,7 @@ export default function ArchivePageClient({
                 exportColumnOrder={exportColumnOrder}
                 onExportColumnsChange={setExportColumns}
                 onExport={handleExportToExcel}
-                onExtendedExport={handleExtendedExport}
+                onExtendedExport={isExtendedExporting ? undefined : handleExtendedExport}
             />
 
             {/* Delete by Period Modal */}

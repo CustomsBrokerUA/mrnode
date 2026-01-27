@@ -429,7 +429,7 @@ function TopListCard({ title, data, labelKey, icon: Icon }: any) {
                             </div>
                             <div className="text-right ml-4">
                                 <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                                    {Math.round(item.totalValue / 1000).toLocaleString()} тис.
+                                    {Math.round(item.totalValue / 1000).toLocaleString('uk-UA')} тис.
                                 </p>
                             </div>
                         </div>

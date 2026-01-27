@@ -60,6 +60,7 @@ export default function SettingsPageClient({
     companyInfo: CompanyInfo;
 }) {
     const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
     const [isPendingProfile, startTransitionProfile] = useTransition();
     const [isPendingPassword, startTransitionPassword] = useTransition();
     const [isPendingToken, startTransitionToken] = useTransition();
@@ -116,7 +117,7 @@ export default function SettingsPageClient({
     // Interface settings state
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
     const [viewMode, setViewMode] = useState<'table' | 'cards' | 'compact'>('table');
-    const [defaultTab, setDefaultTab] = useState<'list60' | 'list61'>('list60');
+    const [defaultTab, setDefaultTab] = useState<'list60' | 'list61'>('list61');
     const [interfaceMessage, setInterfaceMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     // Dashboard settings state
@@ -183,6 +184,7 @@ export default function SettingsPageClient({
 
     // Load all settings from localStorage after mount
     React.useEffect(() => {
+        setIsMounted(true);
         if (typeof window !== 'undefined') {
             // Theme
             const savedTheme = localStorage.getItem('appTheme');
@@ -716,28 +718,40 @@ export default function SettingsPageClient({
                             </div>
                         </div>
 
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={exportColumnOrder}
-                                strategy={verticalListSortingStrategy}
+                        {isMounted ? (
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {exportColumnOrder.map((key) => (
-                                        <SortableExportItem
-                                            key={key}
-                                            id={key}
-                                            checked={exportColumns[key] !== false}
-                                            onChange={(checked) => setExportColumns({ ...exportColumns, [key]: checked })}
-                                            label={getExportLabel(key)}
-                                        />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
+                                <SortableContext
+                                    items={exportColumnOrder}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        {exportColumnOrder.map((key) => (
+                                            <SortableExportItem
+                                                key={key}
+                                                id={key}
+                                                checked={exportColumns[key] !== false}
+                                                onChange={(checked) => setExportColumns(prev => ({ ...prev, [key]: checked }))}
+                                                label={getExportLabel(key)}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {exportColumnOrder.map((key) => (
+                                    <div key={key} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-white">
+                                        <div className="w-4 h-4 rounded bg-slate-200" />
+                                        <div className="flex-1 text-sm text-slate-700">{getExportLabel(key)}</div>
+                                        <div className="w-10 h-5 rounded bg-slate-200" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         {exportMessage && (
                             <div className={`flex items-center gap-2 p-3 rounded-lg ${exportMessage.type === 'success'
@@ -832,6 +846,32 @@ export default function SettingsPageClient({
                                             <span className="text-sm font-medium text-slate-900">Увімкнути автоматичну синхронізацію</span>
                                             <p className="text-xs text-slate-500 mt-1">
                                                 Синхронізація автоматично запускається при вході в систему і завантажує дані з моменту останнього завантаження до поточного моменту.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Data filter settings */}
+                            <div className="space-y-4 border-b border-slate-200 pb-4">
+                                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    Фільтрація даних
+                                </h3>
+
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="showEeDeclarations"
+                                            checked={syncSettings.showEeDeclarations}
+                                            onChange={(e) => setSyncSettings({ ...syncSettings, showEeDeclarations: e.target.checked })}
+                                            className="w-4 h-4 text-brand-blue border-slate-300 rounded focus:ring-brand-blue"
+                                        />
+                                        <div className="flex-1">
+                                            <span className="text-sm font-medium text-slate-900">Показувати декларації ЕЕ</span>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                Якщо вимкнено — декларації з типом, що закінчується на "ЕЕ", не відображаються в архіві, архівній статистиці та дашборді.
                                             </p>
                                         </div>
                                     </label>
