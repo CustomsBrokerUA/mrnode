@@ -21,6 +21,7 @@ export type Declaration = {
         senderName: string | null;
         recipientName: string | null;
         declarationType: string | null;
+        contractHolder: string | null;
         registeredDate: Date | null;
         invoiceValue: number | null;
         invoiceCurrency: string | null;
