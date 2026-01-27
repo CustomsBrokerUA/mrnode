@@ -67,6 +67,7 @@ model Declaration {
   company   Company @relation(fields: [companyId], references: [id])
 
   summary  DeclarationSummary?
+  hsCodes  DeclarationHsCode[]
   comments DeclarationComment[]
 
   @@index([companyId])
@@ -92,6 +93,7 @@ model DeclarationSummary {
   senderName       String?
   recipientName    String?
   declarationType  String?
+  contractHolder   String?
   registeredDate   DateTime?
   invoiceValue     Float?
   invoiceCurrency  String?
@@ -100,6 +102,18 @@ model DeclarationSummary {
   transportDetails String?
 
   updatedAt DateTime @updatedAt
+}
+
+model DeclarationHsCode {
+  id            String      @id @default(uuid())
+  declarationId String
+  declaration   Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+
+  hsCode String
+
+  @@unique([declarationId, hsCode])
+  @@index([declarationId])
+  @@index([hsCode])
 }
 
 model ExchangeRate {

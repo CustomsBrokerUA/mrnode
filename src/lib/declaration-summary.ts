@@ -12,6 +12,11 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
         await db.declarationSummary.deleteMany({
             where: { declarationId }
         });
+
+        // Delete HS codes if no XML data
+        await db.declarationHsCode.deleteMany({
+            where: { declarationId }
+        });
         return;
     }
 
@@ -37,6 +42,22 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
             const mapped = mapXmlToDeclaration(xmlForMapping);
             
             if (mapped) {
+                const normalizeHsCode = (val: unknown) => {
+                    const s = String(val || '').trim();
+                    if (!s) return null;
+                    const digitsOnly = s.replace(/\D/g, '');
+                    if (!digitsOnly) return null;
+                    return digitsOnly;
+                };
+
+                const hsCodes = Array.from(
+                    new Set(
+                        (mapped.goods || [])
+                            .map(g => normalizeHsCode((g as any)?.hsCode))
+                            .filter(Boolean) as string[]
+                    )
+                );
+
                 // Extract registered date from XML
                 let registeredDate: Date | null = null;
                 try {
@@ -49,43 +70,46 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     // Failed to parse date
                 }
 
-                // Upsert summary
-                await db.declarationSummary.upsert({
-                    where: { declarationId },
-                    create: {
-                        declarationId,
-                        customsValue: mapped.header.totalValue || null,
-                        currency: mapped.header.currency || null,
-                        totalItems: mapped.header.totalItems || null,
-                        customsOffice: mapped.header.customsOffice || null,
-                        declarantName: mapped.header.declarantName || null,
-                        senderName: mapped.header.consignor || null,
-                        recipientName: mapped.header.consignee || null,
-                        declarationType: mapped.header.type || null,
-                        registeredDate: registeredDate || null,
-                        invoiceValue: mapped.header.invoiceValue || null,
-                        invoiceCurrency: mapped.header.invoiceCurrency || null,
-                        invoiceValueUah: mapped.header.invoiceValueUah || null,
-                        exchangeRate: mapped.header.exchangeRate || null,
-                        transportDetails: mapped.header.transportDetails || null,
-                    },
-                    update: {
-                        customsValue: mapped.header.totalValue || null,
-                        currency: mapped.header.currency || null,
-                        totalItems: mapped.header.totalItems || null,
-                        customsOffice: mapped.header.customsOffice || null,
-                        declarantName: mapped.header.declarantName || null,
-                        senderName: mapped.header.consignor || null,
-                        recipientName: mapped.header.consignee || null,
-                        declarationType: mapped.header.type || null,
-                        registeredDate: registeredDate || null,
-                        invoiceValue: mapped.header.invoiceValue || null,
-                        invoiceCurrency: mapped.header.invoiceCurrency || null,
-                        invoiceValueUah: mapped.header.invoiceValueUah || null,
-                        exchangeRate: mapped.header.exchangeRate || null,
-                        transportDetails: mapped.header.transportDetails || null,
-                    }
-                });
+                const summaryData = {
+                    customsValue: mapped.header.totalValue || null,
+                    currency: mapped.header.currency || null,
+                    totalItems: mapped.header.totalItems || null,
+                    customsOffice: mapped.header.customsOffice || null,
+                    declarantName: mapped.header.declarantName || null,
+                    senderName: mapped.header.consignor || null,
+                    recipientName: mapped.header.consignee || null,
+                    declarationType: mapped.header.type || null,
+                    contractHolder: mapped.header.contractHolder || null,
+                    registeredDate: registeredDate || null,
+                    invoiceValue: mapped.header.invoiceValue || null,
+                    invoiceCurrency: mapped.header.invoiceCurrency || null,
+                    invoiceValueUah: mapped.header.invoiceValueUah || null,
+                    exchangeRate: mapped.header.exchangeRate || null,
+                    transportDetails: mapped.header.transportDetails || null,
+                };
+
+                // Upsert summary + sync HS codes atomically
+                await db.$transaction([
+                    db.declarationSummary.upsert({
+                        where: { declarationId },
+                        create: {
+                            declarationId,
+                            ...summaryData,
+                        },
+                        update: summaryData,
+                    }),
+                    db.declarationHsCode.deleteMany({
+                        where: { declarationId }
+                    }),
+                    ...(hsCodes.length > 0
+                        ? [
+                            db.declarationHsCode.createMany({
+                                data: hsCodes.map(hsCode => ({ declarationId, hsCode })),
+                                skipDuplicates: true,
+                            })
+                        ]
+                        : [])
+                ]);
                 return;
             }
         }
@@ -128,9 +152,19 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                 where: { declarationId }
             });
         }
+
+        // For 60.1/basic data we don't have reliable HS codes - keep table empty
+        await db.declarationHsCode.deleteMany({
+            where: { declarationId }
+        });
     } catch (error) {
         // If parsing fails, delete summary
         await db.declarationSummary.deleteMany({
+            where: { declarationId }
+        });
+
+        // If parsing fails, delete HS codes
+        await db.declarationHsCode.deleteMany({
             where: { declarationId }
         });
     }
