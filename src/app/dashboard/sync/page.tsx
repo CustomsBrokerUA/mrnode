@@ -271,7 +271,12 @@ export default function SyncPage() {
             }
         } catch (e) {
             console.error("Error starting sync all period:", e);
-            alert("Помилка запуску завантаження");
+            const errorMessage = e instanceof Error
+                ? e.message
+                : typeof e === 'string'
+                    ? e
+                    : JSON.stringify(e);
+            alert(`Помилка запуску завантаження: ${errorMessage}`);
             setIsSyncAllPeriodActive(false);
         }
     };
@@ -293,7 +298,12 @@ export default function SyncPage() {
             }
         } catch (e) {
             console.error("Error starting staged sync:", e);
-            alert("Помилка запуску завантаження");
+            const errorMessage = e instanceof Error
+                ? e.message
+                : typeof e === 'string'
+                    ? e
+                    : JSON.stringify(e);
+            alert(`Помилка запуску завантаження: ${errorMessage}`);
             setIsSyncAllPeriodActive(false);
         }
     };
