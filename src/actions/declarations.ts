@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import iconv from "iconv-lite";
 
@@ -593,272 +594,151 @@ export async function getArchiveStatistics(
         return cached;
     }
 
-    // Load all matching declarations with summary for statistics calculation
-    // Limit to 50000 to avoid memory issues (statistics are still useful)
-    const declarations = await db.declaration.findMany({
-        where,
-        take: 50000, // Increased limit for better statistics
-        include: {
-            summary: true
+    const summaryWhere: any = {
+        declaration: where,
+    };
+
+    const [totals, statusGroups, topConsignors, topConsignees, topContractHolders, topDeclarationTypes, topCustomsOffices] = await Promise.all([
+        db.declarationSummary.aggregate({
+            where: summaryWhere,
+            _count: { _all: true },
+            _sum: {
+                customsValue: true,
+                invoiceValueUah: true,
+                totalItems: true,
+            },
+        }),
+        db.declaration.groupBy({
+            by: ['status'],
+            where,
+            _count: { _all: true },
+        }),
+        db.declarationSummary.groupBy({
+            by: ['senderName'],
+            where: { ...summaryWhere, senderName: { not: null } },
+            _count: { senderName: true },
+            _sum: { customsValue: true },
+            orderBy: { _count: { senderName: 'desc' } },
+            take: 10,
+        }),
+        db.declarationSummary.groupBy({
+            by: ['recipientName'],
+            where: { ...summaryWhere, recipientName: { not: null } },
+            _count: { recipientName: true },
+            _sum: { customsValue: true },
+            orderBy: { _count: { recipientName: 'desc' } },
+            take: 10,
+        }),
+        db.declarationSummary.groupBy({
+            by: ['contractHolder'],
+            where: { ...summaryWhere, contractHolder: { not: null } },
+            _count: { contractHolder: true },
+            _sum: { customsValue: true },
+            orderBy: { _count: { contractHolder: 'desc' } },
+            take: 10,
+        }),
+        db.declarationSummary.groupBy({
+            by: ['declarationType'],
+            where: { ...summaryWhere, declarationType: { not: null } },
+            _count: { declarationType: true },
+            _sum: { customsValue: true },
+            orderBy: { _count: { declarationType: 'desc' } },
+            take: 10,
+        }),
+        db.declarationSummary.groupBy({
+            by: ['customsOffice'],
+            where: { ...summaryWhere, customsOffice: { not: null } },
+            _count: { customsOffice: true },
+            _sum: { customsValue: true },
+            orderBy: { _count: { customsOffice: 'desc' } },
+            take: 10,
+        }),
+    ]);
+
+    const byStatus = {
+        CLEARED: 0,
+        PROCESSING: 0,
+        REJECTED: 0,
+    } as Record<'CLEARED' | 'PROCESSING' | 'REJECTED', number>;
+
+    statusGroups.forEach(g => {
+        const status = (g as any).status as keyof typeof byStatus;
+        if (status in byStatus) {
+            byStatus[status] = (g as any)._count?._all ?? 0;
         }
     });
 
-    // Calculate statistics (similar to useArchiveStatistics hook logic)
+    const companyIdArray = targetCompanyIds;
+
+    const eeSql = showEeDeclarations
+        ? Prisma.empty
+        : Prisma.sql` AND (ds."declarationType" IS NULL OR ds."declarationType" NOT LIKE ${'%ЕЕ'})`;
+
+    const topHSCodes = await db.$queryRaw<
+        Array<{ code: string; count: bigint | number; totalvalue: number | null }>
+    >(Prisma.sql`
+        SELECT
+            dh."hsCode" as code,
+            COUNT(*) as count,
+            COALESCE(SUM(ds."customsValue"), 0) as totalValue
+        FROM "DeclarationHsCode" dh
+        JOIN "Declaration" d ON d."id" = dh."declarationId"
+        LEFT JOIN "DeclarationSummary" ds ON ds."declarationId" = d."id"
+        WHERE d."companyId" = ANY(${companyIdArray}::text[])
+        ${eeSql}
+        GROUP BY dh."hsCode"
+        ORDER BY count DESC
+        LIMIT 10;
+    `);
+
     const stats = {
-        total: declarations.length,
-        byStatus: {
-            CLEARED: 0,
-            PROCESSING: 0,
-            REJECTED: 0,
-        },
-        totalCustomsValue: 0,
-        totalInvoiceValue: 0,
-        totalItems: 0,
-        topConsignors: [] as Array<{ name: string; count: number; totalValue: number }>,
-        topConsignees: [] as Array<{ name: string; count: number; totalValue: number }>,
-        topContractHolders: [] as Array<{ name: string; count: number; totalValue: number }>,
-        topHSCodes: [] as Array<{ code: string; count: number; totalValue: number }>,
-        topDeclarationTypes: [] as Array<{ type: string; count: number; totalValue: number }>,
-        topCustomsOffices: [] as Array<{ office: string; count: number; totalValue: number }>,
+        total: totals._count?._all ?? 0,
+        byStatus,
+        totalCustomsValue: totals._sum?.customsValue ?? 0,
+        totalInvoiceValue: totals._sum?.invoiceValueUah ?? 0,
+        totalItems: totals._sum?.totalItems ?? 0,
+        topConsignors: (topConsignors || [])
+            .filter(x => x.senderName)
+            .map((x: any) => ({
+                name: x.senderName,
+                count: x._count?.senderName ?? 0,
+                totalValue: x._sum?.customsValue ?? 0,
+            })),
+        topConsignees: (topConsignees || [])
+            .filter(x => x.recipientName)
+            .map((x: any) => ({
+                name: x.recipientName,
+                count: x._count?.recipientName ?? 0,
+                totalValue: x._sum?.customsValue ?? 0,
+            })),
+        topContractHolders: (topContractHolders || [])
+            .filter(x => x.contractHolder)
+            .map((x: any) => ({
+                name: x.contractHolder,
+                count: x._count?.contractHolder ?? 0,
+                totalValue: x._sum?.customsValue ?? 0,
+            })),
+        topHSCodes: (topHSCodes || []).map((x: any) => ({
+            code: x.code,
+            count: Number(x.count),
+            totalValue: Number(x.totalvalue ?? x.totalValue ?? 0),
+        })),
+        topDeclarationTypes: (topDeclarationTypes || [])
+            .filter(x => x.declarationType)
+            .map((x: any) => ({
+                type: x.declarationType,
+                count: x._count?.declarationType ?? 0,
+                totalValue: x._sum?.customsValue ?? 0,
+            })),
+        topCustomsOffices: (topCustomsOffices || [])
+            .filter(x => x.customsOffice)
+            .map((x: any) => ({
+                office: x.customsOffice,
+                count: x._count?.customsOffice ?? 0,
+                totalValue: x._sum?.customsValue ?? 0,
+            })),
     };
 
-    const consignorsMap = new Map<string, { count: number; totalValue: number }>();
-    const consigneesMap = new Map<string, { count: number; totalValue: number }>();
-    const contractHoldersMap = new Map<string, { count: number; totalValue: number }>();
-    const hsCodesMap = new Map<string, { count: number; totalValue: number }>();
-    const declarationTypesMap = new Map<string, { count: number; totalValue: number }>();
-    const customsOfficesMap = new Map<string, { count: number; totalValue: number }>();
-
-    // Parse XML and calculate statistics
-    for (const doc of declarations) {
-        // Count by status
-        if (doc.status === 'CLEARED') stats.byStatus.CLEARED++;
-        else if (doc.status === 'REJECTED') stats.byStatus.REJECTED++;
-        else stats.byStatus.PROCESSING++;
-
-        // Sum values from summary
-        if (doc.summary) {
-            if (doc.summary.customsValue) {
-                stats.totalCustomsValue += doc.summary.customsValue;
-            }
-            if (doc.summary.invoiceValueUah) {
-                stats.totalInvoiceValue += doc.summary.invoiceValueUah;
-            }
-            if (doc.summary.totalItems) {
-                stats.totalItems += doc.summary.totalItems;
-            }
-        }
-
-        const customsValue = doc.summary?.customsValue || 0;
-
-        // For list61, parse XML to get mappedData for top lists
-        if (activeTab === 'list61' && doc.xmlData) {
-            try {
-                let xmlForMapping: string | null = null;
-                const trimmed = doc.xmlData.trim();
-
-                if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-                    const parsed = JSON.parse(doc.xmlData);
-                    if (parsed && typeof parsed === 'object' && parsed.data61_1) {
-                        xmlForMapping = parsed.data61_1;
-                    }
-                } else if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
-                    xmlForMapping = doc.xmlData;
-                }
-
-                if (xmlForMapping) {
-                    // Extract basic data from XML using regex (simple parsing)
-                    const extractField = (xml: string, fieldName: string): string | undefined => {
-                        // Use [^] instead of [\s\S] for better compatibility
-                        const pattern = `<${fieldName}>([^]*?)<\\/${fieldName}>`;
-                        const match = xml.match(new RegExp(pattern, 'i'));
-                        return match ? match[1].trim() : undefined;
-                    };
-
-                    // Extract clients from XML and find by box (ccd_cl_gr)
-                    // Clients are in ccd_clients or ccd_client array
-                    // Box value is stored in ccd_cl_gr field, name in ccd_cl_name
-                    const extractClientByBox = (xml: string, boxValue: string): string | undefined => {
-                        // Try to find ccd_client or ccd_clients elements
-                        // Look for ccd_cl_gr field matching boxValue, then extract name from ccd_cl_name
-                        const clientPatterns = [
-                            /<ccd_client[^>]*>([^]*?)<\/ccd_client>/gi,
-                            /<ccd_clients[^>]*>([^]*?)<\/ccd_clients>/gi
-                        ];
-
-                        for (const clientPattern of clientPatterns) {
-                            const clientMatches = xml.matchAll(clientPattern);
-                            for (const clientMatch of clientMatches) {
-                                const clientContent = clientMatch[1];
-                                // Check if this client has the right box value (ccd_cl_gr)
-                                const boxMatch = clientContent.match(/<ccd_cl_gr>([^]*?)<\/ccd_cl_gr>/i);
-                                if (boxMatch && boxMatch[1].trim() === boxValue) {
-                                    // Found matching client, extract name from ccd_cl_name
-                                    const nameMatch = clientContent.match(/<ccd_cl_name>([^]*?)<\/ccd_cl_name>/i);
-                                    if (nameMatch) {
-                                        const name = nameMatch[1].trim();
-                                        if (name && name !== 'N/A' && name !== '---' && name !== 'Не вказано' && name.length > 0) {
-                                            return name;
-                                        }
-                                    }
-                                    // Fallback to other name fields if ccd_cl_name not found
-                                    const fallbackPatterns = [
-                                        /<ccd_name>([^]*?)<\/ccd_name>/i,
-                                        /<ccd_02_01>([^]*?)<\/ccd_02_01>/i,
-                                        /<name>([^]*?)<\/name>/i
-                                    ];
-
-                                    for (const namePattern of fallbackPatterns) {
-                                        const fallbackMatch = clientContent.match(namePattern);
-                                        if (fallbackMatch) {
-                                            const name = fallbackMatch[1].trim();
-                                            if (name && name !== 'N/A' && name !== '---' && name !== 'Не вказано' && name.length > 0) {
-                                                return name;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return undefined;
-                    };
-
-                    const consignor = extractField(xmlForMapping, 'consignor') ||
-                        extractClientByBox(xmlForMapping, '2')?.trim() ||
-                        doc.summary?.senderName;
-                    const consignee = extractField(xmlForMapping, 'consignee') ||
-                        extractClientByBox(xmlForMapping, '8')?.trim() ||
-                        doc.summary?.recipientName;
-                    const contractHolder = extractField(xmlForMapping, 'contractHolder') ||
-                        extractClientByBox(xmlForMapping, '9')?.trim();
-                    const customsOffice = extractField(xmlForMapping, 'customsOffice') ||
-                        extractField(xmlForMapping, 'ccd_07_01') ||
-                        doc.summary?.customsOffice;
-                    const declarationType = extractField(xmlForMapping, 'ccd_type') || doc.summary?.declarationType;
-
-                    // Group by entities
-                    if (consignor && consignor !== 'N/A' && consignor !== 'Не вказано') {
-                        const existing = consignorsMap.get(consignor) || { count: 0, totalValue: 0 };
-                        consignorsMap.set(consignor, {
-                            count: existing.count + 1,
-                            totalValue: existing.totalValue + customsValue
-                        });
-                    }
-
-                    if (consignee && consignee !== 'N/A' && consignee !== 'Не вказано') {
-                        const existing = consigneesMap.get(consignee) || { count: 0, totalValue: 0 };
-                        consigneesMap.set(consignee, {
-                            count: existing.count + 1,
-                            totalValue: existing.totalValue + customsValue
-                        });
-                    }
-
-                    if (contractHolder && contractHolder !== 'N/A' && contractHolder !== 'Не вказано') {
-                        const existing = contractHoldersMap.get(contractHolder) || { count: 0, totalValue: 0 };
-                        contractHoldersMap.set(contractHolder, {
-                            count: existing.count + 1,
-                            totalValue: existing.totalValue + customsValue
-                        });
-                    }
-
-                    if (customsOffice && customsOffice !== 'N/A' && customsOffice !== '---') {
-                        const existing = customsOfficesMap.get(customsOffice) || { count: 0, totalValue: 0 };
-                        customsOfficesMap.set(customsOffice, {
-                            count: existing.count + 1,
-                            totalValue: existing.totalValue + customsValue
-                        });
-                    }
-
-                    if (declarationType && declarationType !== 'N/A' && declarationType !== '---') {
-                        const existing = declarationTypesMap.get(declarationType) || { count: 0, totalValue: 0 };
-                        declarationTypesMap.set(declarationType, {
-                            count: existing.count + 1,
-                            totalValue: existing.totalValue + customsValue
-                        });
-                    }
-
-                    // HS Codes from goods - search for ccd_33_01 in goods items
-                    // Use [^] instead of [\s\S] for better compatibility
-                    const goodsMatches = xmlForMapping.matchAll(/<ccd_goods[^>]*>([^]*?)<\/ccd_goods>/gi);
-                    for (const match of goodsMatches) {
-                        const goodsContent = match[1];
-                        // Try multiple field names for HS code
-                        const hsCode = extractField(goodsContent, 'hsCode') ||
-                            extractField(goodsContent, 'ccd_33_01') ||
-                            extractField(goodsContent, 'ccd_33_01_01');
-
-                        if (hsCode && hsCode !== 'N/A' && hsCode.trim()) {
-                            const existing = hsCodesMap.get(hsCode.trim()) || { count: 0, totalValue: 0 };
-                            // Try to get customs value from goods
-                            const goodValue = parseFloat(
-                                extractField(goodsContent, 'customsValue') ||
-                                extractField(goodsContent, 'ccd_42_02') ||
-                                '0'
-                            );
-                            hsCodesMap.set(hsCode.trim(), {
-                                count: existing.count + 1,
-                                totalValue: existing.totalValue + (goodValue || customsValue)
-                            });
-                        }
-                    }
-                }
-            } catch {
-                // Failed to parse XML, use summary data
-            }
-        }
-
-        // For list60 or when XML parsing fails, use summary data
-        if (activeTab === 'list60' || !doc.xmlData) {
-            if (doc.summary?.customsOffice) {
-                const existing = customsOfficesMap.get(doc.summary.customsOffice) || { count: 0, totalValue: 0 };
-                customsOfficesMap.set(doc.summary.customsOffice, {
-                    count: existing.count + 1,
-                    totalValue: existing.totalValue + customsValue
-                });
-            }
-
-            if (doc.summary?.declarationType) {
-                const existing = declarationTypesMap.get(doc.summary.declarationType) || { count: 0, totalValue: 0 };
-                declarationTypesMap.set(doc.summary.declarationType, {
-                    count: existing.count + 1,
-                    totalValue: existing.totalValue + customsValue
-                });
-            }
-        }
-    }
-
-    // Convert maps to sorted arrays (top 10)
-    stats.topConsignors = Array.from(consignorsMap.entries())
-        .map(([name, data]) => ({ name, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    stats.topConsignees = Array.from(consigneesMap.entries())
-        .map(([name, data]) => ({ name, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    stats.topContractHolders = Array.from(contractHoldersMap.entries())
-        .map(([name, data]) => ({ name, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    stats.topHSCodes = Array.from(hsCodesMap.entries())
-        .map(([code, data]) => ({ code, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    stats.topDeclarationTypes = Array.from(declarationTypesMap.entries())
-        .map(([type, data]) => ({ type, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    stats.topCustomsOffices = Array.from(customsOfficesMap.entries())
-        .map(([office, data]) => ({ office, ...data }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-    // Cache the statistics
     setCachedArchiveStatistics(cacheKey, stats);
 
     return stats;

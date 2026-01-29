@@ -5,6 +5,7 @@ import { Button, Input, cn } from "@/components/ui";
 import { Search, FileSpreadsheet, Eye, Trash2, Calendar, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, SlidersHorizontal, X, Download, RotateCcw, Table, LayoutGrid, List } from "lucide-react";
 // No router needed - all state is client-side
 import { deleteDeclaration, deleteDeclarationsByIds, deleteDeclarationsByPeriod } from "@/actions/declarations";
+import { getArchiveStatistics } from "@/actions/declarations";
 import { Declaration, DeclarationWithRawData, SortColumn } from './types';
 import { statusStyles, statusLabels, DEFAULT_STATS_SETTINGS, DEFAULT_EXPORT_COLUMNS } from './constants';
 import { getRawData, formatRegisteredDate, decodeWindows1251, getMDNumber } from './utils';
@@ -253,11 +254,72 @@ export default function ArchivePageClient({
         sortDirection
     });
 
-    // Client-side statistics
-    const statistics = useArchiveStatistics({
-        filteredDocs,
-        activeTab
-    });
+    const [serverStatistics, setServerStatistics] = useState<any | null>(null);
+    const [isStatsLoading, setIsStatsLoading] = useState(false);
+
+    // Server-side statistics (for full DB, not just the currently loaded declarations)
+    useEffect(() => {
+        if (activeTab !== 'list61') {
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            let cancelled = false;
+            setIsStatsLoading(true);
+
+            (async () => {
+                try {
+                    const stats = await getArchiveStatistics(
+                        {
+                            status: filters.status,
+                            dateFrom: filters.dateFrom,
+                            dateTo: filters.dateTo,
+                            customsOffice: filters.customsOffice,
+                            currency: filters.currency,
+                            invoiceValueFrom: filters.invoiceValueFrom,
+                            invoiceValueTo: filters.invoiceValueTo,
+                            consignor: filters.consignor,
+                            consignee: filters.consignee,
+                            declarationType: filters.declarationType,
+                            searchTerm: filters.searchTerm,
+                        },
+                        activeTab,
+                        selectedCompanyIds.length > 0 ? selectedCompanyIds : undefined
+                    );
+
+                    if (!cancelled) {
+                        setServerStatistics(stats);
+                    }
+                } finally {
+                    if (!cancelled) {
+                        setIsStatsLoading(false);
+                    }
+                }
+            })();
+
+            return () => {
+                cancelled = true;
+            };
+        }, 400);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [
+        activeTab,
+        filters.status,
+        filters.dateFrom,
+        filters.dateTo,
+        filters.customsOffice,
+        filters.currency,
+        filters.invoiceValueFrom,
+        filters.invoiceValueTo,
+        filters.consignor,
+        filters.consignee,
+        filters.declarationType,
+        filters.searchTerm,
+        selectedCompanyIds,
+    ]);
 
     // Client-side pagination - paginate filtered and sorted data
     const { paginatedDocs, totalItems, totalPages, startIndex, endIndex } = useArchivePagination({
@@ -595,7 +657,7 @@ export default function ArchivePageClient({
             {/* Statistics - Only show for list61 */}
             {activeTab === 'list61' && (
                 <ArchiveStatistics
-                    statistics={statistics}
+                    statistics={serverStatistics || { total: 0, totalCustomsValue: 0, totalInvoiceValue: 0, totalItems: 0, topConsignors: [], topConsignees: [], topContractHolders: [], topHSCodes: [], topDeclarationTypes: [], topCustomsOffices: [] }}
                     statsSettings={statsSettings}
                     isMounted={isMounted}
                     onSettingsClick={() => setShowStatsSettings(true)}
