@@ -92,8 +92,10 @@ export function getCachedStatistics(hash: string): any | null {
                     memoryCache.set(hash, entry);
                     // Обмежуємо розмір кешу в пам'яті
                     if (memoryCache.size > CACHE_CONFIG.MAX_MEMORY_ENTRIES) {
-                        const firstKey = memoryCache.keys().next().value;
-                        memoryCache.delete(firstKey);
+                        const first = memoryCache.keys().next();
+                        if (!first.done) {
+                            memoryCache.delete(first.value);
+                        }
                     }
                     return entry.statistics;
                 }
