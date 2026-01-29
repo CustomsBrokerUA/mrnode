@@ -112,6 +112,8 @@ export async function getDeclarationsPaginated(
         invoiceValueTo?: string;
         consignor?: string;
         consignee?: string;
+        contractHolder?: string;
+        hsCode?: string;
         declarationType?: string;
         searchTerm?: string;
     } = {},
@@ -264,6 +266,26 @@ export async function getDeclarationsPaginated(
         };
     }
 
+    if (filters.contractHolder) {
+        summaryFilters.contractHolder = {
+            contains: filters.contractHolder,
+            mode: 'insensitive' as const
+        };
+    }
+
+    if (filters.hsCode) {
+        andConditions.push({
+            hsCodes: {
+                some: {
+                    hsCode: {
+                        contains: filters.hsCode,
+                        mode: 'insensitive' as const
+                    }
+                }
+            }
+        });
+    }
+
     // Declaration type filter (from summary)
     if (filters.declarationType) {
         const types = filters.declarationType.split(',').map(t => t.trim()).filter(Boolean);
@@ -401,6 +423,8 @@ export async function getArchiveStatistics(
         invoiceValueTo?: string;
         consignor?: string;
         consignee?: string;
+        contractHolder?: string;
+        hsCode?: string;
         declarationType?: string;
         searchTerm?: string;
     } = {},
@@ -674,6 +698,58 @@ export async function getArchiveStatistics(
         ? Prisma.empty
         : Prisma.sql` AND (ds."declarationType" IS NULL OR ds."declarationType" NOT LIKE ${'%ЕЕ'})`;
 
+    const statusSql = filters.status && filters.status !== 'all'
+        ? Prisma.sql` AND d."status" = ${filters.status === 'cleared' ? 'CLEARED' : filters.status}`
+        : Prisma.empty;
+
+    const dateSql = (filters.dateFrom || filters.dateTo)
+        ? Prisma.sql` AND (
+            (d."date" >= ${filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00.000Z') : new Date('1970-01-01T00:00:00.000Z')} AND d."date" <= ${filters.dateTo ? new Date(filters.dateTo + 'T23:59:59.999Z') : new Date('2999-12-31T23:59:59.999Z')})
+            OR
+            (ds."registeredDate" >= ${filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00.000Z') : new Date('1970-01-01T00:00:00.000Z')} AND ds."registeredDate" <= ${filters.dateTo ? new Date(filters.dateTo + 'T23:59:59.999Z') : new Date('2999-12-31T23:59:59.999Z')})
+        )`
+        : Prisma.empty;
+
+    const customsOfficeSql = filters.customsOffice
+        ? Prisma.sql` AND ds."customsOffice" ILIKE ${'%' + filters.customsOffice + '%'}`
+        : Prisma.empty;
+
+    const currencySql = filters.currency && filters.currency !== 'all'
+        ? Prisma.sql` AND (ds."currency" = ${filters.currency} OR ds."invoiceCurrency" = ${filters.currency})`
+        : Prisma.empty;
+
+    const invoiceFromSql = filters.invoiceValueFrom
+        ? Prisma.sql` AND ds."invoiceValueUah" >= ${Number(filters.invoiceValueFrom)}`
+        : Prisma.empty;
+
+    const invoiceToSql = filters.invoiceValueTo
+        ? Prisma.sql` AND ds."invoiceValueUah" <= ${Number(filters.invoiceValueTo)}`
+        : Prisma.empty;
+
+    const consignorSql = filters.consignor
+        ? Prisma.sql` AND ds."senderName" ILIKE ${'%' + filters.consignor + '%'}`
+        : Prisma.empty;
+
+    const consigneeSql = filters.consignee
+        ? Prisma.sql` AND ds."recipientName" ILIKE ${'%' + filters.consignee + '%'}`
+        : Prisma.empty;
+
+    const contractHolderSql = filters.contractHolder
+        ? Prisma.sql` AND ds."contractHolder" ILIKE ${'%' + filters.contractHolder + '%'}`
+        : Prisma.empty;
+
+    const declarationTypeSql = filters.declarationType
+        ? Prisma.sql` AND ds."declarationType" = ANY(${filters.declarationType.split(',').map(t => t.trim()).filter(Boolean)}::text[])`
+        : Prisma.empty;
+
+    const searchSql = filters.searchTerm
+        ? Prisma.sql` AND (d."mrn" ILIKE ${'%' + filters.searchTerm.trim() + '%'} OR d."customsId" ILIKE ${'%' + filters.searchTerm.trim() + '%'})`
+        : Prisma.empty;
+
+    const hsCodeSql = filters.hsCode
+        ? Prisma.sql` AND dh."hsCode" ILIKE ${'%' + filters.hsCode + '%'}`
+        : Prisma.empty;
+
     const topHSCodes = await db.$queryRaw<
         Array<{ code: string; count: bigint | number; totalvalue: number | null }>
     >(Prisma.sql`
@@ -686,6 +762,18 @@ export async function getArchiveStatistics(
         LEFT JOIN "DeclarationSummary" ds ON ds."declarationId" = d."id"
         WHERE d."companyId" = ANY(${companyIdArray}::text[])
         ${eeSql}
+        ${statusSql}
+        ${dateSql}
+        ${customsOfficeSql}
+        ${currencySql}
+        ${invoiceFromSql}
+        ${invoiceToSql}
+        ${consignorSql}
+        ${consigneeSql}
+        ${contractHolderSql}
+        ${declarationTypeSql}
+        ${searchSql}
+        ${hsCodeSql}
         GROUP BY dh."hsCode"
         ORDER BY count DESC
         LIMIT 10;
