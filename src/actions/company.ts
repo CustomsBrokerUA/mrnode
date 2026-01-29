@@ -41,7 +41,7 @@ export async function updateCustomsToken(formData: FormData) {
         
         if (!validatedFields.success) {
             return { 
-                error: validatedFields.error.errors[0]?.message || "Помилка валідації" 
+                error: validatedFields.error.issues[0]?.message || "Помилка валідації" 
             };
         }
 
