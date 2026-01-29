@@ -67,7 +67,6 @@ export async function getDeclarations() {
             customsId: true,
             mrn: true,
             status: true,
-            xmlData: true,
             date: true,
             updatedAt: true,
             companyId: true,
@@ -80,41 +79,11 @@ export async function getDeclarations() {
         } as any,
         orderBy: {
             date: 'desc'
-        }
+        },
+        take: Number(process.env.ARCHIVE_MAX_DECLARATIONS || 500),
     });
 
-    return declarations.map((d: any) => {
-        const xmlData = d?.xmlData;
-        if (!xmlData || typeof xmlData !== 'string') {
-            return { ...d, xmlData: null };
-        }
-
-        const trimmed = xmlData.trim();
-        if (!trimmed) {
-            return { ...d, xmlData: null };
-        }
-
-        // Keep payload small: for JSON format store only data60_1 (used by list60.1 columns)
-        // and drop data61_1 (can be large XML).
-        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-            try {
-                const parsed = JSON.parse(trimmed);
-                if (parsed && typeof parsed === 'object' && ('data60_1' in parsed || 'data61_1' in parsed)) {
-                    const reduced = { data60_1: (parsed as any).data60_1 || null };
-                    return { ...d, xmlData: JSON.stringify(reduced) };
-                }
-            } catch {
-                // ignore
-            }
-        }
-
-        // Old format (61.1 XML only) isn't needed for list60 columns
-        if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
-            return { ...d, xmlData: null };
-        }
-
-        return { ...d, xmlData: null };
-    });
+    return declarations.map((d: any) => ({ ...d, xmlData: null }));
 }
 
 /**
