@@ -134,17 +134,18 @@ export function filterDeclarations60(
         const search = filters.searchTerm.toLowerCase();
         filtered = filtered.filter(doc => {
             const mdNumber = getRawData(doc)?.MRN || doc.mrn || '';
+            const trnAll = getRawData(doc)?.trn_all;
             return (
                 doc.mrn?.toLowerCase().includes(search) ||
                 doc.customsId?.toLowerCase().includes(search) ||
                 mdNumber.toLowerCase().includes(search) ||
                 getRawData(doc)?.guid?.toLowerCase().includes(search) ||
                 getRawData(doc)?.ccd_type?.toLowerCase().includes(search) ||
-                (typeof getRawData(doc)?.trn_all === 'string' 
-                    ? getRawData(doc)?.trn_all.toLowerCase().includes(search)
-                    : Array.isArray(getRawData(doc)?.trn_all)
-                        ? getRawData(doc)?.trn_all.some((t: any) => String(t).toLowerCase().includes(search))
-                        : String(getRawData(doc)?.trn_all || '').toLowerCase().includes(search))
+                (typeof trnAll === 'string'
+                    ? trnAll.toLowerCase().includes(search)
+                    : Array.isArray(trnAll)
+                        ? trnAll.some((t: any) => String(t).toLowerCase().includes(search))
+                        : String(trnAll || '').toLowerCase().includes(search))
             );
         });
     }
