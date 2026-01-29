@@ -1831,17 +1831,14 @@ async function syncDeclarationsForChunk(
         if (existing) {
             let has61_1Data = false;
 
-            try {
-                const existingXmlData = existing.xmlData || '';
-                if (existingXmlData.trim().startsWith('<') || existingXmlData.trim().startsWith('<?xml')) {
-                    has61_1Data = true;
-                } else {
-                    const parsed = JSON.parse(existingXmlData);
-                    if (parsed.data61_1) {
-                        has61_1Data = true;
-                    }
-                }
-            } catch { }
+            // IMPORTANT: xmlData can contain very large 61.1 XML. Avoid JSON.parse here.
+            const existingXmlData = (existing.xmlData || '').trim();
+            if (existingXmlData.startsWith('<') || existingXmlData.startsWith('<?xml')) {
+                has61_1Data = true;
+            } else if (existingXmlData.includes('"data61_1"')) {
+                // Heuristic: we store xmlData as JSON with keys data60_1 / data61_1
+                has61_1Data = true;
+            }
 
             // Parse and validate date for update
             let declarationDate = existing.date;
