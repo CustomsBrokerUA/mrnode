@@ -198,8 +198,8 @@ export default function ArchivePageClient({
     // Load declarations from server based on active filters so older declarations appear.
     // We load a capped slice (max 500) and paginate locally.
     useEffect(() => {
+        let cancelled = false;
         const timer = setTimeout(() => {
-            let cancelled = false;
             setIsListLoading(true);
 
             (async () => {
@@ -238,13 +238,10 @@ export default function ArchivePageClient({
                     }
                 }
             })();
-
-            return () => {
-                cancelled = true;
-            };
         }, 400);
 
         return () => {
+            cancelled = true;
             clearTimeout(timer);
         };
     }, [
@@ -334,8 +331,8 @@ export default function ArchivePageClient({
             return;
         }
 
+        let cancelled = false;
         const timer = setTimeout(() => {
-            let cancelled = false;
             setIsStatsLoading(true);
 
             (async () => {
@@ -369,13 +366,10 @@ export default function ArchivePageClient({
                     }
                 }
             })();
-
-            return () => {
-                cancelled = true;
-            };
         }, 400);
 
         return () => {
+            cancelled = true;
             clearTimeout(timer);
         };
     }, [
