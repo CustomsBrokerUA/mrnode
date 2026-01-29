@@ -644,16 +644,19 @@ export async function restoreCompany(companyId: string) {
  */
 export async function inviteUser(companyId: string, email: string, role: 'MEMBER' | 'VIEWER') {
   try {
+
     const session = await auth();
     if (!session?.user?.id) {
       return { error: "Неавторизований доступ" };
     }
 
-    // Перевірка доступу та ролі
+    const userId = session.user.id;
+
+    // Перевірка доступу
     const userCompany = await db.userCompany.findUnique({
       where: {
         userId_companyId: {
-          userId: session.user.id,
+          userId: userId,
           companyId: companyId,
         }
       },
@@ -706,7 +709,7 @@ export async function inviteUser(companyId: string, email: string, role: 'MEMBER
       email: email.toLowerCase(),
       role: role,
       token: token,
-      invitedBy: session.user.id,
+      invitedBy: userId,
       status: "PENDING",
       expiresAt: expiresAt,
     };
@@ -745,7 +748,7 @@ export async function inviteUser(companyId: string, email: string, role: 'MEMBER
       await tx.companyAuditLog.create({
         data: {
           companyId: companyId,
-          userId: session.user.id,
+          userId: userId,
           userName: session.user.name || session.user.email,
           action: "INVITE_USER",
           targetUserName: email,
