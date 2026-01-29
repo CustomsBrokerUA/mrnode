@@ -815,7 +815,12 @@ export async function syncAllPeriod() {
 
         // Розшифрувати токен
         const { decrypt } = await import("@/lib/crypto");
-        const decryptedToken = await decrypt(access.customsToken);
+        let decryptedToken: string;
+        try {
+            decryptedToken = await decrypt(access.customsToken);
+        } catch {
+            return { error: "Помилка розшифрування токена. Будь ласка, оновіть токен в налаштуваннях компанії (або перевірте що ENCRYPTION_KEY на сервері не змінювався)." };
+        }
 
         // Check if syncJob model exists
         if (!('syncJob' in db && db.syncJob)) {
@@ -924,7 +929,12 @@ export async function syncAllPeriodStaged(stage: number = 1) {
 
         // Розшифрувати токен
         const { decrypt } = await import("@/lib/crypto");
-        const decryptedToken = await decrypt(access.customsToken);
+        let decryptedToken: string;
+        try {
+            decryptedToken = await decrypt(access.customsToken);
+        } catch {
+            return { error: "Помилка розшифрування токена. Будь ласка, оновіть токен в налаштуваннях компанії (або перевірте що ENCRYPTION_KEY на сервері не змінювався)." };
+        }
 
         if (!('syncJob' in db && db.syncJob)) {
             return { error: "SyncJob модель недоступна. Будь ласка, перезапустіть сервер." };
