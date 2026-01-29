@@ -1829,27 +1829,19 @@ async function syncDeclarationsForChunk(
         }
 
         if (existing) {
-            let existingData: any = {};
             let has61_1Data = false;
 
             try {
                 const existingXmlData = existing.xmlData || '';
                 if (existingXmlData.trim().startsWith('<') || existingXmlData.trim().startsWith('<?xml')) {
-                    existingData.data61_1 = existingXmlData;
                     has61_1Data = true;
                 } else {
                     const parsed = JSON.parse(existingXmlData);
                     if (parsed.data61_1) {
-                        existingData.data61_1 = parsed.data61_1;
                         has61_1Data = true;
-                    }
-                    if (parsed.data60_1) {
-                        existingData.data60_1 = parsed.data60_1;
                     }
                 }
             } catch { }
-
-            existingData.data60_1 = data60_1;
 
             // Parse and validate date for update
             let declarationDate = existing.date;
@@ -1871,22 +1863,34 @@ async function syncDeclarationsForChunk(
                 }
             }
 
-            await db.declaration.update({
-                where: { id: existing.id },
-                data: {
-                    xmlData: JSON.stringify(existingData),
-                    status: status,
-                    date: declarationDate,
-                    declarantName: item.ccd_decl_name || existing.declarantName,
-                    senderName: item.ccd_sender_name || existing.senderName,
-                    recipientName: item.ccd_recipient_name || existing.recipientName,
-                    updatedAt: new Date()
-                }
-            });
-
-            // Collect GUID if it doesn't have 61.1 data yet
-            if (!has61_1Data && item.guid) {
-                guids.push(item.guid);
+            // IMPORTANT: avoid JSON.parse/JSON.stringify of huge xmlData when 61.1 already exists.
+            // If 61.1 exists, keep xmlData as-is and only update metadata.
+            // If 61.1 doesn't exist, store only 60.1 to enable later 61.1 batch processing.
+            if (has61_1Data) {
+                await db.declaration.update({
+                    where: { id: existing.id },
+                    data: {
+                        status: status,
+                        date: declarationDate,
+                        declarantName: item.ccd_decl_name || existing.declarantName,
+                        senderName: item.ccd_sender_name || existing.senderName,
+                        recipientName: item.ccd_recipient_name || existing.recipientName,
+                        updatedAt: new Date()
+                    }
+                });
+            } else {
+                await db.declaration.update({
+                    where: { id: existing.id },
+                    data: {
+                        xmlData: JSON.stringify({ data60_1: data60_1 }),
+                        status: status,
+                        date: declarationDate,
+                        declarantName: item.ccd_decl_name || existing.declarantName,
+                        senderName: item.ccd_sender_name || existing.senderName,
+                        recipientName: item.ccd_recipient_name || existing.recipientName,
+                        updatedAt: new Date()
+                    }
+                });
             }
         } else {
             // Parse and validate date
@@ -1923,11 +1927,6 @@ async function syncDeclarationsForChunk(
                     recipientName: item.ccd_recipient_name
                 }
             });
-
-            // New declaration - needs 61.1
-            if (item.guid) {
-                guids.push(item.guid);
-            }
         }
     }
 
