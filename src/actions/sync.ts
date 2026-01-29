@@ -7,6 +7,15 @@ import { revalidatePath } from "next/cache";
 import { updateDeclarationSummary } from "@/lib/declaration-summary";
 import { splitPeriodIntoChunks } from "@/app/dashboard/sync/utils/period-splitter";
 
+function getSyncChunkDays() {
+    const raw = process.env.SYNC_CHUNK_DAYS;
+    const parsed = raw ? Number(raw) : NaN;
+    const defaultDays = process.env.NODE_ENV === 'production' ? 1 : 7;
+    const value = Number.isFinite(parsed) ? parsed : defaultDays;
+    const clamped = Math.max(1, Math.min(45, Math.floor(value)));
+    return clamped;
+}
+
 /**
  * Fetch declaration details (61.1) for a single GUID
  * Returns { success: boolean, guid: string, count: number, error?: string }
@@ -1000,7 +1009,7 @@ export async function syncAllPeriod() {
 
         // Split period into chunks (7 days for syncAllPeriod to avoid timeout issues with large companies)
         // API allows up to 45 days, but for companies with many declarations, smaller chunks work better
-        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, 7);
+        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, getSyncChunkDays());
         const totalChunks = chunks.length;
 
         // Create SyncJob
@@ -1146,7 +1155,7 @@ export async function syncAllPeriodStaged(stage: number = 1) {
         dateFrom.setHours(0, 0, 0, 0);
 
         // Split period into chunks (7 days for staged sync)
-        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, 7);
+        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, getSyncChunkDays());
         const totalChunks = chunks.length;
 
         // Create SyncJob with stage information stored in errorMessage field (temporary workaround)
