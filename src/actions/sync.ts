@@ -23,6 +23,19 @@ function logMemory(label: string) {
     console.log(`[mem] ${label} rss=${mb(mu.rss)}MB heapUsed=${mb(mu.heapUsed)}MB heapTotal=${mb(mu.heapTotal)}MB ext=${mb(mu.external)}MB`);
 }
 
+function tryGc(label: string) {
+    if (process.env.FORCE_GC !== '1') return;
+    const g: any = global as any;
+    if (typeof g.gc === 'function') {
+        try {
+            g.gc();
+            logMemory(`gc(${label})`);
+        } catch {
+            // ignore
+        }
+    }
+}
+
 declare global {
     // eslint-disable-next-line no-var
     var __mrnodeUnhandledHandlersInstalled: boolean | undefined;
@@ -119,6 +132,7 @@ async function processDetails61_1FromDb(
 
     while (true) {
         logMemory('61.1 loop start');
+        tryGc('61.1 loop start');
         const job = await (db.syncJob as any).findUnique({ where: { id: jobId } });
         if (!job || job.status === "cancelled") {
             console.log("Sync job cancelled, stopping 61.1 processing");
@@ -191,12 +205,14 @@ async function processDetails61_1FromDb(
                     where: { id: jobId },
                     data: { completed61_1 }
                 });
+                tryGc('61.1 every 10');
             }
 
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         cursorId = batch[batch.length - 1]!.id;
+        tryGc('61.1 batch end');
     }
 }
 
@@ -1389,6 +1405,8 @@ async function processChunks60_1(
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
 
+            tryGc(`60.1 chunk ${chunkNumber} done`);
+
             // Note: revalidatePath removed from background processing
             // It will be called at the end of syncAllPeriod or when job completes
         } catch (error: any) {
@@ -1438,6 +1456,8 @@ async function processChunks60_1(
             if (i < chunks.length - 1) {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
+
+            tryGc(`60.1 chunk ${chunkNumber} error`);
         }
     }
 
