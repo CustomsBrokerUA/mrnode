@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import iconv from "iconv-lite";
+import crypto from "crypto";
 
 async function getShowEeDeclarationsForCompany(companyId: string): Promise<boolean> {
     try {
@@ -612,7 +613,8 @@ export async function getArchiveStatistics(
     // Create unique cache key based on filters, tab and companyIds
     const { getCachedArchiveStatistics, setCachedArchiveStatistics } = await import("@/lib/statistics-cache");
     const filtersKey = JSON.stringify({ filters, companyIds: targetCompanyIds, showEeDeclarations });
-    const cacheKey = `stats_archive_${activeTab}_${Buffer.from(filtersKey).toString('base64').substring(0, 50)}`;
+    const cacheHash = crypto.createHash('sha256').update(filtersKey).digest('hex');
+    const cacheKey = `stats_archive_${activeTab}_${cacheHash}`;
     const cached = getCachedArchiveStatistics(cacheKey);
     if (cached) {
         return cached;
