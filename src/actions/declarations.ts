@@ -861,7 +861,15 @@ export async function getArchiveStatistics(
         : Prisma.empty;
 
     const searchSql = filters.searchTerm
-        ? Prisma.sql` AND (d."mrn" ILIKE ${'%' + filters.searchTerm.trim() + '%'} OR d."customsId" ILIKE ${'%' + filters.searchTerm.trim() + '%'})`
+        ? Prisma.sql` AND (
+            d."mrn" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR d."customsId" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR ds."senderName" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR ds."recipientName" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR ds."contractHolder" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR ds."customsOffice" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+            OR ds."declarationType" ILIKE ${'%' + filters.searchTerm.trim() + '%'}
+        )`
         : Prisma.empty;
 
     const hsCodeSql = filters.hsCode
