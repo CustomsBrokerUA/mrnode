@@ -11,6 +11,156 @@ import { splitPeriodIntoChunks } from "@/app/dashboard/sync/utils/period-splitte
  * Fetch declaration details (61.1) for a single GUID
  * Returns { success: boolean, guid: string, count: number, error?: string }
  */
+
+async function upsertDeclaration61_1(
+    customsService: CustomsService,
+    companyId: string,
+    guid: string
+) {
+    const declaration = await db.declaration.findFirst({
+        where: {
+            companyId,
+            customsId: guid
+        },
+        include: {
+            summary: true,
+        }
+    });
+
+    if (!declaration) {
+        return;
+    }
+
+    // Skip if summary already exists
+    if (declaration.summary) {
+        return;
+    }
+
+    const detailsResponse = await customsService.getDeclarationDetails(guid);
+    if (!detailsResponse.success || !detailsResponse.data?.xml) {
+        return;
+    }
+
+    let existingData: any = {};
+    try {
+        const existingXmlData = declaration.xmlData || '';
+        if (existingXmlData.trim().startsWith('<') || existingXmlData.trim().startsWith('<?xml')) {
+            existingData.data61_1 = existingXmlData;
+        } else {
+            const parsed = JSON.parse(existingXmlData);
+            if (parsed.data60_1) existingData.data60_1 = parsed.data60_1;
+            if (parsed.data61_1) existingData.data61_1 = parsed.data61_1;
+        }
+    } catch {
+        // ignore
+    }
+
+    existingData.data61_1 = detailsResponse.data.xml;
+
+    await db.declaration.update({
+        where: { id: declaration.id },
+        data: {
+            xmlData: JSON.stringify(existingData),
+            updatedAt: new Date()
+        }
+    });
+
+    await updateDeclarationSummary(declaration.id, JSON.stringify(existingData));
+}
+
+async function processDetails61_1FromDb(
+    companyId: string,
+    jobId: string,
+    customsToken: string,
+    edrpou: string,
+    dateFrom: Date,
+    dateTo: Date,
+    stage?: number
+) {
+    if (!('syncJob' in db && db.syncJob)) return;
+
+    const customsService = new CustomsService(customsToken, edrpou);
+    let completed61_1 = 0;
+    let cursorId: string | undefined;
+    const take = 200;
+
+    while (true) {
+        const job = await (db.syncJob as any).findUnique({ where: { id: jobId } });
+        if (!job || job.status === "cancelled") {
+            console.log("Sync job cancelled, stopping 61.1 processing");
+            break;
+        }
+
+        const batch = await db.declaration.findMany({
+            where: {
+                companyId,
+                date: { gte: dateFrom, lte: dateTo },
+                summary: { is: null },
+                customsId: { not: null },
+            },
+            select: { id: true, customsId: true },
+            orderBy: { id: 'asc' },
+            take,
+            ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
+        });
+
+        if (batch.length === 0) {
+            // Done
+            const jobBeforeUpdate = await (db.syncJob as any).findUnique({ where: { id: jobId } });
+            let finalErrorMessage: string | null = null;
+
+            if (stage && stage < 5 && jobBeforeUpdate?.errorMessage?.includes('STAGE:')) {
+                const stageMatch = jobBeforeUpdate.errorMessage.match(/STAGE:(\d+):([^|]+)/);
+                if (stageMatch) {
+                    const stageNum = parseInt(stageMatch[1]);
+                    const stageName = stageMatch[2];
+                    const nextStage = stageNum + 1;
+                    finalErrorMessage = `STAGE:${stageNum}:${stageName}|COMPLETED|NEXT:${nextStage}`;
+                }
+            }
+
+            await (db.syncJob as any).update({
+                where: { id: jobId },
+                data: {
+                    completed61_1,
+                    status: "completed",
+                    errorMessage: finalErrorMessage ?? jobBeforeUpdate?.errorMessage ?? null,
+                }
+            });
+            break;
+        }
+
+        for (const item of batch) {
+            const guid = item.customsId;
+            if (!guid) continue;
+
+            const jobInner = await (db.syncJob as any).findUnique({ where: { id: jobId } });
+            if (!jobInner || jobInner.status === "cancelled") {
+                console.log("Sync job cancelled, stopping 61.1 processing");
+                return;
+            }
+
+            try {
+                await upsertDeclaration61_1(customsService, companyId, guid);
+            } catch (error: unknown) {
+                console.error(`Error processing 61.1 for GUID ${guid}:`, error);
+            }
+
+            completed61_1++;
+            if (completed61_1 % 10 === 0) {
+                await (db.syncJob as any).update({
+                    where: { id: jobId },
+                    data: { completed61_1 }
+                });
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        cursorId = batch[batch.length - 1]!.id;
+    }
+}
+
 export async function fetchDeclarationDetail(guid: string) {
     const session = await auth();
     if (!session || !session.user || !session.user.email) {
@@ -1067,7 +1217,6 @@ async function processChunks60_1(
     if (!('syncJob' in db && db.syncJob)) return;
 
     const customsService = new CustomsService(customsToken, edrpou);
-    let allGuids: Set<string> = new Set();
     let completedChunks = 0;
     let failedChunks: Array<{ chunk: number; dateFrom: Date; dateTo: Date; error: string }> = [];
 
@@ -1181,10 +1330,9 @@ async function processChunks60_1(
                     console.log(`ℹ️ Chunk ${chunkNumber}: No data for period ${chunk.start.toLocaleDateString('uk-UA')} - ${chunk.end.toLocaleDateString('uk-UA')}`);
                 }
             } else {
-                // Collect GUIDs from this chunk
-                if (result.guids) {
-                    result.guids.forEach((guid: string) => allGuids.add(guid));
-                }
+                // NOTE: we intentionally do NOT accumulate GUIDs in memory.
+                // Declarations are persisted to DB inside syncDeclarationsForChunk,
+                // and 61.1 processing will pick missing-summary declarations from DB in batches.
             }
 
             completedChunks++;
@@ -1275,10 +1423,30 @@ async function processChunks60_1(
         }
     }
 
+    // totalGuids: compute cheaply from DB (distinct customsId in job period)
+    const jobPeriodFrom = chunks[0]?.start;
+    const jobPeriodTo = chunks[chunks.length - 1]?.end;
+    let totalGuids = 0;
+    try {
+        if (jobPeriodFrom && jobPeriodTo) {
+            const rows = await db.$queryRaw<Array<{ count: bigint | number }>>`
+                SELECT COUNT(DISTINCT d."customsId") as count
+                FROM "Declaration" d
+                WHERE d."companyId" = ${companyId}
+                  AND d."date" >= ${jobPeriodFrom}
+                  AND d."date" <= ${jobPeriodTo}
+                  AND d."customsId" IS NOT NULL
+            `;
+            totalGuids = Number(rows?.[0]?.count ?? 0);
+        }
+    } catch {
+        // Best-effort; keep as 0 if counting fails
+    }
+
     await (db.syncJob as any).update({
         where: { id: jobId },
         data: {
-            totalGuids: allGuids.size,
+            totalGuids,
             errorMessage: updatedErrorMessage
         }
     });
@@ -1287,7 +1455,7 @@ async function processChunks60_1(
     try {
         if ('syncHistory' in db && db.syncHistory && job) {
             const successChunks = chunks.length - failedChunks.length;
-            const totalDeclarations = allGuids.size;
+            const totalDeclarations = totalGuids;
 
             await (db.syncHistory as any).create({
                 data: {
@@ -1308,10 +1476,10 @@ async function processChunks60_1(
         console.warn("Failed to save sync history for 60.1:", historyError.message);
     }
 
-    // Start processing 61.1 details in background
-    if (allGuids.size > 0) {
-        processDetails61_1(companyId, jobId, Array.from(allGuids), customsToken, edrpou, stage)
-            .catch(error => {
+    // Start processing 61.1 details in background by reading missing-summary declarations from DB in small batches.
+    if (jobPeriodFrom && jobPeriodTo) {
+        processDetails61_1FromDb(companyId, jobId, customsToken, edrpou, jobPeriodFrom, jobPeriodTo, stage)
+            .catch((error: unknown) => {
                 console.error("Error in 61.1 processing:", error);
             });
     } else {
