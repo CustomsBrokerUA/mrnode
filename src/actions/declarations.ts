@@ -267,6 +267,7 @@ export async function getDeclarationsPaginated(
         };
     }
 
+    // Contract holder filter (from summary)
     if (filters.contractHolder) {
         summaryFilters.contractHolder = {
             contains: filters.contractHolder,
@@ -274,6 +275,7 @@ export async function getDeclarationsPaginated(
         };
     }
 
+    // HS code filter (relation)
     if (filters.hsCode) {
         andConditions.push({
             hsCodes: {
@@ -385,16 +387,27 @@ export async function getDeclarationsPaginated(
             skip,
             take: pageSize,
             orderBy,
-            // Load summary only for list61 or when needed for filters
-            include: {
+            select: {
+                id: true,
+                customsId: true,
+                mrn: true,
+                status: true,
+                date: true,
+                updatedAt: true,
+                companyId: true,
+                // xmlData is heavy; we need it mostly for list60 parsing.
+                xmlData: activeTab === 'list60',
                 summary: activeTab === 'list61' || !!filters.customsOffice || !!filters.currency ||
                     !!filters.invoiceValueFrom || !!filters.invoiceValueTo ||
-                    !!filters.consignor || !!filters.consignee || !!filters.declarationType ||
+                    !!filters.consignor || !!filters.consignee || !!filters.contractHolder || !!filters.declarationType ||
                     sortColumn === 'type' || sortColumn === 'consignor' ||
                     sortColumn === 'consignee' || sortColumn === 'invoiceValue' ||
-                    sortColumn === 'goodsCount' || sortColumn === 'registeredDate'
-                ,
-                hsCodes: activeTab === 'list61'
+                    sortColumn === 'goodsCount' || sortColumn === 'registeredDate',
+                hsCodes: activeTab === 'list61' || !!filters.hsCode ? {
+                    select: {
+                        hsCode: true
+                    }
+                } : false,
             } as any
         })
     ]);

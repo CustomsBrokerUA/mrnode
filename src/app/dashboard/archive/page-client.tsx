@@ -6,6 +6,7 @@ import { Search, FileSpreadsheet, Eye, Trash2, Calendar, ChevronLeft, ChevronRig
 // No router needed - all state is client-side
 import { deleteDeclaration, deleteDeclarationsByIds, deleteDeclarationsByPeriod } from "@/actions/declarations";
 import { getArchiveStatistics } from "@/actions/declarations";
+import { getDeclarationsPaginated } from "@/actions/declarations";
 import { Declaration, DeclarationWithRawData, SortColumn } from './types';
 import { statusStyles, statusLabels, DEFAULT_STATS_SETTINGS, DEFAULT_EXPORT_COLUMNS } from './constants';
 import { getRawData, formatRegisteredDate, decodeWindows1251, getMDNumber } from './utils';
@@ -56,7 +57,9 @@ export default function ArchivePageClient({
     activeCompanyId = ''
 }: ArchivePageClientProps) {
     // Safety check: ensure declarations is always an array
-    const safeDeclarations = Array.isArray(declarations) ? declarations : [];
+    const initialDeclarations = Array.isArray(declarations) ? declarations : [];
+    const [loadedDeclarations, setLoadedDeclarations] = useState<Declaration[]>(initialDeclarations);
+    const [isListLoading, setIsListLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'list60' | 'list61'>('list61');
     const [searchTerm, setSearchTerm] = useState("");
     const [showDeletePeriodModal, setShowDeletePeriodModal] = useState(false);
@@ -192,13 +195,81 @@ export default function ArchivePageClient({
     // Loading state for tab switching
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Filter by selected companies first (before parsing)
+    // Load declarations from server based on active filters so older declarations appear.
+    // We load a capped slice (max 500) and paginate locally.
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            let cancelled = false;
+            setIsListLoading(true);
+
+            (async () => {
+                try {
+                    const result = await getDeclarationsPaginated(
+                        1,
+                        500,
+                        {
+                            status: filterStatus,
+                            dateFrom: filterDateFrom,
+                            dateTo: filterDateTo,
+                            customsOffice: filterCustomsOffice,
+                            currency: filterCurrency,
+                            invoiceValueFrom: filterInvoiceValueFrom,
+                            invoiceValueTo: filterInvoiceValueTo,
+                            consignor: filterConsignor,
+                            consignee: filterConsignee,
+                            contractHolder: filterContractHolder,
+                            hsCode: filterHSCode,
+                            declarationType: filterDeclarationType,
+                            searchTerm: searchTerm,
+                        },
+                        sortColumn,
+                        sortDirection,
+                        activeTab,
+                        selectedCompanyIds.length > 0 ? selectedCompanyIds : undefined
+                    );
+
+                    if (!cancelled) {
+                        setLoadedDeclarations((result as any).declarations || []);
+                        setCurrentPage(1);
+                    }
+                } finally {
+                    if (!cancelled) {
+                        setIsListLoading(false);
+                    }
+                }
+            })();
+
+            return () => {
+                cancelled = true;
+            };
+        }, 400);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [
+        activeTab,
+        filterStatus,
+        filterDateFrom,
+        filterDateTo,
+        filterCustomsOffice,
+        filterCurrency,
+        filterInvoiceValueFrom,
+        filterInvoiceValueTo,
+        filterConsignor,
+        filterConsignee,
+        filterContractHolder,
+        filterHSCode,
+        filterDeclarationType,
+        searchTerm,
+        sortColumn,
+        sortDirection,
+        selectedCompanyIds,
+    ]);
+
     const companyFilteredDeclarations = useMemo(() => {
-        if (selectedCompanyIds.length === 0) {
-            return safeDeclarations;
-        }
-        return safeDeclarations.filter(dec => selectedCompanyIds.includes(dec.companyId));
-    }, [safeDeclarations, selectedCompanyIds]);
+        return loadedDeclarations;
+    }, [loadedDeclarations]);
 
     // Parse raw data and details using hooks
     const { declarationsWithRawData, declarationsWithDetails } = useArchiveData(companyFilteredDeclarations, activeTab);
@@ -206,12 +277,12 @@ export default function ArchivePageClient({
     // Hide loading after processing completes
     // This effect runs after tab changes and calculates how long processing should take
     useEffect(() => {
-        if (safeDeclarations.length > 0 && isProcessing) {
+        if (loadedDeclarations.length > 0 && isProcessing) {
             // Calculate processing time based on data size
             // For list61, processing takes longer (needs to parse XML for each declaration)
             const baseTime = activeTab === 'list61' ? 800 : 400;
             const perItemTime = activeTab === 'list61' ? 5 : 2;
-            const processingTime = Math.min(3000, baseTime + (safeDeclarations.length * perItemTime));
+            const processingTime = Math.min(3000, baseTime + (loadedDeclarations.length * perItemTime));
 
             const timer = setTimeout(() => {
                 setIsProcessing(false);
@@ -219,7 +290,7 @@ export default function ArchivePageClient({
 
             return () => clearTimeout(timer);
         }
-    }, [activeTab, safeDeclarations.length, isProcessing]);
+    }, [activeTab, loadedDeclarations.length, isProcessing]);
 
     // Create filters object for useArchiveFilters
     const filters = {
@@ -605,7 +676,7 @@ export default function ArchivePageClient({
                                     : 'Обробка списку з деталями (61.1)...'}
                             </span>
                             <span className="text-slate-500">
-                                {safeDeclarations.length} декларацій
+                                {loadedDeclarations.length} декларацій
                             </span>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden relative">
