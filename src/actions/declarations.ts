@@ -1098,84 +1098,56 @@ export async function getPeriodsLoadingStatus(periodDays: number = 7) {
             currentStart.setHours(0, 0, 0, 0);
         }
 
-        // Check status for each period
-        const periodsStatus = await Promise.all(
-            periods.map(async (period) => {
-                // Check if there are any declarations in this period
-                const declarationsCount = await db.declaration.count({
-                    where: {
-                        companyId: access.companyId,
-                        date: {
-                            gte: period.start,
-                            lte: period.end
-                        }
-                    }
-                });
+        // Efficient: single DB query grouped by period index.
+        // We treat "full" as having a DeclarationSummary row (61.1 parsed).
+        // This avoids loading xmlData and avoids hundreds of parallel queries.
 
-                if (declarationsCount === 0) {
-                    return {
-                        start: period.start,
-                        end: period.end,
-                        status: 'empty' as const,
-                        count: 0,
-                        fullDataCount: 0
-                    };
-                }
+        const rows = await db.$queryRaw<
+            Array<{ idx: number; count: bigint | number; fulldatacount: bigint | number }>
+        >(Prisma.sql`
+            SELECT
+                FLOOR(EXTRACT(EPOCH FROM (d."date" - ${dateFrom})) / 86400 / ${periodDays})::int AS idx,
+                COUNT(*) AS count,
+                SUM(CASE WHEN ds."id" IS NOT NULL THEN 1 ELSE 0 END) AS fullDataCount
+            FROM "Declaration" d
+            LEFT JOIN "DeclarationSummary" ds ON ds."declarationId" = d."id"
+            WHERE d."companyId" = ${access.companyId}
+              AND d."date" >= ${dateFrom}
+              AND d."date" <= ${dateTo}
+            GROUP BY idx
+            ORDER BY idx;
+        `);
 
-                // Check how many have full data (61.1)
-                // Full data means: xmlData contains data61_1 or summary exists
-                const declarationsWithFullData = await db.declaration.findMany({
-                    where: {
-                        companyId: access.companyId,
-                        date: {
-                            gte: period.start,
-                            lte: period.end
-                        }
-                    },
-                    select: {
-                        id: true,
-                        xmlData: true,
-                        summary: true
-                    }
-                });
+        const byIdx = new Map<number, { count: number; fullDataCount: number }>();
+        for (const r of rows) {
+            byIdx.set(Number(r.idx), {
+                count: Number(r.count),
+                fullDataCount: Number((r as any).fulldatacount ?? (r as any).fullDataCount ?? 0),
+            });
+        }
 
-                let fullDataCount = 0;
-                for (const decl of declarationsWithFullData) {
-                    // Check if has 61.1 data
-                    let has61_1 = false;
+        const periodsStatus = periods.map((period, idx) => {
+            const data = byIdx.get(idx) || { count: 0, fullDataCount: 0 };
 
-                    if (decl.summary) {
-                        has61_1 = true;
-                    } else if (decl.xmlData) {
-                        try {
-                            const parsed = JSON.parse(decl.xmlData);
-                            // Check if has data61_1 or mappedData structure indicates full data
-                            if (parsed.data61_1 || (parsed.mappedData && typeof parsed.mappedData === 'object')) {
-                                has61_1 = true;
-                            }
-                        } catch {
-                            // If parsing fails, check if it's XML (old format with 61.1)
-                            if (typeof decl.xmlData === 'string' && decl.xmlData.trim().startsWith('<?xml')) {
-                                has61_1 = true;
-                            }
-                        }
-                    }
-
-                    if (has61_1) {
-                        fullDataCount++;
-                    }
-                }
-
+            if (data.count === 0) {
                 return {
                     start: period.start,
                     end: period.end,
-                    status: fullDataCount === declarationsCount ? 'full' as const :
-                        fullDataCount > 0 ? 'partial' as const : 'list_only' as const,
-                    count: declarationsCount,
-                    fullDataCount: fullDataCount
+                    status: 'empty' as const,
+                    count: 0,
+                    fullDataCount: 0
                 };
-            })
-        );
+            }
+
+            return {
+                start: period.start,
+                end: period.end,
+                status: data.fullDataCount === data.count ? 'full' as const :
+                    data.fullDataCount > 0 ? 'partial' as const : 'list_only' as const,
+                count: data.count,
+                fullDataCount: data.fullDataCount
+            };
+        });
 
         return {
             success: true,
