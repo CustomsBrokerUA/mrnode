@@ -310,7 +310,12 @@ export async function getDeclarationsPaginated(
         andConditions.push({
             OR: [
                 { mrn: { contains: searchTerm, mode: 'insensitive' as const } },
-                { customsId: { contains: searchTerm, mode: 'insensitive' as const } }
+                { customsId: { contains: searchTerm, mode: 'insensitive' as const } },
+                { summary: { senderName: { contains: searchTerm, mode: 'insensitive' as const } } },
+                { summary: { recipientName: { contains: searchTerm, mode: 'insensitive' as const } } },
+                { summary: { contractHolder: { contains: searchTerm, mode: 'insensitive' as const } } },
+                { summary: { customsOffice: { contains: searchTerm, mode: 'insensitive' as const } } },
+                { summary: { declarationType: { contains: searchTerm, mode: 'insensitive' as const } } }
             ]
         });
     }
@@ -476,6 +481,12 @@ export async function getArchiveStatistics(
             : { in: targetCompanyIds }
     };
 
+    const baseDeclarationWhere: any = {
+        companyId: targetCompanyIds.length === 1
+            ? targetCompanyIds[0]
+            : { in: targetCompanyIds }
+    };
+
     const andConditions: any[] = [];
 
     if (!showEeDeclarations) {
@@ -620,9 +631,114 @@ export async function getArchiveStatistics(
         return cached;
     }
 
+    // IMPORTANT: For DeclarationSummary aggregation we must apply summary field filters
+    // directly on DeclarationSummary (not nested via Declaration.where.summary),
+    // otherwise groupBy/aggregate won't match the filtered list.
     const summaryWhere: any = {
-        declaration: where,
+        declaration: baseDeclarationWhere,
     };
+
+    if (!showEeDeclarations) {
+        summaryWhere.NOT = { declarationType: { endsWith: 'ЕЕ' } };
+    }
+
+    // Apply summary-field filters directly
+    if (filters.customsOffice) {
+        summaryWhere.customsOffice = { contains: filters.customsOffice, mode: 'insensitive' as const };
+    }
+
+    if (filters.currency && filters.currency !== 'all') {
+        summaryWhere.OR = [
+            { currency: filters.currency },
+            { invoiceCurrency: filters.currency }
+        ];
+    }
+
+    if (filters.invoiceValueFrom || filters.invoiceValueTo) {
+        const valueFilter: any = {};
+        if (filters.invoiceValueFrom) valueFilter.gte = parseFloat(filters.invoiceValueFrom);
+        if (filters.invoiceValueTo) valueFilter.lte = parseFloat(filters.invoiceValueTo);
+        summaryWhere.invoiceValueUah = valueFilter;
+    }
+
+    if (filters.consignor) {
+        summaryWhere.senderName = { contains: filters.consignor, mode: 'insensitive' as const };
+    }
+
+    if (filters.consignee) {
+        summaryWhere.recipientName = { contains: filters.consignee, mode: 'insensitive' as const };
+    }
+
+    if (filters.contractHolder) {
+        summaryWhere.contractHolder = { contains: filters.contractHolder, mode: 'insensitive' as const };
+    }
+
+    if (filters.declarationType) {
+        const types = filters.declarationType.split(',').map(t => t.trim()).filter(Boolean);
+        if (types.length > 0) {
+            summaryWhere.declarationType = { in: types };
+        }
+    }
+
+    // Apply declaration-side filters through relation
+    if (filters.status && filters.status !== 'all') {
+        summaryWhere.declaration.status = filters.status === 'cleared' ? 'CLEARED' : filters.status;
+    }
+
+    if (filters.dateFrom || filters.dateTo) {
+        const dateFilter: any = {};
+        const summaryDateFilter: any = {};
+
+        if (filters.dateFrom) {
+            const fromDate = new Date(filters.dateFrom);
+            fromDate.setHours(0, 0, 0, 0);
+            dateFilter.gte = fromDate;
+            summaryDateFilter.gte = fromDate;
+        }
+        if (filters.dateTo) {
+            const toDate = new Date(filters.dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            dateFilter.lte = toDate;
+            summaryDateFilter.lte = toDate;
+        }
+
+        summaryWhere.OR = [
+            ...(Array.isArray(summaryWhere.OR) ? summaryWhere.OR : []),
+            { declaration: { date: dateFilter } },
+            { registeredDate: summaryDateFilter },
+        ];
+    }
+
+    if (filters.searchTerm) {
+        const searchTerm = filters.searchTerm.trim();
+
+        const existingAnd = Array.isArray(summaryWhere.AND) ? summaryWhere.AND : [];
+        summaryWhere.AND = [
+            ...existingAnd,
+            {
+                OR: [
+                    { declaration: { mrn: { contains: searchTerm, mode: 'insensitive' as const } } },
+                    { declaration: { customsId: { contains: searchTerm, mode: 'insensitive' as const } } },
+                    { senderName: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { recipientName: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { contractHolder: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { customsOffice: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { declarationType: { contains: searchTerm, mode: 'insensitive' as const } },
+                ]
+            }
+        ];
+    }
+
+    if (filters.hsCode) {
+        summaryWhere.declaration.hsCodes = {
+            some: {
+                hsCode: {
+                    contains: filters.hsCode,
+                    mode: 'insensitive' as const
+                }
+            }
+        };
+    }
 
     const [totals, statusGroups, topConsignors, topConsignees, topContractHolders, topDeclarationTypes, topCustomsOffices] = await Promise.all([
         db.declarationSummary.aggregate({
