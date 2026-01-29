@@ -770,7 +770,7 @@ export async function getArchiveStatistics(
         }),
         db.declarationSummary.groupBy({
             by: ['senderName'],
-            where: { ...summaryWhere, senderName: { not: null } },
+            where: { AND: [summaryWhere, { senderName: { not: null } }] },
             _count: { senderName: true },
             _sum: { customsValue: true },
             orderBy: { _count: { senderName: 'desc' } },
@@ -778,7 +778,7 @@ export async function getArchiveStatistics(
         }),
         db.declarationSummary.groupBy({
             by: ['recipientName'],
-            where: { ...summaryWhere, recipientName: { not: null } },
+            where: { AND: [summaryWhere, { recipientName: { not: null } }] },
             _count: { recipientName: true },
             _sum: { customsValue: true },
             orderBy: { _count: { recipientName: 'desc' } },
@@ -786,7 +786,7 @@ export async function getArchiveStatistics(
         }),
         db.declarationSummary.groupBy({
             by: ['contractHolder'],
-            where: { ...summaryWhere, contractHolder: { not: null } },
+            where: { AND: [summaryWhere, { contractHolder: { not: null } }] },
             _count: { contractHolder: true },
             _sum: { customsValue: true },
             orderBy: { _count: { contractHolder: 'desc' } },
@@ -794,7 +794,7 @@ export async function getArchiveStatistics(
         }),
         db.declarationSummary.groupBy({
             by: ['declarationType'],
-            where: { ...summaryWhere, declarationType: { not: null } },
+            where: { AND: [summaryWhere, { declarationType: { not: null } }] },
             _count: { declarationType: true },
             _sum: { customsValue: true },
             orderBy: { _count: { declarationType: 'desc' } },
@@ -802,7 +802,7 @@ export async function getArchiveStatistics(
         }),
         db.declarationSummary.groupBy({
             by: ['customsOffice'],
-            where: { ...summaryWhere, customsOffice: { not: null } },
+            where: { AND: [summaryWhere, { customsOffice: { not: null } }] },
             _count: { customsOffice: true },
             _sum: { customsValue: true },
             orderBy: { _count: { customsOffice: 'desc' } },
