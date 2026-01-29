@@ -1854,6 +1854,16 @@ async function syncDeclarationsForChunk(
                     { customsId: item.guid },
                     { mrn: item.MRN }
                 ]
+            },
+            select: {
+                id: true,
+                date: true,
+                declarantName: true,
+                senderName: true,
+                recipientName: true,
+                summary: {
+                    select: { id: true }
+                }
             }
         });
 
@@ -1867,12 +1877,9 @@ async function syncDeclarationsForChunk(
         if (existing) {
             let has61_1Data = false;
 
-            // IMPORTANT: xmlData can contain very large 61.1 XML. Avoid JSON.parse here.
-            const existingXmlData = (existing.xmlData || '').trim();
-            if (existingXmlData.startsWith('<') || existingXmlData.startsWith('<?xml')) {
-                has61_1Data = true;
-            } else if (existingXmlData.includes('"data61_1"')) {
-                // Heuristic: we store xmlData as JSON with keys data60_1 / data61_1
+            // IMPORTANT: do not fetch/inspect xmlData here (it can be huge).
+            // If summary exists, it means 61.1 was already processed for this declaration.
+            if ((existing as any).summary?.id) {
                 has61_1Data = true;
             }
 
