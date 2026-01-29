@@ -16,6 +16,30 @@ function getSyncChunkDays() {
     return clamped;
 }
 
+function logMemory(label: string) {
+    if (process.env.LOG_MEMORY !== '1') return;
+    const mu = process.memoryUsage();
+    const mb = (n: number) => Math.round((n / 1024 / 1024) * 10) / 10;
+    console.log(`[mem] ${label} rss=${mb(mu.rss)}MB heapUsed=${mb(mu.heapUsed)}MB heapTotal=${mb(mu.heapTotal)}MB ext=${mb(mu.external)}MB`);
+}
+
+declare global {
+    // eslint-disable-next-line no-var
+    var __mrnodeUnhandledHandlersInstalled: boolean | undefined;
+}
+
+if (!global.__mrnodeUnhandledHandlersInstalled) {
+    global.__mrnodeUnhandledHandlersInstalled = true;
+    process.on('unhandledRejection', (reason: unknown) => {
+        console.error('[unhandledRejection]', reason);
+        logMemory('unhandledRejection');
+    });
+    process.on('uncaughtException', (err: unknown) => {
+        console.error('[uncaughtException]', err);
+        logMemory('uncaughtException');
+    });
+}
+
 /**
  * Fetch declaration details (61.1) for a single GUID
  * Returns { success: boolean, guid: string, count: number, error?: string }
@@ -94,6 +118,7 @@ async function processDetails61_1FromDb(
     const take = 200;
 
     while (true) {
+        logMemory('61.1 loop start');
         const job = await (db.syncJob as any).findUnique({ where: { id: jobId } });
         if (!job || job.status === "cancelled") {
             console.log("Sync job cancelled, stopping 61.1 processing");
@@ -115,6 +140,7 @@ async function processDetails61_1FromDb(
 
         if (batch.length === 0) {
             // Done
+            logMemory('61.1 done');
             const jobBeforeUpdate = await (db.syncJob as any).findUnique({ where: { id: jobId } });
             let finalErrorMessage: string | null = null;
 
@@ -143,6 +169,8 @@ async function processDetails61_1FromDb(
             const guid = item.customsId;
             if (!guid) continue;
 
+            logMemory('61.1 before upsert');
+
             const jobInner = await (db.syncJob as any).findUnique({ where: { id: jobId } });
             if (!jobInner || jobInner.status === "cancelled") {
                 console.log("Sync job cancelled, stopping 61.1 processing");
@@ -154,6 +182,8 @@ async function processDetails61_1FromDb(
             } catch (error: unknown) {
                 console.error(`Error processing 61.1 for GUID ${guid}:`, error);
             }
+
+            logMemory('61.1 after upsert');
 
             completed61_1++;
             if (completed61_1 % 10 === 0) {
@@ -1786,7 +1816,9 @@ async function syncDeclarationsForChunk(
     dateFrom: Date,
     dateTo: Date
 ): Promise<{ success: boolean; count: number; guids: string[]; error?: string }> {
+    logMemory('60.1 chunk start');
     const response = await customsService.getDeclarationsList(dateFrom, dateTo);
+    logMemory('60.1 after getDeclarationsList');
 
     if (!response.success || !response.data?.md) {
         // Return error message if there was an actual error, otherwise just empty data (204 No Content)
@@ -1801,6 +1833,8 @@ async function syncDeclarationsForChunk(
     const declarations = response.data.md;
     let count = 0;
     const guids: string[] = [];
+
+    logMemory(`60.1 items=${Array.isArray(declarations) ? declarations.length : -1}`);
 
     for (const item of declarations) {
         let status = "PROCESSING";
@@ -1822,6 +1856,8 @@ async function syncDeclarationsForChunk(
                 ]
             }
         });
+
+        logMemory('60.1 after findFirst');
 
         const isNew = !existing;
         if (isNew) {
@@ -1889,6 +1925,8 @@ async function syncDeclarationsForChunk(
                     }
                 });
             }
+
+            logMemory('60.1 after update');
         } else {
             // Parse and validate date
             let declarationDate = new Date();
@@ -1924,8 +1962,11 @@ async function syncDeclarationsForChunk(
                     recipientName: item.ccd_recipient_name
                 }
             });
+
+            logMemory('60.1 after create');
         }
     }
 
+    logMemory('60.1 chunk done');
     return { success: true, count, guids };
 }
