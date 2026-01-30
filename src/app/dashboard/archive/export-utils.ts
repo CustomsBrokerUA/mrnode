@@ -308,6 +308,7 @@ export async function exportExtendedToExcel(
             registeredDate: 'Дата реєстрації',
             status: 'Статус',
             type: 'Тип декларації',
+            transport: 'Транспорт',
             consignor: 'Відправник',
             consignee: 'Отримувач',
             invoiceValue: 'Фактурна вартість (вал)',
@@ -362,6 +363,13 @@ export async function exportExtendedToExcel(
             const globalContract = findDocumentInfo(doc, null, [4100, 4104]);
 
             const carrier = mappedData?.clients?.find((c: any) => c.box === '50')?.name || '---';
+            const transport = Array.isArray(mappedData?.transports)
+                ? (mappedData.transports as any[])
+                    .filter((t: any) => String(t?.box || '').trim() === '18')
+                    .map((t: any) => String(t?.name || '').trim())
+                    .filter((v: string) => v && v !== '---')
+                    .join('/') || '---'
+                : '---';
 
             if (!mappedData?.goods || mappedData.goods.length === 0) {
                 const row: any[] = [];
@@ -371,6 +379,7 @@ export async function exportExtendedToExcel(
                         case 'registeredDate': row.push(registeredDate); break;
                         case 'status': row.push(statusText); break;
                         case 'type': row.push(type); break;
+                        case 'transport': row.push(transport); break;
                         case 'consignor': row.push(mappedData?.header?.consignor || '---'); break;
                         case 'consignee': row.push(mappedData?.header?.consignee || '---'); break;
                         case 'invoiceValue': row.push(mappedData?.header?.invoiceValue || 0); break;
@@ -411,6 +420,7 @@ export async function exportExtendedToExcel(
                         case 'registeredDate': row.push(registeredDate); break;
                         case 'status': row.push(statusText); break;
                         case 'type': row.push(type); break;
+                        case 'transport': row.push(index === 0 ? transport : ''); break;
                         case 'consignor': row.push(mappedData?.header?.consignor || '---'); break;
                         case 'consignee': row.push(mappedData?.header?.consignee || '---'); break;
                         case 'invoiceValue': row.push(index === 0 ? (mappedData?.header?.invoiceValue || 0) : ''); break;
