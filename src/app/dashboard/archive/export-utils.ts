@@ -524,14 +524,13 @@ export async function exportExtendedGoodsToExcel(
     onProgress?: (p: ExtendedExportProgress) => void
 ): Promise<void> {
     try {
-        const declarationsWithDetails = sortedDocs.filter(doc => {
-            if (activeTab === 'list61') {
-                return 'mappedData' in doc && (doc as any).mappedData !== null;
-            }
-            return false;
-        });
+        if (activeTab !== 'list61') {
+            alert('Розширений експорт доступний лише на вкладці "Деталі (61.1)"');
+            return;
+        }
 
-        const docsWithFullDetails = await enrichDocsWith61Details(declarationsWithDetails, 5, onProgress);
+        const docsToEnrich = sortedDocs.filter(d => typeof (d as any)?.id === 'string' && (d as any).id);
+        const docsWithFullDetails = await enrichDocsWith61Details(docsToEnrich, 5, onProgress);
 
         if (docsWithFullDetails.length === 0) {
             alert('Немає декларацій з деталями для розширеного експорту');
@@ -621,7 +620,7 @@ export async function exportExtendedGoodsToExcel(
             const mappedData = (doc as any).mappedData;
             docsDoneForRows++;
             onProgress?.({ phase: 'generating_rows', current: docsDoneForRows, total: totalDocsForRows });
-            if (!mappedData || !mappedData.goods || mappedData.goods.length === 0) continue;
+            if (!mappedData) continue;
 
             const header = mappedData.header;
             const extractedData = (doc as any).extractedData;
@@ -654,6 +653,57 @@ export async function exportExtendedGoodsToExcel(
                 } catch {
                     // Failed to get rate, use 0
                 }
+            }
+
+            if (!mappedData.goods || mappedData.goods.length === 0) {
+                const row: any[] = [];
+                activeKeys.forEach(key => {
+                    switch (key) {
+                        case 'mdNumber': row.push(getMDNumber(getRawData(doc), doc.mrn)); break;
+                        case 'registeredDate': row.push(completionDate); break;
+                        case 'status': row.push(header.status === 'R' ? 'Оформлена' : (statusLabels[doc.status as keyof typeof statusLabels] || doc.status)); break;
+                        case 'type': row.push(declarationType); break;
+                        case 'consignor': row.push(header.consignor || '---'); break;
+                        case 'consignee': row.push(header.consignee || '---'); break;
+                        case 'invoiceValue': row.push(0); break;
+                        case 'invoiceCurrency': row.push(header.invoiceCurrency || header.currency || '---'); break;
+                        case 'goodsCount': row.push(0); break;
+                        case 'customsOffice': row.push(header.customsOffice || '---'); break;
+                        case 'declarantName': row.push(header.declarantName || '---'); break;
+                        case 'guid': row.push(getRawData(doc)?.guid || doc.customsId || '---'); break;
+                        case 'mrn': row.push(mrn); break;
+                        case 'invoiceNumber': row.push(findDocumentInfo(doc, null, [380]).number); break;
+                        case 'invoiceDate': row.push(findDocumentInfo(doc, null, [380]).date); break;
+                        case 'cmrNumber': row.push(findDocumentInfo(doc, null, [730]).number); break;
+                        case 'cmrDate': row.push(findDocumentInfo(doc, null, [730]).date); break;
+                        case 'contractNumber': row.push(findDocumentInfo(doc, null, [4100, 4104]).number); break;
+                        case 'contractDate': row.push(findDocumentInfo(doc, null, [4100, 4104]).date); break;
+                        case 'manufacturer': row.push('---'); break;
+                        case 'carrierName': row.push(carrier); break;
+                        case 'deliveryTermsIncoterms': row.push(header.deliveryTerms || '---'); break;
+                        case 'deliveryTermsDetails': row.push(`${header.deliveryPlace || ''} ${header.deliveryCountryCode || ''}`.trim() || '---'); break;
+                        case 'goodsIndex': row.push(''); break;
+                        case 'goodsHSCode': row.push('---'); break;
+                        case 'goodsDescription': row.push('---'); break;
+                        case 'goodsPrice': row.push(0); break;
+                        case 'goodsInvoiceValueUah': row.push(0); break;
+                        case 'goodsInvoiceValueUsd': row.push(0); break;
+                        case 'goodsCustomsValue': row.push(0); break;
+                        case 'goodsPayments': row.push('---'); break;
+                        default: row.push('---');
+                    }
+                });
+                row.push((mappedData.clients?.find((c: any) => c.box === '9')?.code) || '---');
+                row.push((mappedData.clients?.find((c: any) => c.box === '9')?.name) || '---');
+                row.push('---');
+                row.push(0);
+                row.push(0);
+                row.push(usdRate > 0 ? usdRate : '---');
+                row.push(0);
+                row.push(0);
+                paymentCodes.forEach(() => row.push('0.00'));
+                rows.push(row);
+                continue;
             }
 
             for (const goods of mappedData.goods) {
