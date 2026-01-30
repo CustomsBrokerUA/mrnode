@@ -15,17 +15,19 @@ export async function GET(
 
   const { id } = await ctx.params;
 
-  const { getActiveCompanyWithAccess } = await import('@/lib/company-access');
-  const access = await getActiveCompanyWithAccess();
-
-  if (!access.success || !access.companyId) {
-    return NextResponse.json({ error: 'No active company' }, { status: 403 });
-  }
-
   const declaration = await db.declaration.findFirst({
     where: {
       id,
-      companyId: access.companyId
+      company: {
+        userCompanies: {
+          some: {
+            user: {
+              email: session.user.email
+            }
+          }
+        },
+        deletedAt: null
+      }
     },
     select: {
       id: true,
