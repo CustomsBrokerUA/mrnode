@@ -556,42 +556,29 @@ export async function getDeclarationsWithoutDetails() {
             return { error: "Активна компанія не встановлена" };
         }
 
-        // Get all declarations for this company
+        // IMPORTANT: do NOT select xmlData here (it can be huge on large companies).
+        // If summary exists, it means 61.1 was already processed.
+        // Return a limited set for UI.
+        logMemory('getDeclarationsWithoutDetails start');
         const declarations = await db.declaration.findMany({
-            where: { companyId: access.companyId },
+            where: {
+                companyId: access.companyId,
+                customsId: { not: null },
+                summary: { is: null },
+            },
             orderBy: { date: 'desc' },
+            take: 500,
             select: {
                 id: true,
                 customsId: true,
                 mrn: true,
                 status: true,
-                xmlData: true,
                 date: true,
             }
         });
+        logMemory(`getDeclarationsWithoutDetails done items=${declarations.length}`);
 
-        // Filter declarations that don't have 61.1 data
-        const withoutDetails = declarations.filter(decl => {
-            if (!decl.xmlData) return true;
-
-            try {
-                const trimmed = decl.xmlData.trim();
-                // If it's XML, it's old format (only 61.1), so it has details
-                if (trimmed.startsWith('<') || trimmed.startsWith('<?xml')) {
-                    return false;
-                }
-
-                // Try to parse as JSON
-                const parsed = JSON.parse(decl.xmlData);
-                // If no data61_1, it doesn't have details
-                return !parsed.data61_1;
-            } catch {
-                // Invalid format, assume no details
-                return true;
-            }
-        });
-
-        return { success: true, declarations: withoutDetails };
+        return { success: true, declarations };
     } catch (error: any) {
         return { error: "Помилка: " + error.message };
     }
@@ -702,6 +689,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             return { error: response.error || "Помилка отримання даних від митниці" };
         }
 
+        logMemory('syncDeclarations start');
         const declarations = response.data.md;
         let count = 0; // Total declarations processed
         let newCount = 0; // Only new declarations (not in DB yet)
@@ -724,6 +712,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             const data60_1 = item; // Keep as object for merging
 
             // Manual upsert logic
+            // IMPORTANT: avoid selecting xmlData here (it can be huge on large companies)
             const existing = await db.declaration.findFirst({
                 where: {
                     companyId: access.companyId,
@@ -731,6 +720,14 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                         { customsId: item.guid },
                         { mrn: item.MRN }
                     ]
+                },
+                select: {
+                    id: true,
+                    date: true,
+                    declarantName: true,
+                    senderName: true,
+                    recipientName: true,
+                    summary: { select: { id: true } }
                 }
             });
 
@@ -743,46 +740,35 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             }
 
             if (existing) {
-                // Parse existing data to preserve 61.1 XML if it exists
-                let existingData: any = {};
-                let has61_1Data = false;
+                const has61_1Data = Boolean((existing as any).summary?.id);
 
-                try {
-                    const existingXmlData = existing.xmlData || '';
-                    if (existingXmlData.trim().startsWith('<') || existingXmlData.trim().startsWith('<?xml')) {
-                        // Has 61.1 XML data
-                        existingData.data61_1 = existingXmlData;
-                        has61_1Data = true;
-                    } else {
-                        // Try to parse as JSON
-                        const parsed = JSON.parse(existingXmlData);
-                        if (parsed.data61_1) {
-                            existingData.data61_1 = parsed.data61_1;
-                            has61_1Data = true;
+                // If details were already processed (summary exists), do not touch xmlData.
+                if (has61_1Data) {
+                    await db.declaration.update({
+                        where: { id: existing.id },
+                        data: {
+                            status: status,
+                            declarantName: item.ccd_decl_name || existing.declarantName,
+                            senderName: item.ccd_sender_name || existing.senderName,
+                            recipientName: item.ccd_recipient_name || existing.recipientName,
+                            updatedAt: new Date()
                         }
-                        if (parsed.data60_1) {
-                            existingData.data60_1 = parsed.data60_1;
+                    });
+                } else {
+                    // If no summary yet, store only 60.1 and build summary.
+                    const updated = await db.declaration.update({
+                        where: { id: existing.id },
+                        data: {
+                            status: status,
+                            xmlData: JSON.stringify({ data60_1: data60_1 }),
+                            declarantName: item.ccd_decl_name || existing.declarantName,
+                            senderName: item.ccd_sender_name || existing.senderName,
+                            recipientName: item.ccd_recipient_name || existing.recipientName,
+                            updatedAt: new Date()
                         }
-                    }
-                } catch {
-                    // Invalid format, will replace
+                    });
+                    await updateDeclarationSummary(updated.id, JSON.stringify({ data60_1: data60_1 }));
                 }
-
-                // Always update with fresh 60.1 data
-                existingData.data60_1 = data60_1;
-
-                // Store as JSON with both datasets
-                const updated = await db.declaration.update({
-                    where: { id: existing.id },
-                    data: {
-                        status: status,
-                        xmlData: JSON.stringify(existingData),
-                        updatedAt: new Date()
-                    }
-                });
-
-                // Update summary cache
-                await updateDeclarationSummary(updated.id, JSON.stringify(existingData));
             } else {
                 // New declaration - store 60.1 data
                 const dataToStore = {
@@ -804,6 +790,8 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             }
             count++; // Total processed (both new and existing)
         }
+
+        logMemory(`syncDeclarations done total=${count} new=${newCount}`);
 
         // Save sync history (only count new declarations, not existing ones)
         if ('syncHistory' in db && db.syncHistory) {
