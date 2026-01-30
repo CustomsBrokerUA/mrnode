@@ -23,17 +23,19 @@ export async function getDeclarationById(id: string) {
     const session = await auth();
     if (!session?.user?.email) return null;
 
-    const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
-    const access = await getActiveCompanyWithAccess();
-
-    if (!access.success || !access.companyId) {
-        return null;
-    }
-
     const declaration = await db.declaration.findFirst({
         where: {
             id: id,
-            companyId: access.companyId
+            company: {
+                userCompanies: {
+                    some: {
+                        user: {
+                            email: session.user.email
+                        }
+                    }
+                },
+                deletedAt: null
+            }
         }
     });
 
