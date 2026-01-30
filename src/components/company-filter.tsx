@@ -87,9 +87,17 @@ export default function CompanyFilter({ onFilterChange, activeCompanyId }: Compa
         if (filterMode === 'active') {
             companyIds = [activeCompanyId];
         } else if (filterMode === 'all') {
-            companyIds = companies.map(c => c.id);
+            // On initial mount companies might not be loaded yet.
+            // Fall back to the stored selection to avoid temporarily resetting to active company.
+            companyIds = companies.length > 0 ? companies.map(c => c.id) : selectedCompanyIds;
         } else {
             companyIds = selectedCompanyIds;
+        }
+
+        // Avoid emitting empty company list for non-active modes while data is still loading.
+        // Empty array is treated as "no companyIds" upstream and falls back to active company.
+        if ((filterMode === 'all' || filterMode === 'selected') && companyIds.length === 0) {
+            return;
         }
 
         onFilterChange(companyIds);
