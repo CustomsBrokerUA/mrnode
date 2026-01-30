@@ -644,6 +644,13 @@ export async function exportExtendedGoodsToExcel(
 
             const mrn = doc.mrn || getRawData(doc)?.MRN || '---';
             const carrier = mappedData?.clients?.find((c: any) => c.box === '50')?.name || '---';
+            const transport = Array.isArray(mappedData?.transports)
+                ? (mappedData.transports as any[])
+                    .filter((t: any) => String(t?.box || '').trim() === '18')
+                    .map((t: any) => String(t?.name || '').trim())
+                    .filter((v: string) => v && v !== '---')
+                    .join('/') || '---'
+                : '---';
 
             let usdRate = 0;
             if (completionDateRaw) {
@@ -663,6 +670,7 @@ export async function exportExtendedGoodsToExcel(
                         case 'registeredDate': row.push(completionDate); break;
                         case 'status': row.push(header.status === 'R' ? 'Оформлена' : (statusLabels[doc.status as keyof typeof statusLabels] || doc.status)); break;
                         case 'type': row.push(declarationType); break;
+                        case 'transport': row.push(transport); break;
                         case 'consignor': row.push(header.consignor || '---'); break;
                         case 'consignee': row.push(header.consignee || '---'); break;
                         case 'invoiceValue': row.push(0); break;
@@ -733,6 +741,7 @@ export async function exportExtendedGoodsToExcel(
                         case 'registeredDate': row.push(completionDate); break;
                         case 'status': row.push(header.status === 'R' ? 'Оформлена' : (statusLabels[doc.status as keyof typeof statusLabels] || doc.status)); break;
                         case 'type': row.push(declarationType); break;
+                        case 'transport': row.push(transport); break;
                         case 'consignor': row.push(header.consignor || '---'); break;
                         case 'consignee': row.push(header.consignee || '---'); break;
                         case 'invoiceValue': row.push(invoiceValueUah); break;
