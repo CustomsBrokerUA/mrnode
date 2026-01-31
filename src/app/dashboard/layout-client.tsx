@@ -73,6 +73,11 @@ export default function DashboardLayoutClient({
     useEffect(() => {
         if (!autoSyncTriggered) {
             setAutoSyncTriggered(true);
+
+            if (userProfile?.email === 'test@gmail.com') {
+                return;
+            }
+
             triggerAutoSyncOnLogin().then(result => {
                 if (result.success) {
                     console.log('Auto-sync triggered:', result.message);
