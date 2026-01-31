@@ -3,8 +3,11 @@ import { LandingFooter } from "@/components/landing/footer";
 import Link from "next/link";
 import { ArrowRight, RefreshCw, FileSpreadsheet, ShieldCheck, ChevronRight } from "lucide-react";
 import { DemoButton } from "@/components/landing/demo-button";
+import { auth } from "@/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-brand-teal selection:text-white">
       <LandingHeader />
@@ -35,10 +38,12 @@ export default function Home() {
                   Розпочати безкоштовно
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <DemoButton
-                  className="w-full sm:w-auto"
-                  variant="outline"
-                />
+                {!session?.user && (
+                  <DemoButton
+                    className="w-full sm:w-auto"
+                    variant="outline"
+                  />
+                )}
               </div>
             </div>
           </div>

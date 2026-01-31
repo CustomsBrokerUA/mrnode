@@ -18,7 +18,9 @@ export async function LandingHeader() {
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                     <Link href="/features" className="hover:text-brand-blue transition-colors">Можливості</Link>
                     <Link href="/#how-it-works" className="hover:text-brand-blue transition-colors">Як це працює</Link>
-                    <DemoButton variant="ghost" text="Демо" showIcon={false} className="text-sm font-medium text-slate-600" />
+                    {!session?.user && (
+                        <DemoButton variant="ghost" text="Демо" showIcon={false} className="text-sm font-medium text-slate-600" />
+                    )}
                     <Link href="/pricing" className="hover:text-brand-blue transition-colors">Ціни</Link>
                 </nav>
                 <div className="flex items-center gap-4">
