@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { FileText, CheckCircle2, Clock, XCircle, DollarSign, Package, TrendingUp, BarChart3 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -80,7 +80,7 @@ export default function DashboardPageClient({
         };
     });
 
-    const refreshAnalytics = async (companyIds?: string[], range?: string, custom?: { from?: string; to?: string }) => {
+    const refreshAnalytics = useCallback(async (companyIds?: string[], range?: string, custom?: { from?: string; to?: string }) => {
         setIsRefreshing(true);
         try {
             const targetRange = range || dateRange;
@@ -88,24 +88,46 @@ export default function DashboardPageClient({
             const targetCompanyIds = companyIds !== undefined ? companyIds : selectedCompanyIds;
 
             let dateFrom: string | undefined;
-            let dateTo: string | undefined = new Date().toISOString();
+            let dateTo: string | undefined;
+
+            const startOfDayIso = (d: Date) => {
+                const x = new Date(d);
+                x.setHours(0, 0, 0, 0);
+                return x.toISOString();
+            };
+
+            const endOfDayIso = (d: Date) => {
+                const x = new Date(d);
+                x.setHours(23, 59, 59, 999);
+                return x.toISOString();
+            };
 
             if (targetRange === '7d') {
-                dateFrom = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
+                const now = new Date();
+                dateFrom = startOfDayIso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7));
+                dateTo = endOfDayIso(now);
             } else if (targetRange === '30d') {
-                dateFrom = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString();
+                const now = new Date();
+                dateFrom = startOfDayIso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30));
+                dateTo = endOfDayIso(now);
             } else if (targetRange === 'month') {
                 const now = new Date();
-                dateFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                dateFrom = startOfDayIso(new Date(now.getFullYear(), now.getMonth(), 1));
+                dateTo = endOfDayIso(now);
             } else if (targetRange === 'lastMonth') {
                 const now = new Date();
-                dateFrom = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-                dateTo = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+                dateFrom = startOfDayIso(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+                dateTo = endOfDayIso(new Date(now.getFullYear(), now.getMonth(), 0));
             } else if (targetRange === 'year') {
-                dateFrom = new Date(new Date().setDate(new Date().getDate() - 365)).toISOString();
+                const now = new Date();
+                dateFrom = startOfDayIso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 365));
+                dateTo = endOfDayIso(now);
             } else if (targetRange === 'custom') {
                 dateFrom = targetCustom.from;
                 dateTo = targetCustom.to;
+            } else if (targetRange === 'all') {
+                dateFrom = undefined;
+                dateTo = undefined;
             }
 
             const newAnalytics = await getDashboardAnalytics({
@@ -121,7 +143,7 @@ export default function DashboardPageClient({
         } finally {
             setIsRefreshing(false);
         }
-    };
+    }, [customDates, dateRange, selectedCompanyIds]);
 
     const handleFilterChange = (companyIds: string[]) => {
         setSelectedCompanyIds(companyIds);
@@ -134,6 +156,16 @@ export default function DashboardPageClient({
             refreshAnalytics(undefined, range);
         }
     };
+
+    useEffect(() => {
+        if (dateRange === 'custom') {
+            if (customDates.from && customDates.to) {
+                refreshAnalytics(undefined, 'custom', customDates);
+            }
+            return;
+        }
+        refreshAnalytics(undefined, dateRange);
+    }, [dateRange, customDates.from, customDates.to, selectedCompanyIds, refreshAnalytics]);
 
     // Listen for storage changes to update settings
     useEffect(() => {

@@ -330,6 +330,11 @@ export default function ArchivePageClient({
         filters
     });
 
+    const clientStatistics = useArchiveStatistics({
+        filteredDocs: filteredDocs as any,
+        activeTab,
+    });
+
     // Sort declarations using hook
     const { sortedDocs } = useArchiveSorting({
         filteredDocs,
@@ -742,7 +747,7 @@ export default function ArchivePageClient({
             {/* Statistics - Only show for list61 */}
             {activeTab === 'list61' && (
                 <ArchiveStatistics
-                    statistics={serverStatistics || { total: 0, totalCustomsValue: 0, totalInvoiceValue: 0, totalItems: 0, topConsignors: [], topConsignees: [], topContractHolders: [], topHSCodes: [], topDeclarationTypes: [], topCustomsOffices: [] }}
+                    statistics={serverStatistics || clientStatistics || { total: 0, totalCustomsValue: 0, totalInvoiceValue: 0, totalItems: 0, topConsignors: [], topConsignees: [], topContractHolders: [], topHSCodes: [], topDeclarationTypes: [], topCustomsOffices: [] }}
                     statsSettings={statsSettings}
                     isMounted={isMounted}
                     onSettingsClick={() => setShowStatsSettings(true)}
