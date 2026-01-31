@@ -31,13 +31,23 @@ export default async function Home() {
                 MRNode — це екосистема для брокерів та бухгалтерів. Синхронізуйте декларації з митниці та експортуйте в облікові системи за лічені секунди.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/register"
-                  className="w-full sm:w-auto px-8 py-4 bg-brand-teal text-white font-semibold rounded-xl hover:bg-cyan-500 transition-all shadow-xl shadow-brand-teal/30 flex items-center justify-center gap-2 group"
-                >
-                  Розпочати безкоштовно
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                {session?.user ? (
+                  <Link
+                    href="/dashboard"
+                    className="w-full sm:w-auto px-8 py-4 bg-brand-teal text-white font-semibold rounded-xl hover:bg-cyan-500 transition-all shadow-xl shadow-brand-teal/30 flex items-center justify-center gap-2 group"
+                  >
+                    Перейти в дашборд
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/register"
+                    className="w-full sm:w-auto px-8 py-4 bg-brand-teal text-white font-semibold rounded-xl hover:bg-cyan-500 transition-all shadow-xl shadow-brand-teal/30 flex items-center justify-center gap-2 group"
+                  >
+                    Розпочати безкоштовно
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                )}
                 {!session?.user && (
                   <DemoButton
                     className="w-full sm:w-auto"
