@@ -19,9 +19,6 @@ import { FiltersPanel } from './components/archive-filters';
 import { TableView, CardsView, CompactView } from './components/archive-views';
 import {
     useArchiveData,
-    useArchiveFilters,
-    useArchiveSorting,
-    useArchivePagination,
     useArchiveStatistics,
     useArchiveSelection,
     useArchiveDelete
@@ -82,6 +79,9 @@ export default function ArchivePageClient({
     // Pagination state - client-side pagination
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+
+    const [serverTotal, setServerTotal] = useState<number>(initialDeclarations.length);
+    const [serverTotalPages, setServerTotalPages] = useState<number>(1);
 
     // Sorting state - read from URL or props
     const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
@@ -217,8 +217,8 @@ export default function ArchivePageClient({
     // Loading state for tab switching
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Load declarations from server based on active filters so older declarations appear.
-    // We load a capped slice (max 500) and paginate locally.
+    // Load declarations from server based on active filters.
+    // We fetch only the current page to keep memory usage bounded.
     useEffect(() => {
         let cancelled = false;
         const timer = setTimeout(() => {
@@ -227,8 +227,8 @@ export default function ArchivePageClient({
             (async () => {
                 try {
                     const result = await getDeclarationsPaginated(
-                        1,
-                        500,
+                        currentPage,
+                        itemsPerPage,
                         {
                             status: filterStatus,
                             dateFrom: filterDateFrom,
@@ -251,17 +251,30 @@ export default function ArchivePageClient({
                     );
 
                     if (!cancelled) {
-                        const decls = (result as any).declarations;
+                        const decls = (result as any)?.declarations;
+                        const total = Number((result as any)?.total);
+                        const totalPages = Number((result as any)?.totalPages);
+
                         if (Array.isArray(decls)) {
-                            let didReplace = false;
-                            setLoadedDeclarations((prev) => {
-                                const shouldReplace = decls.length > 0 || prev.length === 0;
-                                didReplace = shouldReplace;
-                                return shouldReplace ? decls : prev;
-                            });
-                            if (didReplace) {
-                                setCurrentPage(1);
+                            setLoadedDeclarations(decls);
+                        } else {
+                            setLoadedDeclarations([]);
+                        }
+
+                        if (Number.isFinite(total)) {
+                            setServerTotal(total);
+                        } else {
+                            setServerTotal(Array.isArray(decls) ? decls.length : 0);
+                        }
+
+                        if (Number.isFinite(totalPages) && totalPages >= 0) {
+                            setServerTotalPages(totalPages);
+                            if (totalPages > 0 && currentPage > totalPages) {
+                                setCurrentPage(totalPages);
                             }
+                        } else {
+                            const fallbackTotalPages = Math.ceil((Number.isFinite(total) ? total : (Array.isArray(decls) ? decls.length : 0)) / itemsPerPage);
+                            setServerTotalPages(fallbackTotalPages);
                         }
                     }
                 } finally {
@@ -278,6 +291,8 @@ export default function ArchivePageClient({
         };
     }, [
         activeTab,
+        currentPage,
+        itemsPerPage,
         filterStatus,
         filterDateFrom,
         filterDateTo,
@@ -321,7 +336,7 @@ export default function ArchivePageClient({
         }
     }, [activeTab, loadedDeclarations.length, isProcessing]);
 
-    // Create filters object for useArchiveFilters
+    // Filters used for server-side fetches (list + statistics)
     const filters = {
         status: filterStatus,
         dateFrom: filterDateFrom,
@@ -338,26 +353,19 @@ export default function ArchivePageClient({
         searchTerm: searchTerm,
     };
 
-    // Filter declarations using hook
-    const { filteredDocs, filteredDocs60, filteredDocs61 } = useArchiveFilters({
-        declarationsWithRawData,
-        declarationsWithDetails,
-        activeTab,
-        filters
-    });
+    // When using server-side pagination, the returned page is already filtered by the server.
+    // Keep client-side filtering disabled to avoid mismatch with server total/totalPages.
+    const filteredDocs = activeTab === 'list61'
+        ? (declarationsWithDetails as any)
+        : (declarationsWithRawData as any);
 
     const clientStatistics = useArchiveStatistics({
         filteredDocs: filteredDocs as any,
         activeTab,
     });
 
-    // Sort declarations using hook
-    const { sortedDocs } = useArchiveSorting({
-        filteredDocs,
-        activeTab,
-        sortColumn,
-        sortDirection
-    });
+    // Sorting is done on the server (via getDeclarationsPaginated).
+    const sortedDocs = filteredDocs;
 
     const [serverStatistics, setServerStatistics] = useState<any | null>(null);
     const [isStatsLoading, setIsStatsLoading] = useState(false);
@@ -427,12 +435,11 @@ export default function ArchivePageClient({
         sanitizedSelectedCompanyIds,
     ]);
 
-    // Client-side pagination - paginate filtered and sorted data
-    const { paginatedDocs, totalItems, totalPages, startIndex, endIndex } = useArchivePagination({
-        sortedDocs,
-        currentPage,
-        itemsPerPage
-    });
+    const paginatedDocs = sortedDocs;
+    const totalItems = serverTotal;
+    const totalPages = serverTotalPages;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + sortedDocs.length;
 
     // No URL syncing - all state is managed client-side
 
@@ -491,7 +498,7 @@ export default function ArchivePageClient({
         const monthAgo = new Date(today);
         monthAgo.setMonth(monthAgo.getMonth() - 1);
 
-        sortedDocs.forEach(doc => {
+        sortedDocs.forEach((doc: any) => {
             let docDate: Date | null = null;
 
             if (activeTab === 'list61' && 'extractedData' in doc) {
@@ -649,8 +656,8 @@ export default function ArchivePageClient({
 
     // For virtualization, check all sortedDocs, otherwise check paginatedDocs
     const docsToCheck = useVirtualization ? sortedDocs : paginatedDocs;
-    const allSelected = docsToCheck.length > 0 && docsToCheck.every(doc => selectedIds.has(doc.id));
-    const someSelected = docsToCheck.some(doc => selectedIds.has(doc.id)) && !allSelected;
+    const allSelected = docsToCheck.length > 0 && docsToCheck.every((doc: any) => selectedIds.has(doc.id));
+    const someSelected = docsToCheck.some((doc: any) => selectedIds.has(doc.id)) && !allSelected;
 
     useEffect(() => {
         if (selectAllCheckboxRef.current) {
