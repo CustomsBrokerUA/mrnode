@@ -109,12 +109,19 @@ export async function getDashboardAnalytics(params?: {
     };
 
     if (dateFrom || dateTo) {
-        where.summary = {
-            registeredDate: {
-                ...(dateFrom && { gte: new Date(dateFrom) }),
-                ...(dateTo && { lte: new Date(dateTo) }),
-            }
+        const dateFilter: any = {
+            ...(dateFrom && { gte: new Date(dateFrom) }),
+            ...(dateTo && { lte: new Date(dateTo) }),
         };
+
+        where.OR = [
+            { date: dateFilter },
+            {
+                summary: {
+                    registeredDate: dateFilter
+                }
+            }
+        ];
     }
 
     // OPTIMIZATION: Use Aggregate for main metrics

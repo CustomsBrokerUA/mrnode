@@ -101,6 +101,12 @@ export default function ArchivePageClient({
     const [showFilters, setShowFilters] = useState(false);
     const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
 
+    const sanitizedSelectedCompanyIds = useMemo(() => {
+        return Array.isArray(selectedCompanyIds)
+            ? selectedCompanyIds.map((id) => String(id || '').trim()).filter(Boolean)
+            : [];
+    }, [selectedCompanyIds]);
+
     // Quick preview state
     const [previewDoc, setPreviewDoc] = useState<DeclarationWithRawData | null>(null);
 
@@ -225,7 +231,7 @@ export default function ArchivePageClient({
                         sortColumn,
                         sortDirection,
                         activeTab,
-                        selectedCompanyIds.length > 0 ? selectedCompanyIds : undefined
+                        sanitizedSelectedCompanyIds.length > 0 ? sanitizedSelectedCompanyIds : undefined
                     );
 
                     if (!cancelled) {
@@ -271,7 +277,7 @@ export default function ArchivePageClient({
         searchTerm,
         sortColumn,
         sortDirection,
-        selectedCompanyIds,
+        sanitizedSelectedCompanyIds,
     ]);
 
     const companyFilteredDeclarations = useMemo(() => {
@@ -364,7 +370,7 @@ export default function ArchivePageClient({
                             searchTerm: filters.searchTerm,
                         },
                         activeTab,
-                        selectedCompanyIds.length > 0 ? selectedCompanyIds : undefined
+                        sanitizedSelectedCompanyIds.length > 0 ? sanitizedSelectedCompanyIds : undefined
                     );
 
                     if (!cancelled) {
@@ -397,7 +403,7 @@ export default function ArchivePageClient({
         filters.hsCode,
         filters.declarationType,
         filters.searchTerm,
-        selectedCompanyIds,
+        sanitizedSelectedCompanyIds,
     ]);
 
     // Client-side pagination - paginate filtered and sorted data
