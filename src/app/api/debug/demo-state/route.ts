@@ -57,13 +57,50 @@ export async function GET() {
   const activeCompany = user.activeCompanyId
     ? await db.company.findUnique({
         where: { id: user.activeCompanyId },
-        select: { id: true, name: true, edrpou: true, isActive: true, deletedAt: true }
+        select: { id: true, name: true, edrpou: true, isActive: true, deletedAt: true, syncSettings: true }
       })
     : null;
+
+  const showEeDeclarations =
+    activeCompany && (activeCompany.syncSettings as any)?.showEeDeclarations === true;
+
+  let declarationTypeCounts: Array<{ declarationType: string | null; count: number }> = [];
+  if (user.activeCompanyId) {
+    try {
+      const grouped = await db.declarationSummary.groupBy({
+        by: ['declarationType'],
+        _count: { _all: true },
+        where: {
+          declaration: {
+            companyId: user.activeCompanyId,
+          }
+        }
+      });
+
+      declarationTypeCounts = (grouped as any[])
+        .map((g) => ({
+          declarationType: (g as any).declarationType ?? null,
+          count: Number((g as any)?._count?._all ?? 0),
+        }))
+        .sort((a, b) => b.count - a.count);
+    } catch {
+      declarationTypeCounts = [];
+    }
+  }
 
   return NextResponse.json({
     now: new Date().toISOString(),
     user,
-    activeCompany
+    activeCompany: activeCompany
+      ? {
+          id: activeCompany.id,
+          name: activeCompany.name,
+          edrpou: activeCompany.edrpou,
+          isActive: activeCompany.isActive,
+          deletedAt: activeCompany.deletedAt,
+        }
+      : null,
+    showEeDeclarations,
+    declarationTypeCounts,
   });
 }
