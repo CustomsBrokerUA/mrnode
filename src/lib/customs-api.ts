@@ -5,7 +5,7 @@ import iconv from 'iconv-lite';
 
 // Create a relaxed agent to bypass SSL errors
 const httpsAgent = new https.Agent({
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
     keepAlive: true
 });
 
