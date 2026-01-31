@@ -50,7 +50,9 @@ export default function DashboardPageClient({
 
     // Sync state with props when server-side data changes
     useEffect(() => {
-        setAnalytics(initialAnalytics);
+        if (initialAnalytics) {
+            setAnalytics(initialAnalytics);
+        }
     }, [initialAnalytics]);
 
     const [dashboardSettings] = useState(() => {
@@ -111,7 +113,9 @@ export default function DashboardPageClient({
                 dateFrom,
                 dateTo
             });
-            setAnalytics(newAnalytics);
+            if (newAnalytics) {
+                setAnalytics(newAnalytics);
+            }
         } catch (error) {
             console.error("Error refreshing analytics:", error);
         } finally {
