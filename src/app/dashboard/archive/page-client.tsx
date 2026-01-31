@@ -229,8 +229,18 @@ export default function ArchivePageClient({
                     );
 
                     if (!cancelled) {
-                        setLoadedDeclarations((result as any).declarations || []);
-                        setCurrentPage(1);
+                        const decls = (result as any).declarations;
+                        if (Array.isArray(decls)) {
+                            let didReplace = false;
+                            setLoadedDeclarations((prev) => {
+                                const shouldReplace = decls.length > 0 || prev.length === 0;
+                                didReplace = shouldReplace;
+                                return shouldReplace ? decls : prev;
+                            });
+                            if (didReplace) {
+                                setCurrentPage(1);
+                            }
+                        }
                     }
                 } finally {
                     if (!cancelled) {
