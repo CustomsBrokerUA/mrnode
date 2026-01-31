@@ -952,29 +952,166 @@ export default function ArchivePageClient({
                             Скинути
                         </Button>
                     )}
-                    <Button
-                        variant={groupByDate ? "primary" : "outline"}
-                        className="gap-2"
-                        onClick={() => setGroupByDate(!groupByDate)}
-                    >
-                        <Calendar className="w-4 h-4" />
-                        Групувати по датах
-                    </Button>
-                    {selectedIds.size > 0 && (
+                    <div className="hidden sm:flex items-center gap-4">
                         <Button
-                            variant="outline"
-                            className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleDeleteSelected(selectedIds, clearSelection)}
-                            disabled={isDeleting}
+                            variant={groupByDate ? "primary" : "outline"}
+                            className="gap-2"
+                            onClick={() => setGroupByDate(!groupByDate)}
                         >
-                            <Trash2 className="w-4 h-4" />
-                            Видалити вибрані ({selectedIds.size})
+                            <Calendar className="w-4 h-4" />
+                            Групувати по датах
                         </Button>
-                    )}
+                        {selectedIds.size > 0 && (
+                            <Button
+                                variant="outline"
+                                className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDeleteSelected(selectedIds, clearSelection)}
+                                disabled={isDeleting}
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Видалити вибрані ({selectedIds.size})
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
+                {/* Mobile Filters Drawer */}
+                {activeTab === 'list61' && showFilters && isMobile && (
+                    <div className="fixed inset-0 z-[60]">
+                        <div
+                            className="absolute inset-0 bg-black/40"
+                            onClick={() => setShowFilters(false)}
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl border-t border-slate-200 p-4 max-h-[85vh] overflow-auto">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="text-sm font-semibold text-slate-900">Фільтри</div>
+                                <button
+                                    className="p-2 text-slate-500 hover:text-slate-900"
+                                    onClick={() => setShowFilters(false)}
+                                    aria-label="Закрити"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Статус</label>
+                                    <select
+                                        value={filterStatus}
+                                        onChange={(e) => {
+                                            setFilterStatus(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="w-full px-3 py-2 text-sm font-medium text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent"
+                                    >
+                                        <option value="all">Всі</option>
+                                        <option value="cleared">Оформлені</option>
+                                        <option value="PROCESSING">В роботі</option>
+                                        <option value="REJECTED">Помилка</option>
+                                    </select>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Дата від</label>
+                                        <Input
+                                            type="date"
+                                            value={filterDateFrom}
+                                            onChange={(e) => {
+                                                setFilterDateFrom(e.target.value);
+                                                setCurrentPage(1);
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Дата до</label>
+                                        <Input
+                                            type="date"
+                                            value={filterDateTo}
+                                            onChange={(e) => {
+                                                setFilterDateTo(e.target.value);
+                                                setCurrentPage(1);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Митниця</label>
+                                    <Input
+                                        placeholder="Введіть код митниці..."
+                                        value={filterCustomsOffice}
+                                        onChange={(e) => {
+                                            setFilterCustomsOffice(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Тип декларації</label>
+                                    <Input
+                                        placeholder="Напр. 01 / 02 / 03"
+                                        value={filterDeclarationType}
+                                        onChange={(e) => {
+                                            setFilterDeclarationType(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Валюта</label>
+                                    <select
+                                        value={filterCurrency}
+                                        onChange={(e) => {
+                                            setFilterCurrency(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="w-full px-3 py-2 text-sm font-medium text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent"
+                                    >
+                                        <option value="all">Всі</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="UAH">UAH</option>
+                                        <option value="GBP">GBP</option>
+                                        <option value="PLN">PLN</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 mt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="gap-2 flex-1 text-slate-600 hover:text-slate-900"
+                                    onClick={() => {
+                                        setFilterStatus('all');
+                                        setFilterDateFrom('');
+                                        setFilterDateTo('');
+                                        setFilterCustomsOffice('');
+                                        setFilterCurrency('all');
+                                        setFilterDeclarationType('');
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    <RotateCcw className="w-4 h-4" />
+                                    Скинути
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    className="flex-1"
+                                    onClick={() => setShowFilters(false)}
+                                >
+                                    Готово
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Filters Panel - Only show for list61 */}
-                {activeTab === 'list61' && showFilters && (
+                {activeTab === 'list61' && showFilters && !isMobile && (
                     <FiltersPanel
                         filterStatus={filterStatus}
                         filterDateFrom={filterDateFrom}
