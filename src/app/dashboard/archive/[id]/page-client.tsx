@@ -101,9 +101,10 @@ export default function DeclarationDetailsClient({ declaration }: { declaration:
 
     // Load USD exchange rate
     React.useEffect(() => {
-        if (mappedData?.header?.rawDate) {
+        const rateDate = mappedData?.header?.currencyRateDateRaw || mappedData?.header?.rawDate;
+        if (rateDate) {
             setUsdRateLoading(true);
-            getUSDExchangeRateForDate(mappedData.header.rawDate)
+            getUSDExchangeRateForDate(rateDate)
                 .then(rate => {
                     setUsdRate(rate);
                     setUsdRateLoading(false);
@@ -113,7 +114,7 @@ export default function DeclarationDetailsClient({ declaration }: { declaration:
                     setUsdRateLoading(false);
                 });
         }
-    }, [mappedData?.header?.rawDate]);
+    }, [mappedData?.header?.currencyRateDateRaw, mappedData?.header?.rawDate]);
 
     // Handle body scroll locking
     React.useEffect(() => {
