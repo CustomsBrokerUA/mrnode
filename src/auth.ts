@@ -55,13 +55,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             
             token.companies = activeCompanies;
             
-            // Якщо активна компанія видалена, скинути її
+            // Якщо активна компанія видалена/недоступна - переключити на першу доступну
             if (token.activeCompanyId && !activeCompanies.some(c => c.companyId === token.activeCompanyId)) {
-                token.activeCompanyId = null;
+                const fallbackCompanyId = activeCompanies[0]?.companyId || null;
+                token.activeCompanyId = fallbackCompanyId;
+
                 // Оновити в БД
                 await db.user.update({
                     where: { id: userId },
-                    data: { activeCompanyId: null },
+                    data: { activeCompanyId: fallbackCompanyId },
                 });
             }
             
