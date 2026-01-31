@@ -53,8 +53,68 @@ export default function DashboardLayoutClient({
     const [ratesTodayLoading, setRatesTodayLoading] = useState(false);
     const [autoSyncTriggered, setAutoSyncTriggered] = useState(false);
     const [isCompanySwitching, setIsCompanySwitching] = useState(false);
+    const [isIdleLoggingOut, setIsIdleLoggingOut] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+
+    useEffect(() => {
+        if (isIdleLoggingOut) return;
+
+        const IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
+        const STORAGE_KEY = 'mrnode_last_activity_at';
+
+        const now = Date.now();
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const last = raw ? Number(raw) : now;
+            if (Number.isFinite(last) && now - last > IDLE_TIMEOUT_MS) {
+                setIsIdleLoggingOut(true);
+                logout();
+                return;
+            }
+        } catch {
+            // ignore
+        }
+
+        const updateActivity = () => {
+            try {
+                localStorage.setItem(STORAGE_KEY, String(Date.now()));
+            } catch {
+                // ignore
+            }
+        };
+
+        const events: Array<keyof WindowEventMap> = [
+            'mousemove',
+            'mousedown',
+            'keydown',
+            'scroll',
+            'touchstart',
+            'pointerdown',
+        ];
+
+        events.forEach((e) => window.addEventListener(e, updateActivity, { passive: true } as any));
+        updateActivity();
+
+        const interval = window.setInterval(() => {
+            if (isIdleLoggingOut) return;
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                const last = raw ? Number(raw) : Date.now();
+                if (Number.isFinite(last) && Date.now() - last > IDLE_TIMEOUT_MS) {
+                    setIsIdleLoggingOut(true);
+                    logout();
+                }
+            } catch {
+                // ignore
+            }
+        }, 60 * 1000);
+
+        return () => {
+            events.forEach((e) => window.removeEventListener(e, updateActivity as any));
+            window.clearInterval(interval);
+        };
+    }, [isIdleLoggingOut]);
 
     // Listen for company switch events
     useEffect(() => {
@@ -229,16 +289,19 @@ export default function DashboardLayoutClient({
                                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{userProfile?.company?.name || 'Компанія'}</p>
                                 </div>
                             )}
-                            {isSidebarOpen && (
-                                <button
-                                    onClick={() => logout()}
-                                    className="text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-white transition-colors"
-                                    title="Вийти"
-                                >
-                                    <LogOut className="w-5 h-5" />
-                                </button>
-                            )}
                         </div>
+
+                        {isSidebarOpen && (
+                            <Button
+                                variant="outline"
+                                onClick={() => logout()}
+                                className="mt-3 w-full justify-center gap-2 border-red-200 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Вийти з акаунту"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Вийти
+                            </Button>
+                        )}
                     </div>
                 </div>
             </aside>
