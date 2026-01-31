@@ -156,19 +156,39 @@ export default function DashboardLayoutClient({
                     {/* Logo Area */}
                     <div className={`h-16 flex items-center ${isSidebarOpen ? 'px-6' : 'justify-center px-0'} border-b border-slate-200 dark:border-slate-800 transition-all duration-300 flex-shrink-0`}>
                         {isSidebarOpen ? (
-                            <Link
-                                href="/"
-                                className="text-xl font-bold bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent"
-                            >
-                                MRNode
-                            </Link>
+                            userProfile?.email === 'test@gmail.com' ? (
+                                <button
+                                    onClick={() => logout()}
+                                    className="text-xl font-bold bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent"
+                                    title="Вийти з демо"
+                                >
+                                    MRNode
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/"
+                                    className="text-xl font-bold bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent"
+                                >
+                                    MRNode
+                                </Link>
+                            )
                         ) : (
-                            <Link
-                                href="/"
-                                className="text-xl font-bold text-brand-teal"
-                            >
-                                M
-                            </Link>
+                            userProfile?.email === 'test@gmail.com' ? (
+                                <button
+                                    onClick={() => logout()}
+                                    className="text-xl font-bold text-brand-teal"
+                                    title="Вийти з демо"
+                                >
+                                    M
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/"
+                                    className="text-xl font-bold text-brand-teal"
+                                >
+                                    M
+                                </Link>
+                            )
                         )}
                     </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DemoButton } from "./demo-button";
+import { DemoAutoLogout } from "./demo-auto-logout";
 import { auth } from "@/auth";
 
 export async function LandingHeader() {
@@ -8,6 +9,7 @@ export async function LandingHeader() {
 
     return (
         <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <DemoAutoLogout email={session?.user?.email} />
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center">
