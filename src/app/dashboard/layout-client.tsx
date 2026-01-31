@@ -46,6 +46,7 @@ export default function DashboardLayoutClient({
     userProfile: UserProfile;
 }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isMobileNav, setIsMobileNav] = useState(false);
     const [isExchangeRatesModalOpen, setIsExchangeRatesModalOpen] = useState(false);
     const [isSyncButtonLoading, setIsSyncButtonLoading] = useState(false);
     const [usdRateToday, setUsdRateToday] = useState<number | null>(null);
@@ -56,6 +57,17 @@ export default function DashboardLayoutClient({
     const [isIdleLoggingOut, setIsIdleLoggingOut] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 1023px)');
+        const update = () => {
+            setIsMobileNav(mq.matches);
+            setIsSidebarOpen(!mq.matches);
+        };
+        update();
+        mq.addEventListener('change', update);
+        return () => mq.removeEventListener('change', update);
+    }, []);
 
     useEffect(() => {
         if (isIdleLoggingOut) return;
@@ -200,21 +212,30 @@ export default function DashboardLayoutClient({
     return (
         <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 flex" data-theme-test="container">
             {/* Mobile Overlay */}
-            {!isSidebarOpen && (
+            {isMobileNav && isSidebarOpen && (
                 <div
                     className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-                    onClick={() => setIsSidebarOpen(true)}
+                    onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
             {/* Sidebar */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out ${!isSidebarOpen ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0'
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out ${isMobileNav
+                    ? (isSidebarOpen ? 'translate-x-0' : '-translate-x-full')
+                    : (!isSidebarOpen ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0')
                     }`}
             >
                 <div className="h-screen flex flex-col overflow-hidden">
                     {/* Logo Area */}
                     <div className={`h-16 flex items-center ${isSidebarOpen ? 'px-6' : 'justify-center px-0'} border-b border-slate-200 dark:border-slate-800 transition-all duration-300 flex-shrink-0`}>
+                        <button
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="lg:hidden mr-3 p-2 -ml-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+                            aria-label="Закрити меню"
+                        >
+                            <Menu className="w-5 h-5" />
+                        </button>
                         {isSidebarOpen ? (
                             userProfile?.email === 'test@gmail.com' ? (
                                 <button
