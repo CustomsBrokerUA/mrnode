@@ -60,16 +60,18 @@ export default function CompactView({
                 onClick={() => onPreview(doc)}
             >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <input
-                        type="checkbox"
-                        checked={selectedIds.has(doc.id)}
-                        onChange={(e) => {
-                            e.stopPropagation();
-                            handleSelectOne(doc.id, e.target.checked);
-                        }}
-                        className="w-4 h-4 text-brand-blue border-slate-300 rounded focus:ring-brand-blue flex-shrink-0"
-                        onClick={(e) => e.stopPropagation()}
-                    />
+                    <div className="hidden md:block">
+                        <input
+                            type="checkbox"
+                            checked={selectedIds.has(doc.id)}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                handleSelectOne(doc.id, e.target.checked);
+                            }}
+                            className="w-4 h-4 text-brand-blue border-slate-300 rounded focus:ring-brand-blue flex-shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
                     <span className="text-brand-blue font-medium text-sm font-mono flex-shrink-0">
                         {mdNumber}
                     </span>

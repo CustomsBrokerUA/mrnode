@@ -352,7 +352,8 @@ export default function DashboardLayoutClient({
                         >
                             <div className="flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                <div className="flex items-center gap-2 text-xs font-mono">
+                                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 sm:hidden">Курси</span>
+                                <div className="hidden sm:flex items-center gap-2 text-xs font-mono">
                                     <span className="text-slate-500 dark:text-slate-400">USD</span>
                                     <span className="text-slate-900 dark:text-slate-100">
                                         {ratesTodayLoading ? '...' : (usdRateToday !== null ? usdRateToday.toFixed(4) : '—')}

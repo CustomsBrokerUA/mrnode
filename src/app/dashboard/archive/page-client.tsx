@@ -77,6 +77,8 @@ export default function ArchivePageClient({
     // View mode state (table, cards, compact)
     const [viewMode, setViewMode] = useState<'table' | 'cards' | 'compact'>('table');
 
+    const [isMobile, setIsMobile] = useState(false);
+
     // Pagination state - client-side pagination
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
@@ -123,6 +125,20 @@ export default function ArchivePageClient({
 
     // Track if component is mounted to avoid hydration issues with formatting
     const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 767px)');
+        const update = () => setIsMobile(mq.matches);
+        update();
+        mq.addEventListener('change', update);
+        return () => mq.removeEventListener('change', update);
+    }, []);
+
+    useEffect(() => {
+        if (isMobile && viewMode !== 'compact') {
+            setViewMode('compact');
+        }
+    }, [isMobile, viewMode]);
 
     // Load settings from localStorage after mount to avoid hydration issues
     useEffect(() => {
@@ -725,22 +741,24 @@ export default function ArchivePageClient({
                         }}
                         activeCompanyId={activeCompanyId}
                     />
-                    <Button
-                        variant="outline"
-                        className="gap-2"
-                        onClick={() => setShowExportModal(true)}
-                    >
-                        <FileSpreadsheet className="w-4 h-4" />
-                        Експорт в Excel
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setShowDeletePeriodModal(true)}
-                    >
-                        <Calendar className="w-4 h-4" />
-                        Видалити за період
-                    </Button>
+                    <div className="hidden sm:flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            className="gap-2"
+                            onClick={() => setShowExportModal(true)}
+                        >
+                            <FileSpreadsheet className="w-4 h-4" />
+                            Експорт в Excel
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => setShowDeletePeriodModal(true)}
+                        >
+                            <Calendar className="w-4 h-4" />
+                            Видалити за період
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -820,7 +838,7 @@ export default function ArchivePageClient({
                 </div>
 
                 {/* View Mode Switcher */}
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                     <span className="text-sm text-slate-600">Відображення:</span>
                     <div className="bg-slate-100 p-1 rounded-lg inline-flex gap-1">
                         <button
