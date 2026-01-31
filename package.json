@@ -10,6 +10,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "migrate:customs-token-encryption": "node migrate-customs-token-encryption.js",
     "sync-exchange-rates:full": "node sync-exchange-rates.js full",
     "sync-exchange-rates:daily": "node sync-exchange-rates.js daily",
     "postinstall": "prisma generate"

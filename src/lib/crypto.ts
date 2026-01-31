@@ -4,7 +4,13 @@ import { promisify } from 'util';
 // In a real app, this should be in an environment variable
 // For the local MVP demo, we'll use a hardcoded key if env is missing
 // IMPORTANT: The user must replace this before production
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'mrnode-local-mvp-secret-key-32-bytes!!';
+const SECRET_KEY = (() => {
+    const envKey = process.env.ENCRYPTION_KEY;
+    if (process.env.NODE_ENV === 'production' && !envKey) {
+        throw new Error('Missing ENCRYPTION_KEY in production environment');
+    }
+    return envKey || 'mrnode-local-mvp-secret-key-32-bytes!!';
+})();
 const IV_LENGTH = 16;
 const ALGORITHM = 'aes-256-cbc';
 
