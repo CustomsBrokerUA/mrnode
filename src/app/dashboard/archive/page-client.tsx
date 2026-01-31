@@ -88,13 +88,10 @@ export default function ArchivePageClient({
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     // Filters state - will be initialized from URL
-    const [filterStatus, setFilterStatus] = useState<string>('all');
     const [filterDateFrom, setFilterDateFrom] = useState<string>('');
     const [filterDateTo, setFilterDateTo] = useState<string>('');
     const [filterCustomsOffice, setFilterCustomsOffice] = useState<string>('');
     const [filterCurrency, setFilterCurrency] = useState<string>('all');
-    const [filterInvoiceValueFrom, setFilterInvoiceValueFrom] = useState<string>('');
-    const [filterInvoiceValueTo, setFilterInvoiceValueTo] = useState<string>('');
     const [filterConsignor, setFilterConsignor] = useState<string>('');
     const [filterConsignee, setFilterConsignee] = useState<string>('');
     const [filterContractHolder, setFilterContractHolder] = useState<string>('');
@@ -230,13 +227,10 @@ export default function ArchivePageClient({
                         currentPage,
                         itemsPerPage,
                         {
-                            status: filterStatus,
                             dateFrom: filterDateFrom,
                             dateTo: filterDateTo,
                             customsOffice: filterCustomsOffice,
                             currency: filterCurrency,
-                            invoiceValueFrom: filterInvoiceValueFrom,
-                            invoiceValueTo: filterInvoiceValueTo,
                             consignor: filterConsignor,
                             consignee: filterConsignee,
                             contractHolder: filterContractHolder,
@@ -293,13 +287,10 @@ export default function ArchivePageClient({
         activeTab,
         currentPage,
         itemsPerPage,
-        filterStatus,
         filterDateFrom,
         filterDateTo,
         filterCustomsOffice,
         filterCurrency,
-        filterInvoiceValueFrom,
-        filterInvoiceValueTo,
         filterConsignor,
         filterConsignee,
         filterContractHolder,
@@ -338,13 +329,10 @@ export default function ArchivePageClient({
 
     // Filters used for server-side fetches (list + statistics)
     const filters = {
-        status: filterStatus,
         dateFrom: filterDateFrom,
         dateTo: filterDateTo,
         customsOffice: filterCustomsOffice,
         currency: filterCurrency,
-        invoiceValueFrom: filterInvoiceValueFrom,
-        invoiceValueTo: filterInvoiceValueTo,
         consignor: filterConsignor,
         consignee: filterConsignee,
         contractHolder: filterContractHolder,
@@ -384,13 +372,10 @@ export default function ArchivePageClient({
                 try {
                     const stats = await getArchiveStatistics(
                         {
-                            status: filters.status,
                             dateFrom: filters.dateFrom,
                             dateTo: filters.dateTo,
                             customsOffice: filters.customsOffice,
                             currency: filters.currency,
-                            invoiceValueFrom: filters.invoiceValueFrom,
-                            invoiceValueTo: filters.invoiceValueTo,
                             consignor: filters.consignor,
                             consignee: filters.consignee,
                             contractHolder: filters.contractHolder,
@@ -419,13 +404,10 @@ export default function ArchivePageClient({
         };
     }, [
         activeTab,
-        filters.status,
         filters.dateFrom,
         filters.dateTo,
         filters.customsOffice,
         filters.currency,
-        filters.invoiceValueFrom,
-        filters.invoiceValueTo,
         filters.consignor,
         filters.consignee,
         filters.contractHolder,
@@ -649,6 +631,11 @@ export default function ArchivePageClient({
         setFilterInvoiceValueFrom('');
         setFilterInvoiceValueTo('');
     }, [activeTab]);
+
+    // Reset removed filters (kept no-op for compatibility)
+    const setFilterStatus = (_value: string) => { };
+    const setFilterInvoiceValueFrom = (_value: string) => { };
+    const setFilterInvoiceValueTo = (_value: string) => { };
 
     // OLD CODE REMOVED: Selection and delete handlers moved to hooks:
     // - useArchiveSelection (handleSelectAll, handleSelectOne)
@@ -911,15 +898,12 @@ export default function ArchivePageClient({
                         >
                             <SlidersHorizontal className="w-4 h-4" />
                             Фільтри
-                            {(filterStatus !== 'all' || filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterInvoiceValueFrom || filterInvoiceValueTo || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
+                            {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
                                 <span className="bg-brand-blue text-white text-xs rounded-full px-2 py-0.5">
-                                    {(filterStatus !== 'all' ? 1 : 0) +
-                                        (filterDateFrom ? 1 : 0) +
+                                    {(filterDateFrom ? 1 : 0) +
                                         (filterDateTo ? 1 : 0) +
                                         (filterCustomsOffice ? 1 : 0) +
                                         (filterCurrency !== 'all' ? 1 : 0) +
-                                        (filterInvoiceValueFrom ? 1 : 0) +
-                                        (filterInvoiceValueTo ? 1 : 0) +
                                         (filterConsignor ? 1 : 0) +
                                         (filterConsignee ? 1 : 0) +
                                         (filterContractHolder ? 1 : 0) +
@@ -929,18 +913,15 @@ export default function ArchivePageClient({
                             )}
                         </Button>
                     )}
-                    {(filterStatus !== 'all' || filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterInvoiceValueFrom || filterInvoiceValueTo || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
+                    {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
                         <Button
                             variant="outline"
                             className="gap-2 text-slate-600 hover:text-slate-900"
                             onClick={() => {
-                                setFilterStatus('all');
                                 setFilterDateFrom('');
                                 setFilterDateTo('');
                                 setFilterCustomsOffice('');
                                 setFilterCurrency('all');
-                                setFilterInvoiceValueFrom('');
-                                setFilterInvoiceValueTo('');
                                 setFilterConsignor('');
                                 setFilterConsignee('');
                                 setFilterContractHolder('');
@@ -996,23 +977,6 @@ export default function ArchivePageClient({
                             </div>
 
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Статус</label>
-                                    <select
-                                        value={filterStatus}
-                                        onChange={(e) => {
-                                            setFilterStatus(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
-                                        className="w-full px-3 py-2 text-sm font-medium text-slate-900 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent"
-                                    >
-                                        <option value="all">Всі</option>
-                                        <option value="cleared">Оформлені</option>
-                                        <option value="PROCESSING">В роботі</option>
-                                        <option value="REJECTED">Помилка</option>
-                                    </select>
-                                </div>
-
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1.5">Дата від</label>
@@ -1047,6 +1011,7 @@ export default function ArchivePageClient({
                                             setFilterCustomsOffice(e.target.value);
                                             setCurrentPage(1);
                                         }}
+                                        list="archive-customs-office-suggestions"
                                     />
                                 </div>
 
@@ -1059,6 +1024,7 @@ export default function ArchivePageClient({
                                             setFilterDeclarationType(e.target.value);
                                             setCurrentPage(1);
                                         }}
+                                        list="archive-declaration-type-suggestions"
                                     />
                                 </div>
 
@@ -1087,7 +1053,6 @@ export default function ArchivePageClient({
                                     variant="outline"
                                     className="gap-2 flex-1 text-slate-600 hover:text-slate-900"
                                     onClick={() => {
-                                        setFilterStatus('all');
                                         setFilterDateFrom('');
                                         setFilterDateTo('');
                                         setFilterCustomsOffice('');
@@ -1114,21 +1079,23 @@ export default function ArchivePageClient({
                 {/* Filters Panel - Only show for list61 */}
                 {activeTab === 'list61' && showFilters && !isMobile && (
                     <FiltersPanel
-                        filterStatus={filterStatus}
                         filterDateFrom={filterDateFrom}
                         filterDateTo={filterDateTo}
                         filterCustomsOffice={filterCustomsOffice}
                         filterCurrency={filterCurrency}
-                        filterInvoiceValueFrom={filterInvoiceValueFrom}
-                        filterInvoiceValueTo={filterInvoiceValueTo}
                         filterConsignor={filterConsignor}
                         filterConsignee={filterConsignee}
                         filterContractHolder={filterContractHolder}
                         filterHSCode={filterHSCode}
                         filterDeclarationType={filterDeclarationType}
-                        setFilterStatus={(value) => {
-                            setFilterStatus(value);
-                            setCurrentPage(1);
+                        companyIds={sanitizedSelectedCompanyIds.length > 0 ? sanitizedSelectedCompanyIds : undefined}
+                        suggestions={{
+                            customsOffices: (serverStatistics?.topCustomsOffices || []).map((x: any) => String(x.office || '')).filter(Boolean),
+                            consignors: (serverStatistics?.topConsignors || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            consignees: (serverStatistics?.topConsignees || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            contractHolders: (serverStatistics?.topContractHolders || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            hsCodes: (serverStatistics?.topHSCodes || []).map((x: any) => String(x.code || '')).filter(Boolean),
+                            declarationTypes: (serverStatistics?.topDeclarationTypes || []).map((x: any) => String(x.type || '')).filter(Boolean),
                         }}
                         setFilterDateFrom={(value) => {
                             setFilterDateFrom(value);
@@ -1144,14 +1111,6 @@ export default function ArchivePageClient({
                         }}
                         setFilterCurrency={(value) => {
                             setFilterCurrency(value);
-                            setCurrentPage(1);
-                        }}
-                        setFilterInvoiceValueFrom={(value) => {
-                            setFilterInvoiceValueFrom(value);
-                            setCurrentPage(1);
-                        }}
-                        setFilterInvoiceValueTo={(value) => {
-                            setFilterInvoiceValueTo(value);
                             setCurrentPage(1);
                         }}
                         setFilterConsignor={(value) => {
