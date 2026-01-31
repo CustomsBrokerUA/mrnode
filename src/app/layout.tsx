@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -22,7 +22,6 @@ export const metadata: Metadata = {
   description: 'MRNode — перегляд та аналітика митних декларацій',
   applicationName: 'MRNode',
   manifest: '/manifest.webmanifest',
-  themeColor: '#0f172a',
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -31,6 +30,10 @@ export const metadata: Metadata = {
       { url: '/icon-192.svg', type: 'image/svg+xml' },
     ],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
 };
 
 export default function RootLayout({
