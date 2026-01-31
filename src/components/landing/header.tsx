@@ -1,9 +1,11 @@
-'use client';
-
 import Link from "next/link";
 import { DemoButton } from "./demo-button";
+import { auth } from "@/auth";
 
-export function LandingHeader() {
+export async function LandingHeader() {
+    const session = await auth();
+    const userLabel = session?.user?.name || session?.user?.email || 'Профіль';
+
     return (
         <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -20,15 +22,27 @@ export function LandingHeader() {
                     <Link href="/pricing" className="hover:text-brand-blue transition-colors">Ціни</Link>
                 </nav>
                 <div className="flex items-center gap-4">
-                    <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-brand-blue px-4 py-2">
-                        Увійти
-                    </Link>
-                    <Link
-                        href="/register"
-                        className="px-5 py-2.5 bg-brand-blue text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-brand-blue/20"
-                    >
-                        Реєстрація
-                    </Link>
+                    {session?.user ? (
+                        <Link
+                            href="/dashboard"
+                            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-blue hover:bg-white/60 rounded-lg transition-colors"
+                            title="Перейти в дашборд"
+                        >
+                            {userLabel}
+                        </Link>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-brand-blue px-4 py-2">
+                                Увійти
+                            </Link>
+                            <Link
+                                href="/register"
+                                className="px-5 py-2.5 bg-brand-blue text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-brand-blue/20"
+                            >
+                                Реєстрація
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
