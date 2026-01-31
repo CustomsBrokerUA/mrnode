@@ -21,6 +21,7 @@ import CompanySelector from "@/components/company-selector";
 import CompanySwitchingLoader from "@/components/company-switching-loader";
 import NotificationsPopover from "@/components/notifications-popover";
 import { syncFromLastSync, triggerAutoSyncOnLogin } from "@/actions/sync-incremental";
+import { getExchangeRatesForDate } from "@/actions/exchange-rates";
 
 const sidebarItems = [
     { icon: LayoutDashboard, label: "Дашборд", href: "/dashboard" },
@@ -47,6 +48,9 @@ export default function DashboardLayoutClient({
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isExchangeRatesModalOpen, setIsExchangeRatesModalOpen] = useState(false);
     const [isSyncButtonLoading, setIsSyncButtonLoading] = useState(false);
+    const [usdRateToday, setUsdRateToday] = useState<number | null>(null);
+    const [eurRateToday, setEurRateToday] = useState<number | null>(null);
+    const [ratesTodayLoading, setRatesTodayLoading] = useState(false);
     const [autoSyncTriggered, setAutoSyncTriggered] = useState(false);
     const [isCompanySwitching, setIsCompanySwitching] = useState(false);
     const pathname = usePathname();
@@ -78,6 +82,25 @@ export default function DashboardLayoutClient({
             });
         }
     }, [autoSyncTriggered]);
+
+    useEffect(() => {
+        setRatesTodayLoading(true);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        getExchangeRatesForDate(today)
+            .then((rates) => {
+                const usd = rates.find(r => r.currencyCode === 'USD')?.rate ?? null;
+                const eur = rates.find(r => r.currencyCode === 'EUR')?.rate ?? null;
+                setUsdRateToday(usd);
+                setEurRateToday(eur);
+            })
+            .catch(() => {
+                setUsdRateToday(null);
+                setEurRateToday(null);
+            })
+            .finally(() => setRatesTodayLoading(false));
+    }, []);
 
     const handleQuickSync = async () => {
         setIsSyncButtonLoading(true);
@@ -224,10 +247,23 @@ export default function DashboardLayoutClient({
                         <CompanySelector />
                         <button
                             onClick={() => setIsExchangeRatesModalOpen(true)}
-                            className="p-2 text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-brand-teal hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                            className="px-3 py-2 text-slate-700 dark:text-slate-200 hover:text-brand-blue dark:hover:text-brand-teal hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                             title="Курси валют"
                         >
-                            <TrendingUp className="w-5 h-5" />
+                            <div className="flex items-center gap-2">
+                                <TrendingUp className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                <div className="flex items-center gap-2 text-xs font-mono">
+                                    <span className="text-slate-500 dark:text-slate-400">USD</span>
+                                    <span className="text-slate-900 dark:text-slate-100">
+                                        {ratesTodayLoading ? '...' : (usdRateToday !== null ? usdRateToday.toFixed(4) : '—')}
+                                    </span>
+                                    <span className="text-slate-400">/</span>
+                                    <span className="text-slate-500 dark:text-slate-400">EUR</span>
+                                    <span className="text-slate-900 dark:text-slate-100">
+                                        {ratesTodayLoading ? '...' : (eurRateToday !== null ? eurRateToday.toFixed(4) : '—')}
+                                    </span>
+                                </div>
+                            </div>
                         </button>
                         <button
                             onClick={handleQuickSync}
