@@ -80,13 +80,13 @@ MRNode — Next.js (App Router) застосунок для перегляду, 
 
 #### P0-2: Fallback DATABASE_URL у коді
 Файл: `src/lib/db.ts`
-- `process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/..."`
+- `process.env.DATABASE_URL` (повинен бути заданий)
 
 Ризик:
-- Потенційне підключення не до тієї БД; також неприємний дефолт для безпеки.
+- Якщо `DATABASE_URL` не заданий/зламаний, апка може працювати некоректно або підключитися не туди (якщо є fallback/дефолт).
 
 Рекомендація:
-- Залишити fallback тільки для локального dev або прибрати повністю.
+- Прибрати будь-які fallback/дефолтні значення і вимагати `DATABASE_URL` завжди (включно з dev).
 
 ### 2.4 Середні ризики (P1)
 - `src/app/layout.tsx`: `<html lang="en">` при україномовному UI (краще `uk`).
@@ -370,14 +370,17 @@ MRNode — Next.js (App Router) застосунок для перегляду, 
 - **Критерій готовності:**
   - На production-збірці SSL валідація увімкнена.
   - Є документований спосіб/конфіг (env) для довірених CA, якщо потрібно.
+ - **Статус:** ✅ виконано
+ - **Примітка:** у `src/lib/customs-api.ts` увімкнено перевірку SSL сертифікатів (`rejectUnauthorized: true`).
 
 3) **P0: Прибрати fallback `DATABASE_URL` у проді**
 - **Ризик:** випадкове підключення до неправильної БД або небезпечні дефолти.
-- **Де:** `src/lib/db.ts` (`process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/..."`).
+- **Де:** `src/lib/db.ts`.
 - **Що зробити:**
-  - Заборонити fallback у production, залишити тільки для dev.
+  - Прибрати будь-які hardcoded/fallback значення `DATABASE_URL` (включно з локальними connection strings).
+  - Якщо `DATABASE_URL` відсутній — процес має падати з явною помилкою (і в production, і в dev).
 - **Критерій готовності:**
-  - У production без `DATABASE_URL` процес падає з явною помилкою.
+  - Без `DATABASE_URL` процес падає з явною помилкою.
 
 4) **P0: Закрити/вимкнути debug/admin endpoints у production**
 - **Ризик:** зайва поверхня атаки та потенційний витік діагностичних даних.

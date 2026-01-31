@@ -5,8 +5,10 @@ declare global {
     var prisma: PrismaClient | undefined;
 }
 
-// Fallback is purely for local dev debugging if .env fails to load in Turbopack context
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/mrnode_db?schema=public";
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+    throw new Error("Missing DATABASE_URL environment variable");
+}
 
 export const db = globalThis.prisma || new PrismaClient({
     datasources: {

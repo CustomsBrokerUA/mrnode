@@ -2,14 +2,14 @@ const { PrismaClient } = require('@prisma/client');
 
 async function main() {
     console.log('🔄 Attempting to connect to database...');
-    console.log(`📡 URL: ${process.env.DATABASE_URL || 'Not set (using Prisma default)'}`);
+    console.log(`📡 URL: ${process.env.DATABASE_URL || 'Not set'}`);
+
+    if (!process.env.DATABASE_URL) {
+        console.error('❌ DATABASE_URL is not set. Aborting.');
+        process.exit(1);
+    }
 
     const prisma = new PrismaClient({
-        datasources: {
-            db: {
-                url: 'postgresql://postgres:postgres@127.0.0.1:5432/mrnode_db?schema=public',
-            },
-        },
         log: ['query', 'info', 'warn', 'error'],
     });
 
@@ -29,8 +29,8 @@ async function main() {
         if (e.code) console.error('Error code:', e.code);
         console.error('---------------------------------------------------');
         console.log('💡 Diagnosis tips:');
-        console.log('1. Ensure PostgreSQL service is RUNNING.');
-        console.log('2. Check if host needs to be 127.0.0.1 instead of localhost.');
+        console.log('1. Verify DATABASE_URL is correct and reachable from this machine.');
+        console.log('2. If using Render Postgres, ensure you use the EXTERNAL host (not internal dpg-...) and include sslmode=require if needed.');
         console.log('3. Verify username/password in connection string.');
     } finally {
         await prisma.$disconnect();
