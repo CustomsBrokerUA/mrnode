@@ -288,6 +288,7 @@ export interface MappedDeclaration {
         type: string;
         date: string;
         rawDate: string;
+        currencyRateDateRaw?: string;
         customsOffice: string;
         internalNumber: string;
         consignor: string;
@@ -873,6 +874,7 @@ export function mapXmlToDeclaration(xmlString: string | null): MappedDeclaration
                 type: safeStringify(`${ccd.ccd_01_01 || ''} / ${ccd.ccd_01_02 || ''} / ${ccd.ccd_01_03 || ''}`.trim()),
                 date: formatDate(ccd.version_start),
                 rawDate: safeStringify(ccd.ccd_registered || ccd.version_start), // Original date for exchange rate calculation (ccd_registered)
+                currencyRateDateRaw: safeStringify((ccd as any).ccd_22_date),
                 customsOffice: safeStringify(ccd.ccd_07_01),
                 internalNumber: safeStringify(ccd.ccd_07_04),
                 consignor,

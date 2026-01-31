@@ -290,8 +290,9 @@ export async function exportExtendedToExcel(
         try {
             const firstDoc = declarationsWithDetails[0];
             const mappedData = (firstDoc as any).mappedData;
-            if (mappedData?.header?.rawDate) {
-                usdRate = await getUSDExchangeRateForDate(mappedData.header.rawDate);
+            const rateDate = mappedData?.header?.currencyRateDateRaw || mappedData?.header?.rawDate;
+            if (rateDate) {
+                usdRate = await getUSDExchangeRateForDate(rateDate);
             }
         } catch (error) {
             console.warn('Не вдалося завантажити курс USD:', error);
@@ -663,9 +664,10 @@ export async function exportExtendedGoodsToExcel(
                 : '---';
 
             let usdRate = 0;
-            if (completionDateRaw) {
+            const currencyRateDateRaw = header?.currencyRateDateRaw || completionDateRaw;
+            if (currencyRateDateRaw) {
                 try {
-                    const rate = await getUSDExchangeRateForDate(completionDateRaw);
+                    const rate = await getUSDExchangeRateForDate(currencyRateDateRaw);
                     if (rate) usdRate = rate;
                 } catch {
                     // Failed to get rate, use 0
