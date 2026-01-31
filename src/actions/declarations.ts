@@ -104,13 +104,10 @@ export async function getDeclarationsPaginated(
     page: number = 1,
     pageSize: number = 20,
     filters: {
-        status?: string;
         dateFrom?: string;
         dateTo?: string;
         customsOffice?: string;
         currency?: string;
-        invoiceValueFrom?: string;
-        invoiceValueTo?: string;
         consignor?: string;
         consignee?: string;
         contractHolder?: string;
@@ -182,15 +179,6 @@ export async function getDeclarationsPaginated(
         });
     }
 
-    // Status filter
-    if (filters.status && filters.status !== 'all') {
-        if (filters.status === 'cleared') {
-            where.status = 'CLEARED';
-        } else {
-            where.status = filters.status;
-        }
-    }
-
     // Date range filter - check both date and summary.registeredDate
     if (filters.dateFrom || filters.dateTo) {
         const dateFilter: any = {};
@@ -237,18 +225,6 @@ export async function getDeclarationsPaginated(
                 { summary: { invoiceCurrency: filters.currency } }
             ]
         });
-    }
-
-    // Invoice value range filter (from summary)
-    if (filters.invoiceValueFrom || filters.invoiceValueTo) {
-        const valueFilter: any = {};
-        if (filters.invoiceValueFrom) {
-            valueFilter.gte = parseFloat(filters.invoiceValueFrom);
-        }
-        if (filters.invoiceValueTo) {
-            valueFilter.lte = parseFloat(filters.invoiceValueTo);
-        }
-        summaryFilters.invoiceValueUah = valueFilter;
     }
 
     // Consignor filter (from summary)
@@ -324,17 +300,14 @@ export async function getDeclarationsPaginated(
 
     // Combine all conditions with AND
     if (andConditions.length > 0) {
-        const statusFilter = where.status ? { status: where.status } : null;
         const companyFilter = targetCompanyIds.length === 1
             ? { companyId: targetCompanyIds[0] }
             : { companyId: { in: targetCompanyIds } };
 
         where.AND = [
             companyFilter,
-            ...(statusFilter ? [statusFilter] : []),
             ...andConditions
         ];
-        delete where.status;
         delete where.companyId;
     }
 
@@ -398,7 +371,6 @@ export async function getDeclarationsPaginated(
                 // xmlData is heavy; we need it mostly for list60 parsing.
                 xmlData: activeTab === 'list60',
                 summary: activeTab === 'list61' || !!filters.customsOffice || !!filters.currency ||
-                    !!filters.invoiceValueFrom || !!filters.invoiceValueTo ||
                     !!filters.consignor || !!filters.consignee || !!filters.contractHolder || !!filters.declarationType ||
                     sortColumn === 'type' || sortColumn === 'consignor' ||
                     sortColumn === 'consignee' || sortColumn === 'invoiceValue' ||
@@ -433,13 +405,10 @@ export async function getDeclarationsPaginated(
  */
 export async function getArchiveStatistics(
     filters: {
-        status?: string;
         dateFrom?: string;
         dateTo?: string;
         customsOffice?: string;
         currency?: string;
-        invoiceValueFrom?: string;
-        invoiceValueTo?: string;
         consignor?: string;
         consignee?: string;
         contractHolder?: string;
@@ -514,15 +483,6 @@ export async function getArchiveStatistics(
         });
     }
 
-    // Status filter
-    if (filters.status && filters.status !== 'all') {
-        if (filters.status === 'cleared') {
-            where.status = 'CLEARED';
-        } else {
-            where.status = filters.status;
-        }
-    }
-
     // Date range filter
     if (filters.dateFrom || filters.dateTo) {
         const dateFilter: any = {};
@@ -568,17 +528,6 @@ export async function getArchiveStatistics(
         });
     }
 
-    if (filters.invoiceValueFrom || filters.invoiceValueTo) {
-        const valueFilter: any = {};
-        if (filters.invoiceValueFrom) {
-            valueFilter.gte = parseFloat(filters.invoiceValueFrom);
-        }
-        if (filters.invoiceValueTo) {
-            valueFilter.lte = parseFloat(filters.invoiceValueTo);
-        }
-        summaryFilters.invoiceValueUah = valueFilter;
-    }
-
     if (filters.consignor) {
         summaryFilters.senderName = {
             contains: filters.consignor,
@@ -619,17 +568,14 @@ export async function getArchiveStatistics(
     }
 
     if (andConditions.length > 0) {
-        const statusFilter = where.status ? { status: where.status } : null;
         const companyFilter = targetCompanyIds.length === 1
             ? { companyId: targetCompanyIds[0] }
             : { companyId: { in: targetCompanyIds } };
 
         where.AND = [
             companyFilter,
-            ...(statusFilter ? [statusFilter] : []),
             ...andConditions
         ];
-        delete where.status;
         delete where.companyId;
     }
 
@@ -667,13 +613,6 @@ export async function getArchiveStatistics(
         ];
     }
 
-    if (filters.invoiceValueFrom || filters.invoiceValueTo) {
-        const valueFilter: any = {};
-        if (filters.invoiceValueFrom) valueFilter.gte = parseFloat(filters.invoiceValueFrom);
-        if (filters.invoiceValueTo) valueFilter.lte = parseFloat(filters.invoiceValueTo);
-        summaryWhere.invoiceValueUah = valueFilter;
-    }
-
     if (filters.consignor) {
         summaryWhere.senderName = { contains: filters.consignor, mode: 'insensitive' as const };
     }
@@ -691,11 +630,6 @@ export async function getArchiveStatistics(
         if (types.length > 0) {
             summaryWhere.declarationType = { in: types };
         }
-    }
-
-    // Apply declaration-side filters through relation
-    if (filters.status && filters.status !== 'all') {
-        summaryWhere.declaration.status = filters.status === 'cleared' ? 'CLEARED' : filters.status;
     }
 
     if (filters.dateFrom || filters.dateTo) {
@@ -829,10 +763,6 @@ export async function getArchiveStatistics(
         ? Prisma.empty
         : Prisma.sql` AND (ds."declarationType" IS NULL OR ds."declarationType" NOT LIKE ${'%ЕЕ'})`;
 
-    const statusSql = filters.status && filters.status !== 'all'
-        ? Prisma.sql` AND d."status" = ${filters.status === 'cleared' ? 'CLEARED' : filters.status}`
-        : Prisma.empty;
-
     const dateSql = (filters.dateFrom || filters.dateTo)
         ? Prisma.sql` AND (
             (d."date" >= ${filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00.000Z') : new Date('1970-01-01T00:00:00.000Z')} AND d."date" <= ${filters.dateTo ? new Date(filters.dateTo + 'T23:59:59.999Z') : new Date('2999-12-31T23:59:59.999Z')})
@@ -847,14 +777,6 @@ export async function getArchiveStatistics(
 
     const currencySql = filters.currency && filters.currency !== 'all'
         ? Prisma.sql` AND (ds."currency" = ${filters.currency} OR ds."invoiceCurrency" = ${filters.currency})`
-        : Prisma.empty;
-
-    const invoiceFromSql = filters.invoiceValueFrom
-        ? Prisma.sql` AND ds."invoiceValueUah" >= ${Number(filters.invoiceValueFrom)}`
-        : Prisma.empty;
-
-    const invoiceToSql = filters.invoiceValueTo
-        ? Prisma.sql` AND ds."invoiceValueUah" <= ${Number(filters.invoiceValueTo)}`
         : Prisma.empty;
 
     const consignorSql = filters.consignor
@@ -901,12 +823,9 @@ export async function getArchiveStatistics(
         LEFT JOIN "DeclarationSummary" ds ON ds."declarationId" = d."id"
         WHERE d."companyId" = ANY(${companyIdArray}::text[])
         ${eeSql}
-        ${statusSql}
         ${dateSql}
         ${customsOfficeSql}
         ${currencySql}
-        ${invoiceFromSql}
-        ${invoiceToSql}
         ${consignorSql}
         ${consigneeSql}
         ${contractHolderSql}
@@ -969,6 +888,280 @@ export async function getArchiveStatistics(
     setCachedArchiveStatistics(cacheKey, stats);
 
     return stats;
+}
+
+export async function getArchiveAutocompleteSuggestions(
+    field: 'customsOffice' | 'consignor' | 'consignee' | 'contractHolder' | 'hsCode' | 'declarationType',
+    query: string,
+    filters: {
+        dateFrom?: string;
+        dateTo?: string;
+        customsOffice?: string;
+        currency?: string;
+        consignor?: string;
+        consignee?: string;
+        contractHolder?: string;
+        hsCode?: string;
+        declarationType?: string;
+        searchTerm?: string;
+    } = {},
+    companyIds?: string[],
+    limit: number = 10
+): Promise<string[]> {
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.email) {
+        return [];
+    }
+
+    const trimmed = (query || '').trim();
+    if (!trimmed) {
+        return [];
+    }
+
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.floor(limit), 1), 20) : 10;
+
+    const { getActiveCompanyWithAccess, checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await getActiveCompanyWithAccess();
+
+    if (!access.success || !access.companyId) {
+        return [];
+    }
+
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+
+    let targetCompanyIds: string[];
+    if (companyIds && companyIds.length > 0) {
+        const accessChecks = await Promise.all(companyIds.map(id => checkCompanyAccess(id)));
+        const allowedIds = companyIds.filter((id, index) => accessChecks[index].success);
+        if (allowedIds.length === 0) {
+            return [];
+        }
+        targetCompanyIds = allowedIds;
+    } else {
+        targetCompanyIds = [access.companyId];
+    }
+
+    const baseDeclarationWhere: any = {
+        companyId: targetCompanyIds.length === 1 ? targetCompanyIds[0] : { in: targetCompanyIds },
+    };
+
+    const summaryWhere: any = { declaration: baseDeclarationWhere };
+
+    if (!showEeDeclarations) {
+        summaryWhere.NOT = { declarationType: { endsWith: 'ЕЕ' } };
+    }
+
+    if (field !== 'customsOffice' && filters.customsOffice) {
+        summaryWhere.customsOffice = { contains: filters.customsOffice, mode: 'insensitive' as const };
+    }
+
+    if (filters.currency && filters.currency !== 'all') {
+        summaryWhere.OR = [
+            { currency: filters.currency },
+            { invoiceCurrency: filters.currency },
+        ];
+    }
+
+    if (field !== 'consignor' && filters.consignor) {
+        summaryWhere.senderName = { contains: filters.consignor, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'consignee' && filters.consignee) {
+        summaryWhere.recipientName = { contains: filters.consignee, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'contractHolder' && filters.contractHolder) {
+        summaryWhere.contractHolder = { contains: filters.contractHolder, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'declarationType' && filters.declarationType) {
+        const types = filters.declarationType.split(',').map(t => t.trim()).filter(Boolean);
+        if (types.length > 0) {
+            summaryWhere.declarationType = { in: types };
+        }
+    }
+
+    if (filters.dateFrom || filters.dateTo) {
+        const dateFilter: any = {};
+        const summaryDateFilter: any = {};
+
+        if (filters.dateFrom) {
+            const fromDate = new Date(filters.dateFrom);
+            fromDate.setHours(0, 0, 0, 0);
+            dateFilter.gte = fromDate;
+            summaryDateFilter.gte = fromDate;
+        }
+
+        if (filters.dateTo) {
+            const toDate = new Date(filters.dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            dateFilter.lte = toDate;
+            summaryDateFilter.lte = toDate;
+        }
+
+        summaryWhere.OR = [
+            ...(Array.isArray(summaryWhere.OR) ? summaryWhere.OR : []),
+            { declaration: { date: dateFilter } },
+            { registeredDate: summaryDateFilter },
+        ];
+    }
+
+    if (filters.searchTerm) {
+        const searchTerm = filters.searchTerm.trim();
+        const existingAnd = Array.isArray(summaryWhere.AND) ? summaryWhere.AND : [];
+        summaryWhere.AND = [
+            ...existingAnd,
+            {
+                OR: [
+                    { declaration: { mrn: { contains: searchTerm, mode: 'insensitive' as const } } },
+                    { declaration: { customsId: { contains: searchTerm, mode: 'insensitive' as const } } },
+                    { senderName: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { recipientName: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { contractHolder: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { customsOffice: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { declarationType: { contains: searchTerm, mode: 'insensitive' as const } },
+                ]
+            }
+        ];
+    }
+
+    if (field !== 'hsCode' && filters.hsCode) {
+        summaryWhere.declaration.hsCodes = {
+            some: {
+                hsCode: {
+                    contains: filters.hsCode,
+                    mode: 'insensitive' as const,
+                }
+            }
+        };
+    }
+
+    if (field === 'hsCode') {
+        const declAnd: any[] = [];
+
+        if (!showEeDeclarations) {
+            declAnd.push({ NOT: { summary: { declarationType: { endsWith: 'ЕЕ' } } } });
+        }
+
+        if (filters.dateFrom || filters.dateTo) {
+            const dateFilter: any = {};
+            const summaryDateFilter: any = {};
+
+            if (filters.dateFrom) {
+                const fromDate = new Date(filters.dateFrom);
+                fromDate.setHours(0, 0, 0, 0);
+                dateFilter.gte = fromDate;
+                summaryDateFilter.gte = fromDate;
+            }
+            if (filters.dateTo) {
+                const toDate = new Date(filters.dateTo);
+                toDate.setHours(23, 59, 59, 999);
+                dateFilter.lte = toDate;
+                summaryDateFilter.lte = toDate;
+            }
+
+            declAnd.push({
+                OR: [
+                    { date: dateFilter },
+                    { summary: { registeredDate: summaryDateFilter } },
+                ]
+            });
+        }
+
+        if (filters.customsOffice) {
+            declAnd.push({ summary: { customsOffice: { contains: filters.customsOffice, mode: 'insensitive' as const } } });
+        }
+
+        if (filters.currency && filters.currency !== 'all') {
+            declAnd.push({
+                OR: [
+                    { summary: { currency: filters.currency } },
+                    { summary: { invoiceCurrency: filters.currency } },
+                ]
+            });
+        }
+
+        if (filters.consignor) {
+            declAnd.push({ summary: { senderName: { contains: filters.consignor, mode: 'insensitive' as const } } });
+        }
+
+        if (filters.consignee) {
+            declAnd.push({ summary: { recipientName: { contains: filters.consignee, mode: 'insensitive' as const } } });
+        }
+
+        if (filters.contractHolder) {
+            declAnd.push({ summary: { contractHolder: { contains: filters.contractHolder, mode: 'insensitive' as const } } });
+        }
+
+        if (filters.declarationType) {
+            const types = filters.declarationType.split(',').map(t => t.trim()).filter(Boolean);
+            if (types.length > 0) {
+                declAnd.push({ summary: { declarationType: { in: types } } });
+            }
+        }
+
+        if (filters.searchTerm) {
+            const s = filters.searchTerm.trim();
+            declAnd.push({
+                OR: [
+                    { mrn: { contains: s, mode: 'insensitive' as const } },
+                    { customsId: { contains: s, mode: 'insensitive' as const } },
+                    { summary: { senderName: { contains: s, mode: 'insensitive' as const } } },
+                    { summary: { recipientName: { contains: s, mode: 'insensitive' as const } } },
+                    { summary: { contractHolder: { contains: s, mode: 'insensitive' as const } } },
+                    { summary: { customsOffice: { contains: s, mode: 'insensitive' as const } } },
+                    { summary: { declarationType: { contains: s, mode: 'insensitive' as const } } },
+                ]
+            });
+        }
+
+        const hs = await db.declarationHsCode.findMany({
+            where: {
+                hsCode: { contains: trimmed, mode: 'insensitive' as const },
+                declaration: {
+                    AND: [
+                        baseDeclarationWhere,
+                        ...declAnd,
+                    ]
+                },
+            },
+            distinct: ['hsCode'],
+            select: { hsCode: true },
+            take: safeLimit,
+            orderBy: { hsCode: 'asc' },
+        });
+
+        return (hs || []).map(x => x.hsCode).filter(Boolean);
+    }
+
+    const summaryFieldMap: Record<typeof field, keyof any> = {
+        customsOffice: 'customsOffice',
+        consignor: 'senderName',
+        consignee: 'recipientName',
+        contractHolder: 'contractHolder',
+        hsCode: 'hsCode',
+        declarationType: 'declarationType',
+    } as any;
+
+    const summaryField = summaryFieldMap[field] as string;
+    const rows = await db.declarationSummary.findMany({
+        where: {
+            AND: [
+                summaryWhere,
+                { [summaryField]: { not: null } },
+                { [summaryField]: { contains: trimmed, mode: 'insensitive' as const } },
+            ]
+        },
+        distinct: [summaryField] as any,
+        select: { [summaryField]: true } as any,
+        take: safeLimit,
+        orderBy: { [summaryField]: 'asc' } as any,
+    });
+
+    return (rows || [])
+        .map((r: any) => String(r?.[summaryField] || ''))
+        .filter(Boolean);
 }
 
 // Helper function to decode windows-1251 text that was incorrectly saved
