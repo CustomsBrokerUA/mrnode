@@ -9,8 +9,30 @@ import { syncExchangeRatesLast3Years, syncMissingExchangeRates } from "@/lib/exc
  */
 export async function GET(request: NextRequest) {
     try {
+        const expectedSecret = process.env.EXCHANGE_RATES_SYNC_SECRET;
+        if (!expectedSecret) {
+            return NextResponse.json({
+                success: false,
+                error: 'Missing EXCHANGE_RATES_SYNC_SECRET'
+            }, { status: 500 });
+        }
+
+        const authHeader = request.headers.get('authorization') || '';
+        const bearerToken = authHeader.toLowerCase().startsWith('bearer ')
+            ? authHeader.slice(7).trim()
+            : null;
+
         const searchParams = request.nextUrl.searchParams;
         const type = searchParams.get('type') || 'daily';
+        const secret = searchParams.get('secret');
+
+        const providedSecret = bearerToken || secret;
+        if (!providedSecret || providedSecret !== expectedSecret) {
+            return NextResponse.json({
+                success: false,
+                error: 'Unauthorized'
+            }, { status: 401 });
+        }
 
         if (type === 'full') {
             // Синхронізація за останні 3 роки
