@@ -92,7 +92,7 @@ export default function ArchiveStatistics({
                 <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2"
+                    className="gap-2 hidden sm:inline-flex"
                     onClick={onSettingsClick}
                 >
                     <Settings className="w-4 h-4" />
@@ -244,7 +244,7 @@ export default function ArchiveStatistics({
 
                             {/* Top Consignors */}
                             {(statsSettings.topConsignors ?? true) && statistics.topConsignors?.length > 0 && (
-                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
                                     <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 відправників</h4>
                                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                                         {statistics.topConsignors.map((item, idx) => (
@@ -266,7 +266,7 @@ export default function ArchiveStatistics({
 
                             {/* Top Consignees */}
                             {(statsSettings.topConsignees ?? true) && statistics.topConsignees?.length > 0 && (
-                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
                                     <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 отримувачів</h4>
                                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                                         {statistics.topConsignees.map((item, idx) => (
@@ -288,7 +288,7 @@ export default function ArchiveStatistics({
 
                             {/* Top Contract Holders */}
                             {(statsSettings.topContractHolders ?? true) && statistics.topContractHolders?.length > 0 && (
-                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
                                     <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 договірних контрагентів</h4>
                                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                                         {statistics.topContractHolders.map((item, idx) => (
@@ -310,7 +310,7 @@ export default function ArchiveStatistics({
 
                             {/* Top HS Codes */}
                             {(statsSettings.topHSCodes ?? true) && statistics.topHSCodes?.length > 0 && (
-                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
                                     <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 кодів УКТЗЕД</h4>
                                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                                         {statistics.topHSCodes.map((item, idx) => (
