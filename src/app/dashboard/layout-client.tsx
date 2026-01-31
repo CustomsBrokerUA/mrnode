@@ -209,7 +209,9 @@ export default function DashboardLayoutClient({
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-0 lg:ml-64">
+            <div
+                className={`flex-1 flex flex-col min-w-0 overflow-hidden ml-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}
+            >
                 {/* Global Sync Progress Bar */}
                 <GlobalSyncProgress />
 
