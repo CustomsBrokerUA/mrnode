@@ -26,6 +26,45 @@ export function useArchiveData(
     const declarationsWithRawData = useMemo(() => {
         return declarations.map(doc => {
             if (!doc.xmlData) {
+                // Fallback: use cached summary data
+                if (doc.summary) {
+                    const summary = doc.summary;
+
+                    let ccd_registered: string | undefined;
+                    if (summary.registeredDate) {
+                        const date = new Date(summary.registeredDate);
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const hours = String(date.getHours()).padStart(2, '0');
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        const seconds = String(date.getSeconds()).padStart(2, '0');
+                        ccd_registered = `${year}${month}${day}T${hours}${minutes}${seconds}`;
+                    }
+
+                    const rawData: any = {
+                        guid: doc.customsId || undefined,
+                        MRN: doc.mrn || undefined,
+                        ccd_registered: ccd_registered,
+                        ccd_status: doc.status === 'CLEARED' ? 'R' : (doc.status === 'REJECTED' ? 'N' : undefined),
+                        ccd_type: summary.declarationType || undefined,
+                        trn_all: undefined,
+                        ccd_07_01: summary.customsOffice || undefined,
+                    };
+
+                    if (summary.declarationType) {
+                        const parts = summary.declarationType.split(/[\/\s]+/).map(p => p.trim()).filter(Boolean);
+                        if (parts.length >= 1) rawData.ccd_01_01 = parts[0];
+                        if (parts.length >= 2) rawData.ccd_01_02 = parts[1];
+                        if (parts.length >= 3) rawData.ccd_01_03 = parts[2];
+                    }
+
+                    return {
+                        ...doc,
+                        rawData
+                    } as DeclarationWithRawData;
+                }
+
                 return {
                     ...doc,
                     rawData: null
