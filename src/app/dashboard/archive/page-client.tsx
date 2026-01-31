@@ -779,32 +779,26 @@ export default function ArchivePageClient({
                     onFilterByType={(type) => {
                         setFilterDeclarationType(type);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                     onFilterByOffice={(office) => {
                         setFilterCustomsOffice(office);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                     onFilterByConsignor={(name) => {
                         setFilterConsignor(name);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                     onFilterByConsignee={(name) => {
                         setFilterConsignee(name);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                     onFilterByContractHolder={(name) => {
                         setFilterContractHolder(name);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                     onFilterByHSCode={(code) => {
                         setFilterHSCode(code);
                         setCurrentPage(1);
-                        setShowFilters(true);
                     }}
                 />
             )}
