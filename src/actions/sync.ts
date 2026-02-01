@@ -223,20 +223,14 @@ export async function fetchDeclarationDetail(guid: string) {
     }
 
     try {
-        // Використовувати activeCompanyId замість user.company
-        const { getActiveCompanyFullAccess } = await import("@/lib/company-access");
-        const access = await getActiveCompanyFullAccess();
+        const { requireActiveCompanyFullAccess } = await import("@/lib/company-access");
+        const access = await requireActiveCompanyFullAccess({
+            roles: ['OWNER', 'MEMBER'],
+            requireToken: true,
+        });
 
         if (!access.success || !access.companyId) {
-            return { success: false, guid, count: 0, error: "Активна компанія не встановлена" };
-        }
-
-        if (access.role !== 'OWNER' && access.role !== 'MEMBER') {
-            return { success: false, guid, count: 0, error: "Недостатньо прав для синхронізації (потрібен статус Учасник або Власник)" };
-        }
-
-        if (!access.customsToken) {
-            return { success: false, guid, count: 0, error: "Токен відсутній." };
+            return { success: false, guid, count: 0, error: access.error || "Активна компанія не встановлена" };
         }
 
         // Розшифрувати токен
@@ -244,6 +238,9 @@ export async function fetchDeclarationDetail(guid: string) {
         const { decrypt } = await import("@/lib/crypto");
         let decryptedToken;
         try {
+            if (!access.customsToken) {
+                return { success: false, guid, count: 0, error: "Токен відсутній." };
+            }
             decryptedToken = await decrypt(access.customsToken);
         } catch (e) {
             return { success: false, guid, count: 0, error: "Помилка розшифрування токена. Будь ласка, оновіть токен в налаштуваннях компанії." };

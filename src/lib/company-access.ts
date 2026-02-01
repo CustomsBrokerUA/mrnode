@@ -5,10 +5,12 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
+export type CompanyRole = 'OWNER' | 'MEMBER' | 'VIEWER';
+
 export interface CompanyAccessResult {
   success: boolean;
   companyId?: string;
-  role?: 'OWNER' | 'MEMBER' | 'VIEWER';
+  role?: CompanyRole;
   error?: string;
 }
 
@@ -16,6 +18,35 @@ export interface CompanyFullAccessResult extends CompanyAccessResult {
   customsToken?: string;
   edrpou?: string;
   name?: string;
+}
+
+export async function requireActiveCompanyAccess(requiredRoles?: CompanyRole[]): Promise<CompanyAccessResult> {
+  const access = await getActiveCompanyWithAccess();
+  if (!access.success || !access.companyId || !access.role) return access;
+
+  if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(access.role)) {
+    return { success: false, error: "Недостатньо прав" };
+  }
+
+  return access;
+}
+
+export async function requireActiveCompanyFullAccess(options?: {
+  roles?: CompanyRole[];
+  requireToken?: boolean;
+}): Promise<CompanyFullAccessResult> {
+  const access = await getActiveCompanyFullAccess();
+  if (!access.success || !access.companyId || !access.role) return access;
+
+  if (options?.roles && options.roles.length > 0 && !options.roles.includes(access.role)) {
+    return { success: false, error: "Недостатньо прав" };
+  }
+
+  if (options?.requireToken && !access.customsToken) {
+    return { success: false, error: "Токен відсутній." };
+  }
+
+  return access;
 }
 
 /**
@@ -129,7 +160,7 @@ export async function getActiveCompanyWithAccess(): Promise<CompanyAccessResult>
         return {
           success: true,
           companyId: alternativeUserCompany.companyId,
-          role: alternativeUserCompany.role as 'OWNER' | 'MEMBER' | 'VIEWER',
+          role: alternativeUserCompany.role as CompanyRole,
         };
       }
 
@@ -139,7 +170,7 @@ export async function getActiveCompanyWithAccess(): Promise<CompanyAccessResult>
     return {
       success: true,
       companyId: activeCompanyId,
-      role: userCompany.role as 'OWNER' | 'MEMBER' | 'VIEWER',
+      role: userCompany.role as CompanyRole,
     };
   } catch (error: any) {
     console.error("Error getting active company with access:", error);
@@ -196,7 +227,7 @@ export async function checkCompanyAccess(companyId: string): Promise<CompanyAcce
     return {
       success: true,
       companyId: companyId,
-      role: userCompany.role as 'OWNER' | 'MEMBER' | 'VIEWER',
+      role: userCompany.role as CompanyRole,
     };
   } catch (error: any) {
     console.error("Error checking company access:", error);
@@ -269,7 +300,7 @@ export async function getActiveCompanyFullAccess(): Promise<CompanyFullAccessRes
     return {
       success: true,
       companyId: access.companyId,
-      role: userCompany.role as 'OWNER' | 'MEMBER' | 'VIEWER',
+      role: userCompany.role as CompanyRole,
       customsToken: userCompany.company.customsToken || undefined,
       edrpou: userCompany.company.edrpou,
       name: userCompany.company.name,
@@ -283,7 +314,7 @@ export async function getActiveCompanyFullAccess(): Promise<CompanyFullAccessRes
 /**
  * Перевірити чи роль дозволяє виконання операції
  */
-export function canPerformAction(role: 'OWNER' | 'MEMBER' | 'VIEWER', requiredRole: 'OWNER' | 'MEMBER' | 'VIEWER'): boolean {
+export function canPerformAction(role: CompanyRole, requiredRole: CompanyRole): boolean {
   const roleHierarchy = {
     'OWNER': 3,
     'MEMBER': 2,

@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/db";
-import { getActiveCompanyFullAccess } from "@/lib/company-access";
+import { requireActiveCompanyAccess } from "@/lib/company-access";
 import { updateDeclarationSummary } from "@/lib/declaration-summary";
 
 export async function POST(request: NextRequest) {
   try {
-    const access = await getActiveCompanyFullAccess();
+    const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
 
     if (!access.success || !access.companyId) {
-      return NextResponse.json({ success: false, error: access.error || "Неавторизований доступ" }, { status: 401 });
-    }
-
-    if (access.role !== "OWNER" && access.role !== "MEMBER") {
-      return NextResponse.json({ success: false, error: "Недостатньо прав" }, { status: 403 });
+      const status = access.error === 'Недостатньо прав' ? 403 : 401;
+      return NextResponse.json({ success: false, error: access.error || "Неавторизований доступ" }, { status });
     }
 
     const searchParams = request.nextUrl.searchParams;
