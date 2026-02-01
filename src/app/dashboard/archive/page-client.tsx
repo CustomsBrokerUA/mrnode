@@ -165,8 +165,7 @@ export default function ArchivePageClient({
             }
 
             // Tabs & View
-            const savedTab = localStorage.getItem('archiveActiveTab') as 'list60' | 'list61';
-            if (savedTab) setActiveTab(savedTab);
+            // 61.1-only: ignore persisted tab
 
             const savedView = localStorage.getItem('archiveViewMode') as 'table' | 'cards' | 'compact';
             if (savedView) setViewMode(savedView);
@@ -793,21 +792,6 @@ export default function ArchivePageClient({
             {/* Tabs and View Mode */}
             <div className="flex items-center justify-between gap-4">
                 <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-lg inline-flex gap-1">
-                    <TabControl
-                        active={activeTab === 'list60'}
-                        onClick={() => {
-                            if (activeTab !== 'list60') {
-                                // Set processing state immediately before tab change
-                                setIsProcessing(true);
-                                // Change tab on next tick to allow UI to update first
-                                setTimeout(() => {
-                                    setActiveTab('list60');
-                                    setCurrentPage(1);
-                                }, 10);
-                            }
-                        }}
-                        label="Список (60.1)"
-                    />
                     <TabControl
                         active={activeTab === 'list61'}
                         onClick={() => {

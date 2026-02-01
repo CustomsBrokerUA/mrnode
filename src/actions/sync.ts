@@ -77,9 +77,14 @@ async function upsertDeclaration61_1(
         return;
     }
 
-    // Skip if summary already exists
-    if (declaration.summary) {
-        return;
+    // Skip only if 61.1 data already exists (60.1 may create a basic summary)
+    try {
+        const raw = declaration.xmlData || '';
+        if (raw.includes('"data61_1"')) {
+            return;
+        }
+    } catch {
+        // ignore
     }
 
     const detailsResponse = await customsService.getDeclarationDetails(guid);
@@ -143,7 +148,12 @@ async function processDetails61_1FromDb(
             where: {
                 companyId,
                 date: { gte: dateFrom, lte: dateTo },
-                summary: { is: null },
+                // 60.1 can create a basic summary; for 61.1 we check presence of data61_1 in xmlData
+                NOT: {
+                    xmlData: {
+                        contains: '"data61_1"',
+                    }
+                },
                 customsId: { not: null },
             },
             select: { id: true, customsId: true },
@@ -561,7 +571,12 @@ export async function getDeclarationsWithoutDetails() {
             where: {
                 companyId: access.companyId,
                 customsId: { not: null },
-                summary: { is: null },
+                // 60.1 can create a basic summary; for missing details check absence of data61_1
+                NOT: {
+                    xmlData: {
+                        contains: '"data61_1"',
+                    }
+                },
             },
             orderBy: { date: 'desc' },
             take: 500,
@@ -809,8 +824,100 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             }
         }
 
-        // Note: 60.1 now only loads the list, without auto-fetching 61.1 details
-        // Users can selectively load 61.1 details from the sync page
+        // 61.1-only: automatically trigger details loading after successful 60.1 list sync.
+        // Prefer background job (SyncJob) to avoid request timeouts.
+        if ('syncJob' in db && db.syncJob) {
+            try {
+                // If there's already an active job (e.g. staged/full sync), do not create a second one.
+                // Let the existing job manage 61.1 processing.
+                const existingJob = await (db.syncJob as any).findFirst({
+                    where: {
+                        companyId: access.companyId,
+                        status: "processing",
+                    }
+                });
+
+                if (existingJob) {
+                    revalidatePath("/dashboard/archive");
+                    revalidatePath("/dashboard/sync");
+                    return {
+                        success: true,
+                        count: newCount,
+                        total: count,
+                        newGuids: Array.from(newGuidsList),
+                        jobId: existingJob.id,
+                    };
+                }
+
+                const totalMissing = await db.declaration.count({
+                    where: {
+                        companyId: access.companyId,
+                        date: { gte: dateFrom, lte: dateTo },
+                        customsId: { not: null },
+                        NOT: {
+                            xmlData: {
+                                contains: '"data61_1"',
+                            }
+                        }
+                    }
+                });
+
+                // Nothing to process - return list result without creating a job.
+                if (totalMissing <= 0) {
+                    revalidatePath("/dashboard/archive");
+                    revalidatePath("/dashboard/sync");
+                    return {
+                        success: true,
+                        count: newCount,
+                        total: count,
+                        newGuids: Array.from(newGuidsList),
+                    };
+                }
+
+                const job = await (db.syncJob as any).create({
+                    data: {
+                        companyId: access.companyId,
+                        status: "processing",
+                        totalChunks60_1: 1,
+                        completedChunks60_1: 1,
+                        totalGuids: totalMissing,
+                        completed61_1: 0,
+                        dateFrom: dateFrom,
+                        dateTo: dateTo,
+                    }
+                });
+
+                processDetails61_1FromDb(
+                    access.companyId,
+                    job.id,
+                    decryptedToken,
+                    access.edrpou,
+                    dateFrom,
+                    dateTo,
+                ).catch(err => {
+                    console.error("Error in background 61.1 processing:", err);
+                    (db.syncJob as any).update({
+                        where: { id: job.id },
+                        data: {
+                            status: "error",
+                            errorMessage: err?.message?.substring(0, 500) || "Помилка обробки 61.1",
+                        }
+                    }).catch(() => { });
+                });
+
+                revalidatePath("/dashboard/archive");
+                revalidatePath("/dashboard/sync");
+                return {
+                    success: true,
+                    count: newCount,
+                    total: count,
+                    newGuids: Array.from(newGuidsList),
+                    jobId: job.id,
+                };
+            } catch (e) {
+                // If job creation fails, fall back to returning list-only.
+            }
+        }
 
         revalidatePath("/dashboard/archive");
         revalidatePath("/dashboard/sync");

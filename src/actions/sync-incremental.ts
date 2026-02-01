@@ -135,23 +135,16 @@ export async function syncFromLastSync() {
         // This is correct - it will catch any declarations created today after the last sync
         // The API will return all declarations for that date range
 
-        // Call syncDeclarations with Date objects
-        const syncResult = await syncDeclarations("60.1", fromDateDay, toDateDay);
+        // Call syncDeclarations with Date objects.
+        // 61.1-only mode: syncDeclarations auto-starts background 61.1 loading via SyncJob.
+        const syncResult: any = await syncDeclarations("60.1", fromDateDay, toDateDay);
 
-        // If we have new declarations, fetch their details immediately
-        // This makes "Quick Sync" truly useful by getting complete data for new items
-        if (syncResult.success && syncResult.newGuids && syncResult.newGuids.length > 0) {
-            const { fetchDeclarationDetails } = await import("./sync");
-
-            // Note: fetchDeclarationDetails creates a background job or processes sequentially?
-            // Checking the import... it processes sequentially in the same request.
-            // Since incremental sync usually involves small number of items, this is fine.
-            await fetchDeclarationDetails(syncResult.newGuids);
-
+        if (syncResult?.success) {
+            const newCount = Array.isArray(syncResult.newGuids) ? syncResult.newGuids.length : 0;
+            const suffix = syncResult.jobId ? ` (запущено завдання 61.1: ${syncResult.jobId})` : '';
             return {
                 ...syncResult,
-                message: `Синхронізовано ` +
-                    `${syncResult.newGuids.length} нових декларацій з деталями (61.1).`
+                message: `Синхронізація завершена. Нових декларацій: ${newCount}.${suffix}`
             };
         }
 
