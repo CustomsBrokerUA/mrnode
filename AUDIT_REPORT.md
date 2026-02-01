@@ -471,6 +471,19 @@ MRNode — Next.js (App Router) застосунок для перегляду, 
 - **Критерій:** шифрування з цілісністю, зрозумілий план ротації.
  - **Поточний стан:** використовується `aes-256-cbc` без автентичності/тега (формат `iv:cipher`), що не дає криптографічної гарантії цілісності ciphertext.
  - **Пропозиція:** додати `v2:` формат на `aes-256-gcm` (AEAD) з backward-compatible `decrypt()` для старого CBC, після чого виконати масову міграцію `Company.customsToken` у формат `v2:`.
+ - **Впроваджено:** `62d2f2a`
+ - **Міграція даних (mass migrate `Company.customsToken` → `v2:`):**
+   - **Dry-run (очікування: `Failed: 0`):**
+     - `npm run migrate:customs-token-encryption -- --to-v2 --dry-run`
+   - **Live (тільки якщо dry-run показав `Failed: 0`):**
+     - `npm run migrate:customs-token-encryption -- --to-v2 --force`
+   - **Повторний dry-run після live (очікування: `Migrated: 0`, `Skipped: N`, `Failed: 0`):**
+     - `npm run migrate:customs-token-encryption -- --to-v2 --dry-run`
+ - **Результат міграції (фактичний):**
+   - Dry-run: `Migrated: 8`, `Skipped: 0`, `Failed: 0`
+   - Live: `Migrated: 8`, `Skipped: 0`, `Failed: 0`
+   - Post-check dry-run: `Migrated: 0`, `Skipped: 8`, `Failed: 0`
+ - **Статус:** ✅ виконано
 
 3) **P2: Поліпшити UX масових delete**
 - **Де:** архів (delete модалка + server action).
