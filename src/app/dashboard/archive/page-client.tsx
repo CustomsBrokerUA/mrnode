@@ -10,11 +10,11 @@ import { getDeclarationsPaginated } from "@/actions/declarations";
 import { Declaration, DeclarationWithRawData, SortColumn } from './types';
 import { statusStyles, statusLabels, DEFAULT_STATS_SETTINGS, DEFAULT_EXPORT_COLUMNS } from './constants';
 import { getRawData, formatRegisteredDate, decodeWindows1251, getMDNumber } from './utils';
-import { exportToExcel, exportExtendedToExcel, exportExtendedGoodsToExcel } from './export-utils';
+import { exportExtendedGoodsToExcel } from './export-utils';
 import ArchiveStatistics from './components/archive-statistics';
 import VirtualizedTableView from './components/virtualized-table-view';
 import { TabControl } from './components/archive-header';
-import { QuickPreviewModal, DeletePeriodModal, ExportModal, StatisticsSettingsModal } from './components/archive-modals';
+import { QuickPreviewModal, DeletePeriodModal, StatisticsSettingsModal } from './components/archive-modals';
 import { FiltersPanel } from './components/archive-filters';
 import { TableView, CardsView, CompactView } from './components/archive-views';
 import {
@@ -111,9 +111,6 @@ export default function ArchivePageClient({
 
     // Grouping state
     const [groupByDate, setGroupByDate] = useState(false);
-
-    // Export modal state
-    const [showExportModal, setShowExportModal] = useState(false);
 
     // Statistics settings state
     const [showStatsSettings, setShowStatsSettings] = useState(false);
@@ -558,16 +555,6 @@ export default function ArchivePageClient({
         setCurrentPage(1);
     };
 
-    // Export to Excel function
-    const handleExportToExcel = () => {
-        if (activeTab === 'list61') {
-            exportExtendedToExcel(sortedDocs, activeTab, exportColumns, exportColumnOrder);
-        } else {
-            exportToExcel(sortedDocs, activeTab, exportColumns, exportColumnOrder);
-        }
-        setShowExportModal(false);
-    };
-
     // Extended export function (one row per goods item)
     const handleExtendedExport = async () => {
         setIsExtendedExporting(true);
@@ -580,7 +567,6 @@ export default function ArchivePageClient({
                 exportColumnOrder,
                 (p) => setExtendedExportProgress(p)
             );
-            setShowExportModal(false);
         } finally {
             setIsExtendedExporting(false);
             setExtendedExportProgress(null);
@@ -736,7 +722,8 @@ export default function ArchivePageClient({
                         <Button
                             variant="outline"
                             className="gap-2"
-                            onClick={() => setShowExportModal(true)}
+                            onClick={handleExtendedExport}
+                            disabled={isExtendedExporting}
                         >
                             <FileSpreadsheet className="w-4 h-4" />
                             Експорт в Excel
@@ -1266,19 +1253,6 @@ export default function ArchivePageClient({
                 previewDoc={previewDoc}
                 activeTab={activeTab}
                 onClose={() => setPreviewDoc(null)}
-            />
-
-            {/* Export to Excel Modal */}
-            <ExportModal
-                isOpen={showExportModal}
-                onClose={() => setShowExportModal(false)}
-                activeTab={activeTab}
-                totalCount={sortedDocs.length}
-                exportColumns={exportColumns}
-                exportColumnOrder={exportColumnOrder}
-                onExportColumnsChange={setExportColumns}
-                onExport={handleExportToExcel}
-                onExtendedExport={isExtendedExporting ? undefined : handleExtendedExport}
             />
 
             {/* Delete by Period Modal */}
