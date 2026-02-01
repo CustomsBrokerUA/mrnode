@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { FileText, CheckCircle2, Clock, XCircle, DollarSign, Package, TrendingUp, BarChart3 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -47,6 +47,8 @@ export default function DashboardPageClient({
     // Date range state
     const [dateRange, setDateRange] = useState<string>('30d');
     const [customDates, setCustomDates] = useState<{ from?: string; to?: string }>({});
+
+    const didSkipInitialAutoRefresh = useRef(false);
 
     // Sync state with props when server-side data changes
     useEffect(() => {
@@ -158,6 +160,12 @@ export default function DashboardPageClient({
     };
 
     useEffect(() => {
+        // Avoid overriding SSR analytics immediately after hydration.
+        // This prevents a brief "has data" -> "0" transition on new accounts or when local storage has stale filters.
+        if (!didSkipInitialAutoRefresh.current && initialAnalytics) {
+            didSkipInitialAutoRefresh.current = true;
+            return;
+        }
         if (dateRange === 'custom') {
             if (customDates.from && customDates.to) {
                 refreshAnalytics(undefined, 'custom', customDates);
