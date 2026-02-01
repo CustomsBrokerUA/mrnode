@@ -78,44 +78,37 @@ export async function getActiveCompany() {
       return { error: "Неавторизований доступ" };
     }
 
-    if (!session.user.activeCompanyId) {
-      return { error: "Активна компанія не встановлена" };
+    const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
+    const access = await getActiveCompanyWithAccess();
+    if (!access.success || !access.companyId) {
+      return { error: access.error || "Активна компанія не встановлена" };
     }
 
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: session.user.activeCompanyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            edrpou: true,
-            isActive: true,
-            deletedAt: true,
-            customsToken: true, // Для перевірки наявності токена
-          }
-        }
+    const company = await db.company.findUnique({
+      where: { id: access.companyId },
+      select: {
+        id: true,
+        name: true,
+        edrpou: true,
+        isActive: true,
+        deletedAt: true,
+        customsToken: true,
       }
     });
 
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
+    if (!company || company.deletedAt) {
       return { error: "Активна компанія не знайдена або недоступна" };
     }
 
     return {
       success: true,
       company: {
-        id: userCompany.company.id,
-        name: userCompany.company.name,
-        edrpou: userCompany.company.edrpou,
-        role: userCompany.role,
-        isActive: userCompany.company.isActive,
-        hasToken: !!userCompany.company.customsToken,
+        id: company.id,
+        name: company.name,
+        edrpou: company.edrpou,
+        role: access.role,
+        isActive: company.isActive,
+        hasToken: !!company.customsToken,
       }
     };
   } catch (error: any) {
@@ -150,25 +143,10 @@ export async function setActiveCompany(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    // Перевірка доступу до компанії
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: userId,
-          companyId: companyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            deletedAt: true,
-          }
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
-      return { error: "Доступ до компанії заборонено" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
     }
 
     // Оновити activeCompanyId в БД
@@ -202,26 +180,15 @@ export async function getUserCompanyRole(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      },
-      select: {
-        role: true,
-        isActive: true,
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive) {
-      return { error: "Доступ до компанії заборонено" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
     }
 
     return {
       success: true,
-      role: userCompany.role,
+      role: access.role,
     };
   } catch (error: any) {
     console.error("Error getting user company role:", error);
@@ -260,16 +227,9 @@ export async function createCompany(data: { name: string; edrpou: string; custom
       // Якщо компанія видалена, можна відновити
       if (existingCompany.deletedAt) {
         // Перевірити чи користувач вже має доступ
-        const userCompany = await db.userCompany.findUnique({
-          where: {
-            userId_companyId: {
-              userId: session.user.id,
-              companyId: existingCompany.id,
-            }
-          }
-        });
-
-        if (userCompany) {
+        const { checkCompanyAccess } = await import("@/lib/company-access");
+        const access = await checkCompanyAccess(existingCompany.id, { allowDeleted: true });
+        if (access.success) {
           return { error: "Ви вже є учасником цієї компанії" };
         }
 
@@ -388,31 +348,21 @@ export async function leaveCompany(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            name: true,
-            deletedAt: true,
-          }
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
-      return { error: "Компанія не знайдена або недоступна" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Компанія не знайдена або недоступна" };
     }
 
     // Власник не може вийти - тільки видалити компанію
-    if (userCompany.role === "OWNER") {
+    if (access.role === "OWNER") {
       return { error: "Власник не може вийти з компанії. Використайте функцію видалення компанії або передайте власність." };
     }
+
+    const company = await db.company.findUnique({
+      where: { id: companyId },
+      select: { name: true }
+    });
 
     // Видалити зв'язок
     await db.userCompany.delete({
@@ -458,7 +408,7 @@ export async function leaveCompany(companyId: string) {
         userId: session.user.id,
         userName: session.user.name || session.user.email,
         action: "LEAVE_COMPANY",
-        details: `Користувач вийшов з компанії`,
+        details: `Користувач вийшов з компанії${company?.name ? ` (${company.name})` : ''}`,
       }
     });
 
@@ -480,30 +430,24 @@ export async function deleteCompany(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            name: true,
-            deletedAt: true,
-          }
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
-      return { error: "Компанія не знайдена або вже видалена" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Компанія не знайдена або вже видалена" };
     }
 
     // Тільки власник може видаляти
-    if (userCompany.role !== "OWNER") {
+    if (access.role !== "OWNER") {
       return { error: "Тільки власник може видаляти компанію" };
+    }
+
+    const company = await db.company.findUnique({
+      where: { id: companyId },
+      select: { deletedAt: true }
+    });
+
+    if (!company || company.deletedAt) {
+      return { error: "Компанія не знайдена або вже видалена" };
     }
 
     // М'яке видалення
@@ -572,39 +516,28 @@ export async function restoreCompany(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            name: true,
-            deletedAt: true,
-          }
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive) {
-      return { error: "Доступ до компанії заборонено" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId, { allowDeleted: true });
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
     }
 
-    // Тільки власник може відновлювати
-    if (userCompany.role !== "OWNER") {
+    if (access.role !== 'OWNER') {
       return { error: "Тільки власник може відновлювати компанію" };
     }
 
-    if (!userCompany.company.deletedAt) {
+    const company = await db.company.findUnique({
+      where: { id: companyId },
+      select: { deletedAt: true }
+    });
+
+    if (!company?.deletedAt) {
       return { error: "Компанія не видалена" };
     }
 
     // Перевірити чи не минуло 90 днів
     const daysSinceDeletion = Math.floor(
-      (new Date().getTime() - userCompany.company.deletedAt.getTime()) / (1000 * 60 * 60 * 24)
+      (new Date().getTime() - company.deletedAt.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     if (daysSinceDeletion > 90) {
@@ -652,32 +585,20 @@ export async function inviteUser(companyId: string, email: string, role: 'MEMBER
 
     const userId = session.user.id;
 
-    // Перевірка доступу
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: userId,
-          companyId: companyId,
-        }
-      },
-      include: {
-        company: {
-          select: {
-            name: true,
-            deletedAt: true,
-          }
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
-      return { error: "Доступ до компанії заборонено" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
     }
 
-    // Тільки власник може надсилати запрошення
-    if (userCompany.role !== "OWNER") {
+    if (access.role !== 'OWNER') {
       return { error: "Тільки власник може надсилати запрошення" };
     }
+
+    const company = await db.company.findUnique({
+      where: { id: companyId },
+      select: { name: true }
+    });
 
     // Валідація email
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -730,12 +651,12 @@ export async function inviteUser(companyId: string, email: string, role: 'MEMBER
           data: {
             userId: existingUser.id,
             type: "COMPANY_INVITE",
-            title: `Запрошення до компанії ${userCompany.company.name}`,
-            message: `${session.user.name || session.user.email} запрошує вас приєднатися до компанії "${userCompany.company.name}" у ролі ${role === 'MEMBER' ? 'Учасника' : 'Спостерігача'}.`,
+            title: `Запрошення до компанії ${company?.name}`,
+            message: `${session.user.name || session.user.email} запрошує вас приєднатися до компанії "${company?.name}" у ролі ${role === 'MEMBER' ? 'Учасника' : 'Спостерігача'}.`,
             data: {
               invitationId: invitation.id,
               companyId: companyId,
-              companyName: userCompany.company.name,
+              companyName: company?.name,
               inviterName: session.user.name || session.user.email,
               role: role,
               token: token
@@ -789,17 +710,9 @@ export async function getInvitations(companyId: string) {
       return { error: "Неавторизований доступ" };
     }
 
-    // Перевірка доступу
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.role !== "OWNER") {
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success || access.role !== 'OWNER') {
       return { error: "Доступ заборонено. Тільки власник може переглядати запрошення." };
     }
 
@@ -862,17 +775,9 @@ export async function cancelInvitation(companyId: string, invitationId: string) 
       return { error: "Неавторизований доступ" };
     }
 
-    // Перевірка доступу
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive || userCompany.role !== "OWNER") {
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success || access.role !== 'OWNER') {
       return { error: "Тільки власник може скасовувати запрошення" };
     }
 
@@ -922,18 +827,10 @@ export async function getCompanyAuditLog(companyId: string, limit: number = 50) 
       return { error: "Неавторизований доступ" };
     }
 
-    // Перевірка доступу
-    const userCompany = await db.userCompany.findUnique({
-      where: {
-        userId_companyId: {
-          userId: session.user.id,
-          companyId: companyId,
-        }
-      }
-    });
-
-    if (!userCompany || !userCompany.isActive) {
-      return { error: "Доступ до компанії заборонено" };
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
     }
 
     const logs = await db.companyAuditLog.findMany({

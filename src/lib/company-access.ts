@@ -181,7 +181,10 @@ export async function getActiveCompanyWithAccess(): Promise<CompanyAccessResult>
 /**
  * Перевірити доступ до конкретної компанії
  */
-export async function checkCompanyAccess(companyId: string): Promise<CompanyAccessResult> {
+export async function checkCompanyAccess(
+  companyId: string,
+  options?: { allowDeleted?: boolean }
+): Promise<CompanyAccessResult> {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -220,7 +223,7 @@ export async function checkCompanyAccess(companyId: string): Promise<CompanyAcce
       }
     });
 
-    if (!userCompany || !userCompany.isActive || userCompany.company.deletedAt) {
+    if (!userCompany || !userCompany.isActive || (!options?.allowDeleted && userCompany.company.deletedAt)) {
       return { success: false, error: "Доступ до компанії заборонено" };
     }
 
