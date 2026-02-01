@@ -130,11 +130,30 @@ export async function getDeclarationsPaginated(
     const { getActiveCompanyWithAccess, filterAllowedCompanyIds } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
 
-    if (!access.success || !access.companyId) {
+    // Fallback: if active company isn't resolved by helper (e.g. session missing activeCompanyId),
+    // determine it via relation query (same principle as getDeclarations()).
+    let effectiveCompanyId: string | null = access.success && access.companyId ? access.companyId : null;
+    if (!effectiveCompanyId) {
+        try {
+            const activeLink = await db.userCompany.findFirst({
+                where: {
+                    user: { email: session.user.email },
+                    isActive: true,
+                    company: { deletedAt: null },
+                },
+                select: { companyId: true },
+            });
+            effectiveCompanyId = activeLink?.companyId || null;
+        } catch {
+            effectiveCompanyId = null;
+        }
+    }
+
+    if (!effectiveCompanyId) {
         return { declarations: [], total: 0, page, pageSize, totalPages: 0 };
     }
 
-    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(effectiveCompanyId);
 
     // Determine which companies to query
     let targetCompanyIds: string[];
@@ -149,7 +168,7 @@ export async function getDeclarationsPaginated(
         targetCompanyIds = allowedIds;
     } else {
         // Default to active company only
-        targetCompanyIds = [access.companyId];
+        targetCompanyIds = [effectiveCompanyId];
     }
 
     // Build where clause for filtering
