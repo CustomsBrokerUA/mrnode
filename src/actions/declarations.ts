@@ -1323,7 +1323,16 @@ export async function deleteDeclaration(id: string) {
             meta: { deletedCount: 1 },
         });
 
+        try {
+            const { invalidateCompanyStatisticsCache, clearAllStatisticsCache } = await import("@/lib/statistics-cache");
+            invalidateCompanyStatisticsCache(access.companyId);
+            clearAllStatisticsCache();
+        } catch {
+            // ignore
+        }
+
         revalidatePath("/dashboard/archive");
+        revalidatePath("/dashboard");
         return { success: true };
     } catch (error: any) {
         console.error("Delete declaration error:", error);
@@ -1568,7 +1577,16 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
             meta: { deletedCount: result.count },
         });
 
+        try {
+            const { invalidateCompanyStatisticsCache, clearAllStatisticsCache } = await import("@/lib/statistics-cache");
+            invalidateCompanyStatisticsCache(access.companyId);
+            clearAllStatisticsCache();
+        } catch {
+            // ignore
+        }
+
         revalidatePath("/dashboard/archive");
+        revalidatePath("/dashboard");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by period error:", error);
@@ -1707,7 +1725,16 @@ export async function deleteDeclarationsByIds(ids: string[]) {
             meta: { deletedCount: result.count },
         });
 
+        try {
+            const { invalidateCompanyStatisticsCache, clearAllStatisticsCache } = await import("@/lib/statistics-cache");
+            invalidateCompanyStatisticsCache(access.companyId);
+            clearAllStatisticsCache();
+        } catch {
+            // ignore
+        }
+
         revalidatePath("/dashboard/archive");
+        revalidatePath("/dashboard");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by IDs error:", error);
