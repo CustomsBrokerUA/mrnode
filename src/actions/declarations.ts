@@ -1204,12 +1204,11 @@ export async function deleteDeclaration(id: string) {
     }
 
     try {
-        // Використовувати activeCompanyId замість user.company
-        const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
-        const access = await getActiveCompanyWithAccess();
+        const { requireActiveCompanyAccess } = await import("@/lib/company-access");
+        const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
 
         if (!access.success || !access.companyId) {
-            return { error: "Активна компанія не встановлена" };
+            return { error: access.error || "Активна компанія не встановлена" };
         }
 
         // Verify that the declaration belongs to the user's company
@@ -1251,7 +1250,6 @@ export async function getPeriodsLoadingStatus(periodDays: number = 7) {
     }
 
     try {
-        // Використовувати activeCompanyId замість user.company
         const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
         const access = await getActiveCompanyWithAccess();
 
@@ -1362,12 +1360,11 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
     }
 
     try {
-        // Використовувати activeCompanyId замість user.company
-        const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
-        const access = await getActiveCompanyWithAccess();
+        const { requireActiveCompanyAccess } = await import("@/lib/company-access");
+        const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
 
         if (!access.success || !access.companyId) {
-            return { error: "Активна компанія не встановлена" };
+            return { error: access.error || "Активна компанія не встановлена" };
         }
 
         // Ensure dateFrom starts at 00:00:00
@@ -1408,12 +1405,11 @@ export async function deleteDeclarationsByIds(ids: string[]) {
     }
 
     try {
-        // Використовувати activeCompanyId замість user.company
-        const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
-        const access = await getActiveCompanyWithAccess();
+        const { requireActiveCompanyAccess } = await import("@/lib/company-access");
+        const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
 
         if (!access.success || !access.companyId) {
-            return { error: "Активна компанія не встановлена" };
+            return { error: access.error || "Активна компанія не встановлена" };
         }
 
         // Verify all declarations belong to the user's company
