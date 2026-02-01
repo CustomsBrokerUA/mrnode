@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
-import { attachCompanyToUser, listUsersWithCompanies } from '@/actions/admin';
+import { adminDeleteUser, attachCompanyToUser, listUsersWithCompanies } from '@/actions/admin';
 
 type Result =
   | { ok: true; userEmail: string; company: { id: string; name: string; edrpou: string } }
@@ -125,6 +125,36 @@ export default function AdminPageClient() {
     setUsersPage(1);
   }, []);
 
+  const handleDeleteUser = useCallback(
+    async (userId: string, email: string) => {
+      if (!confirm(`Видалити користувача ${email}?`)) return;
+
+      try {
+        const resp = await adminDeleteUser({ userId });
+        if ((resp as any).error) {
+          alert((resp as any).error);
+          return;
+        }
+
+        const refreshed = (await listUsersWithCompanies({
+          query: usersQuery.trim(),
+          page: usersPage,
+          pageSize: usersPageSize,
+        })) as UsersResponse;
+
+        if ((refreshed as any).success) {
+          setUsersData(refreshed as Extract<UsersResponse, { success: true }>);
+        } else {
+          setUsersData(null);
+          setUsersError((refreshed as any).error || 'Помилка завантаження');
+        }
+      } catch (e: any) {
+        alert(e?.message || 'Помилка');
+      }
+    },
+    [usersPage, usersPageSize, usersQuery]
+  );
+
   return (
     <div className="max-w-3xl space-y-4">
       <Card>
@@ -225,6 +255,7 @@ export default function AdminPageClient() {
                   <TableHead>ПІБ</TableHead>
                   <TableHead>Active company</TableHead>
                   <TableHead>Компанії</TableHead>
+                  <TableHead className="text-right">Дії</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -261,6 +292,15 @@ export default function AdminPageClient() {
                             </div>
                           ))}
                         </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          className="border-red-300 text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteUser(u.id, u.email)}
+                        >
+                          Delete
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

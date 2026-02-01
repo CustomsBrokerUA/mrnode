@@ -174,3 +174,85 @@ export async function attachCompanyToUser(params: {
     },
   };
 }
+
+export async function adminDeleteUser(params: { userId: string }) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    return { error: 'Неавторизований доступ' };
+  }
+
+  if (session.user.email !== ADMIN_EMAIL) {
+    return { error: 'Forbidden' };
+  }
+
+  const userId = (params.userId || '').trim();
+  if (!userId) return { error: 'userId is required' };
+
+  let adminUserId = session.user.id;
+  if (!adminUserId) {
+    const adminUser = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    adminUserId = adminUser?.id;
+  }
+
+  if (adminUserId && adminUserId === userId) {
+    return { error: 'Не можна видалити самого себе' };
+  }
+
+  const targetUser = await db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true },
+  });
+
+  if (!targetUser) {
+    return { error: 'Користувача не знайдено' };
+  }
+
+  if (targetUser.email === 'test@gmail.com') {
+    return { error: 'Демонстраційний акаунт не можна видалити' };
+  }
+
+  const ownedCompanies = await db.userCompany.findMany({
+    where: { userId, isActive: true, role: 'OWNER' },
+    select: { companyId: true },
+  });
+
+  for (const owned of ownedCompanies) {
+    const otherOwnersCount = await db.userCompany.count({
+      where: {
+        companyId: owned.companyId,
+        isActive: true,
+        role: 'OWNER',
+        userId: { not: userId },
+      },
+    });
+
+    if (otherOwnersCount === 0) {
+      return {
+        error:
+          'Неможливо видалити користувача: він є єдиним OWNER хоча б однієї компанії. Спочатку признач OWNER іншому користувачу або видали компанію.',
+      };
+    }
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.user.delete({ where: { id: userId } });
+
+    await (tx as any).operationLog.create({
+      data: {
+        operation: 'ADMIN_DELETE_USER',
+        status: 'success',
+        userId: adminUserId || null,
+        details: `Deleted user id=${userId} email=${targetUser.email}`,
+        meta: { deletedUserId: userId, deletedUserEmail: targetUser.email },
+        finishedAt: new Date(),
+      },
+    });
+  });
+
+  revalidatePath('/dashboard/admin');
+  return { success: true };
+}

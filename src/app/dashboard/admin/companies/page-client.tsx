@@ -198,7 +198,7 @@ export default function AdminCompaniesPageClient() {
           <CardDescription>Компанії без користувачів / без OWNER / з кількома OWNER</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="space-y-2">
               <Label htmlFor="q">Пошук (назва/ЄДРПОУ)</Label>
               <Input id="q" value={query} onChange={(e) => handleFilterChange(() => setQuery(e.target.value))} />
@@ -206,8 +206,8 @@ export default function AdminCompaniesPageClient() {
 
             <div className="space-y-2">
               <Label>Фільтри</Label>
-              <div className="space-y-2 text-sm">
-                <label className="flex items-center gap-2">
+              <div className="flex flex-wrap gap-3 text-sm">
+                <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
                   <input
                     type="checkbox"
                     checked={onlyNoUsers}
@@ -215,7 +215,7 @@ export default function AdminCompaniesPageClient() {
                   />
                   0 користувачів
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
                   <input
                     type="checkbox"
                     checked={onlyNoOwner}
@@ -223,7 +223,7 @@ export default function AdminCompaniesPageClient() {
                   />
                   без OWNER
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
                   <input
                     type="checkbox"
                     checked={onlyMultiOwner}
@@ -231,19 +231,15 @@ export default function AdminCompaniesPageClient() {
                   />
                   &gt;1 OWNER
                 </label>
+                <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={includeDeleted}
+                    onChange={(e) => handleFilterChange(() => setIncludeDeleted(e.target.checked))}
+                  />
+                  include deleted
+                </label>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Опції</Label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={includeDeleted}
-                  onChange={(e) => handleFilterChange(() => setIncludeDeleted(e.target.checked))}
-                />
-                include deleted
-              </label>
             </div>
 
             <div className="space-y-2">
@@ -263,7 +259,8 @@ export default function AdminCompaniesPageClient() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Компанія</TableHead>
-                  <TableHead>Users</TableHead>
+                  <TableHead>Аномалії</TableHead>
+                  <TableHead className="text-right">Users</TableHead>
                   <TableHead>Owners</TableHead>
                   <TableHead>Статус</TableHead>
                   <TableHead className="text-right">Дії</TableHead>
@@ -292,7 +289,31 @@ export default function AdminCompaniesPageClient() {
                           <div className="text-xs text-slate-400">companyId: {c.id}</div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">{c.activeUsersCount}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          {c.activeUsersCount === 0 && (
+                            <span className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
+                              0 users
+                            </span>
+                          )}
+                          {c.ownersCount === 0 && (
+                            <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                              no owner
+                            </span>
+                          )}
+                          {c.ownersCount > 1 && (
+                            <span className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
+                              multi-owner
+                            </span>
+                          )}
+                          {c.activeUsersCount > 0 && c.ownersCount === 1 && (
+                            <span className="rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-800">
+                              ok
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-right">{c.activeUsersCount}</TableCell>
                       <TableCell className="text-sm">
                         <div className="space-y-1">
                           <div>{c.ownersCount}</div>
@@ -304,7 +325,7 @@ export default function AdminCompaniesPageClient() {
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-slate-600">
-                        <div>{c.deletedAt ? 'deleted' : 'active'}</div>
+                        <div className={c.deletedAt ? 'text-slate-400' : 'text-slate-700'}>{c.deletedAt ? 'deleted' : 'active'}</div>
                         <div className="text-[11px] text-slate-400">created: {new Date(c.createdAt).toLocaleString('uk-UA')}</div>
                       </TableCell>
                       <TableCell className="text-right">
