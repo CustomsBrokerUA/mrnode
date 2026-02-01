@@ -12,7 +12,8 @@ import {
     LogOut,
     Menu,
     Bell,
-    TrendingUp
+    TrendingUp,
+    Shield
 } from "lucide-react";
 import { Button } from "@/components/ui";
 import ExchangeRatesModal from "@/components/exchange-rates-modal";
@@ -57,6 +58,10 @@ export default function DashboardLayoutClient({
     const [isIdleLoggingOut, setIsIdleLoggingOut] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+
+    const effectiveSidebarItems = userProfile?.email === 'andrii@brokerua.com'
+        ? [...sidebarItems, { icon: Shield, label: 'Адмін', href: '/dashboard/admin' }]
+        : sidebarItems;
 
     useEffect(() => {
         const mq = window.matchMedia('(max-width: 1023px)');
@@ -275,7 +280,7 @@ export default function DashboardLayoutClient({
 
                     {/* Navigation */}
                     <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
-                        {sidebarItems.map((item) => {
+                        {effectiveSidebarItems.map((item) => {
                             const isActive = pathname === item.href;
                             return (
                                 <Link
