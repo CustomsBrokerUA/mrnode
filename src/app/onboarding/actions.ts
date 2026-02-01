@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { encrypt } from "@/lib/crypto";
 
 export async function saveCompanyData(prevState: any, formData: FormData) {
     const session = await auth();
@@ -20,30 +21,66 @@ export async function saveCompanyData(prevState: any, formData: FormData) {
     }
 
     try {
-        // 1. Create Company
-        // Note: In a real app we would encrypt the token here.
-        // 1. Create or Update Company
-        // Note: In a real app we would encrypt the token here.
-        const company = await db.company.upsert({
+        let userId = session.user.id;
+        if (!userId) {
+            const userByEmail = await db.user.findUnique({
+                where: { email: session.user.email },
+                select: { id: true }
+            });
+            userId = userByEmail?.id;
+        }
+
+        if (!userId) {
+            return { error: "Неавторизований доступ" };
+        }
+
+        const existingCompany = await db.company.findUnique({
             where: { edrpou: edrpou },
+            select: { id: true, customsToken: true }
+        });
+
+        const encryptedToken = await encrypt(token);
+
+        const company = existingCompany
+            ? await db.company.update({
+                where: { id: existingCompany.id },
+                data: existingCompany.customsToken
+                    ? {}
+                    : { customsToken: encryptedToken },
+                select: { id: true }
+            })
+            : await db.company.create({
+                data: {
+                    name: companyName,
+                    edrpou: edrpou,
+                    customsToken: encryptedToken,
+                },
+                select: { id: true }
+            });
+
+        await db.userCompany.upsert({
+            where: {
+                userId_companyId: {
+                    userId: userId,
+                    companyId: company.id,
+                }
+            },
             update: {
-                name: companyName,
-                customsToken: token
+                isActive: true,
             },
             create: {
-                name: companyName,
-                edrpou: edrpou,
-                customsToken: token, // TODO: Encrypt
+                userId: userId,
+                companyId: company.id,
+                role: existingCompany ? 'MEMBER' : 'OWNER',
+                isActive: true,
             }
         });
 
-        // 2. Link User to Company
         await db.user.update({
-            where: { email: session.user.email },
+            where: { id: userId },
             data: {
+                activeCompanyId: company.id,
                 companyId: company.id,
-                // Optionally update profile fields using other form data if we had them passed here
-                // For now assuming role etc were handled or defaulted
             }
         });
 
