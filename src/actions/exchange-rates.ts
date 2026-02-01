@@ -2,6 +2,7 @@
 
 import { formatDateToYYYYMMDD } from "@/lib/nbu-api";
 import { db } from "@/lib/db";
+import { acquireOperationLock } from "@/lib/operations";
 
 export interface ExchangeRateData {
     currencyCode: string;
@@ -45,6 +46,48 @@ export async function getExchangeRatesForDate(date: Date): Promise<ExchangeRateD
 
         // Якщо немає в БД, робимо API запит напряму
         const dateStr = formatDateToYYYYMMDD(dateOnly);
+
+        // Dedupe concurrent fetches for the same date. This does NOT limit sequential calls.
+        // If another request is already fetching this date, wait briefly for DB to populate.
+        try {
+            const ttlMs = 30 * 1000;
+            const lockKey = `exchange_rates_fetch_${dateStr}`;
+            const lock = await acquireOperationLock({
+                scopeKey: lockKey,
+                operation: 'FETCH_EXCHANGE_RATES',
+                companyId: null,
+                userId: null,
+                ttlMs,
+            });
+
+            if (!lock.ok && lock.reason === 'locked') {
+                for (let attempt = 0; attempt < 10; attempt++) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    try {
+                        const result = await db.$queryRaw`
+                            SELECT "currencyCode", "currencyName", rate, date
+                            FROM "ExchangeRate"
+                            WHERE date = ${dateOnly}::date
+                            ORDER BY "currencyCode" ASC
+                        `;
+                        const refreshed = Array.isArray(result) ? result : [];
+                        if (refreshed.length > 0) {
+                            return refreshed.map((rate: any) => ({
+                                currencyCode: rate.currencyCode || '',
+                                currencyName: rate.currencyName || rate.currencyCode || '',
+                                rate: Number(rate.rate) || 0
+                            }));
+                        }
+                    } catch {
+                        // ignore and continue waiting
+                    }
+                }
+                // If still missing after waiting, proceed with direct API fetch (best-effort).
+            }
+        } catch {
+            // ignore lock errors and proceed
+        }
+
         const url = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${dateStr}&json`;
         
         try {
@@ -145,6 +188,44 @@ export async function getExchangeRateForCurrency(
 
         // Якщо немає в БД, робимо API запит для всіх валют
         const dateStr = formatDateToYYYYMMDD(dateOnly);
+
+        // Dedupe concurrent fetches for the same date (we fetch all currencies for that date anyway).
+        // Do not limit sequential requests to avoid breaking extended export.
+        try {
+            const ttlMs = 30 * 1000;
+            const lockKey = `exchange_rates_fetch_${dateStr}`;
+            const lock = await acquireOperationLock({
+                scopeKey: lockKey,
+                operation: 'FETCH_EXCHANGE_RATES',
+                companyId: null,
+                userId: null,
+                ttlMs,
+            });
+
+            if (!lock.ok && lock.reason === 'locked') {
+                for (let attempt = 0; attempt < 10; attempt++) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    try {
+                        const refreshed = await db.$queryRaw`
+                            SELECT rate
+                            FROM "ExchangeRate"
+                            WHERE date = ${dateOnly}::date
+                            AND "currencyCode" = ${currencyCode.toUpperCase()}
+                            LIMIT 1
+                        `;
+                        if (Array.isArray(refreshed) && refreshed.length > 0 && (refreshed as any)[0]?.rate) {
+                            return Number((refreshed as any)[0].rate);
+                        }
+                    } catch {
+                        // ignore
+                    }
+                }
+                // Still missing - proceed with direct API fetch (best-effort).
+            }
+        } catch {
+            // ignore
+        }
+
         const url = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${dateStr}&json`;
         
         try {
