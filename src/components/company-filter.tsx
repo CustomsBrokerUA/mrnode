@@ -49,11 +49,26 @@ export default function CompanyFilter({ onFilterChange, activeCompanyId }: Compa
     const loadCompanies = async () => {
         const result = await getUserCompanies(false);
         if (result.success && result.companies) {
-            setCompanies(result.companies.map(c => ({
+            const nextCompanies = result.companies.map(c => ({
                 id: c.id,
                 name: c.name,
                 edrpou: c.edrpou
-            })));
+            }));
+            setCompanies(nextCompanies);
+
+            // Validate persisted selection against current user's companies
+            const companyIdSet = new Set(nextCompanies.map(c => c.id));
+            const validSelected = selectedCompanyIds.filter(id => companyIdSet.has(id));
+            if (filterMode !== 'active' && validSelected.length === 0) {
+                setSelectedCompanyIds([]);
+                setFilterMode('active');
+                saveFilterToStorage([], 'active');
+            } else if (validSelected.length !== selectedCompanyIds.length) {
+                setSelectedCompanyIds(validSelected);
+                if (filterMode === 'selected') {
+                    saveFilterToStorage(validSelected, 'selected');
+                }
+            }
         }
     };
 
@@ -94,9 +109,17 @@ export default function CompanyFilter({ onFilterChange, activeCompanyId }: Compa
             companyIds = selectedCompanyIds;
         }
 
+        if (companies.length > 0) {
+            const companyIdSet = new Set(companies.map(c => c.id));
+            companyIds = companyIds.filter(id => companyIdSet.has(id));
+        }
+
         // Avoid emitting empty company list for non-active modes while data is still loading.
         // Empty array is treated as "no companyIds" upstream and falls back to active company.
         if ((filterMode === 'all' || filterMode === 'selected') && companyIds.length === 0) {
+            if (activeCompanyId) {
+                onFilterChange([activeCompanyId]);
+            }
             return;
         }
 
