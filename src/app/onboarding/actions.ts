@@ -5,6 +5,39 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { encrypt } from "@/lib/crypto";
 
+export async function saveProfileData(prevState: any, formData: FormData) {
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.email) {
+        return { error: "Неавторизований доступ" };
+    }
+
+    const firstName = (formData.get("firstName") as string | null)?.trim() || "";
+    const lastName = (formData.get("lastName") as string | null)?.trim() || "";
+
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    if (!fullName) {
+        return { error: "Ім'я та прізвище є обов'язковими" };
+    }
+
+    try {
+        await db.user.update({
+            where: { email: session.user.email },
+            data: {
+                fullName,
+            }
+        });
+
+        revalidatePath("/dashboard");
+        revalidatePath("/dashboard/settings");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Onboarding Profile Error:", error);
+        return { error: "Помилка збереження профілю: " + (error.message || "Невідома помилка") };
+    }
+}
+
 export async function saveCompanyData(prevState: any, formData: FormData) {
     const session = await auth();
 

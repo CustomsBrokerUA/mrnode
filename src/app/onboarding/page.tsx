@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Input, Label, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
 import { CheckCircle2, Building2, User, Key, HelpCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { saveCompanyData } from "./actions";
+import { saveCompanyData, saveProfileData } from "./actions";
 import CustomsTokenInstructionModal from "@/components/customs-token-instruction-modal";
 
 export default function OnboardingPage() {
@@ -29,9 +29,20 @@ export default function OnboardingPage() {
         setIsLoading(false);
     }
 
-    function handleProfileSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setStep(2);
+    async function handleProfileSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setIsLoading(true);
+
+        const formData = new FormData(event.currentTarget);
+        const result = await saveProfileData({}, formData);
+
+        if ((result as any).success) {
+            setStep(2);
+        } else {
+            alert((result as any).error);
+        }
+
+        setIsLoading(false);
     }
 
     function finishOnboarding() {
@@ -85,16 +96,16 @@ export default function OnboardingPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="firstName">Ім'я</Label>
-                                            <Input id="firstName" required placeholder="Іван" />
+                                            <Input name="firstName" id="firstName" required placeholder="Іван" />
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="lastName">Прізвище</Label>
-                                            <Input id="lastName" required placeholder="Петренко" />
+                                            <Input name="lastName" id="lastName" required placeholder="Петренко" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="role">Ваша роль</Label>
-                                        <select className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/50">
+                                        <select name="role" id="role" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/50">
                                             <option>Головний бухгалтер</option>
                                             <option>Митний брокер</option>
                                             <option>Менеджер</option>
@@ -102,7 +113,10 @@ export default function OnboardingPage() {
                                         </select>
                                     </div>
                                     <div className="pt-4 flex justify-end">
-                                        <Button type="submit">Далі: Компанія</Button>
+                                        <Button type="submit" disabled={isLoading}>
+                                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            Далі: Компанія
+                                        </Button>
                                     </div>
                                 </div>
                             </form>
