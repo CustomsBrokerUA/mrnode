@@ -207,7 +207,7 @@ export default function AdminPageClient() {
   );
 
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="w-full max-w-none space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Навігація</CardTitle>

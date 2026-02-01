@@ -181,11 +181,11 @@ export default function AdminSyncPageClient() {
   }, []);
 
   return (
-    <div className="max-w-6xl space-y-4">
+    <div className="w-full max-w-none space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Адмін: Sync Jobs</CardTitle>
-          <CardDescription>Моніторинг SyncJob та SyncJobError</CardDescription>
+          <CardDescription>Моніторинг виконання синхронізацій та помилок</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -361,7 +361,7 @@ export default function AdminSyncPageClient() {
       </Card>
 
       <Dialog open={errorsOpen} onOpenChange={(o) => (o ? null : closeErrors())}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl lg:max-w-5xl">
           <DialogHeader>
             <DialogTitle>SyncJobError ({errorsJobId || ''})</DialogTitle>
           </DialogHeader>

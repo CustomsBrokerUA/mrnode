@@ -191,7 +191,7 @@ export default function AdminCompaniesPageClient() {
   );
 
   return (
-    <div className="max-w-6xl space-y-4">
+    <div className="w-full max-w-none space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Адмін: Компанії (аномалії)</CardTitle>
