@@ -164,6 +164,22 @@ export default function AdminSyncPageClient() {
     [loadJobs]
   );
 
+  const getStageInfoFromErrorMessage = useCallback((message: string | null) => {
+    if (!message || !message.includes('STAGE:')) return null;
+    const stageMatch = message.match(/STAGE:(\d+):([^|]+)/);
+    if (!stageMatch) return null;
+
+    const nextMatch = message.match(/NEXT:(\d+)/);
+    const isCompleted = message.includes('COMPLETED');
+
+    return {
+      stage: parseInt(stageMatch[1], 10),
+      stageName: stageMatch[2],
+      nextStage: nextMatch ? parseInt(nextMatch[1], 10) : undefined,
+      isCompleted,
+    };
+  }, []);
+
   return (
     <div className="max-w-6xl space-y-4">
       <Card>
@@ -283,15 +299,25 @@ export default function AdminSyncPageClient() {
                             Деталі
                           </Button>
                         </div>
-                        {j.errorMessage && (
-                          <div className="mt-2 text-xs text-red-700 line-clamp-2">{j.errorMessage}</div>
-                        )}
+                        {(() => {
+                          const stageInfo = getStageInfoFromErrorMessage(j.errorMessage);
+                          if (stageInfo) {
+                            return (
+                              <div className="mt-2 text-xs text-slate-600">
+                                STAGE:{stageInfo.stage}:{stageInfo.stageName}
+                                {stageInfo.isCompleted ? ' | COMPLETED' : ''}
+                                {stageInfo.nextStage ? ` | NEXT:${stageInfo.nextStage}` : ''}
+                              </div>
+                            );
+                          }
+
+                          if (!j.errorMessage) return null;
+
+                          return <div className="mt-2 text-xs text-red-700 line-clamp-2">{j.errorMessage}</div>;
+                        })()}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" onClick={() => loadJobs()} disabled={loading}>
-                            Оновити
-                          </Button>
                           <Button
                             variant="outline"
                             className="border-red-300 text-red-700 hover:bg-red-50"
@@ -321,6 +347,9 @@ export default function AdminSyncPageClient() {
             )}
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => loadJobs()} disabled={loading}>
+              Оновити список
+            </Button>
             <Button variant="outline" onClick={handlePrev} disabled={loading || page <= 1}>
               Назад
             </Button>
