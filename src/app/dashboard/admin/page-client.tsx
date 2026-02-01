@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
-import { adminDeleteUser, attachCompanyToUser, listUsersWithCompanies } from '@/actions/admin';
+import { adminDeleteUser, adminSetUserActiveCompany, adminSetUserCompanyAccess, attachCompanyToUser, listUsersWithCompanies } from '@/actions/admin';
 
 type Result =
   | { ok: true; userEmail: string; company: { id: string; name: string; edrpou: string } }
@@ -155,6 +155,57 @@ export default function AdminPageClient() {
     [usersPage, usersPageSize, usersQuery]
   );
 
+  const refreshUsers = useCallback(async () => {
+    const refreshed = (await listUsersWithCompanies({
+      query: usersQuery.trim(),
+      page: usersPage,
+      pageSize: usersPageSize,
+    })) as UsersResponse;
+
+    if ((refreshed as any).success) {
+      setUsersData(refreshed as Extract<UsersResponse, { success: true }>);
+    } else {
+      setUsersData(null);
+      setUsersError((refreshed as any).error || 'Помилка завантаження');
+    }
+  }, [usersPage, usersPageSize, usersQuery]);
+
+  const handleSetActiveCompany = useCallback(
+    async (userId: string, companyId: string, label: string) => {
+      if (!confirm(`Зробити активною компанію для користувача?\n${label}`)) return;
+
+      try {
+        const resp = await adminSetUserActiveCompany({ userId, companyId });
+        if ((resp as any).error) {
+          alert((resp as any).error);
+          return;
+        }
+        await refreshUsers();
+      } catch (e: any) {
+        alert(e?.message || 'Помилка');
+      }
+    },
+    [refreshUsers]
+  );
+
+  const handleToggleCompanyAccess = useCallback(
+    async (userId: string, companyId: string, nextIsActive: boolean, label: string) => {
+      if (!confirm(`${nextIsActive ? 'Активувати' : 'Деактивувати'} доступ до компанії?\n${label}`)) return;
+
+      try {
+        const resp = await adminSetUserCompanyAccess({ userId, companyId, isActive: nextIsActive });
+        if ((resp as any).error) {
+          alert((resp as any).error);
+          return;
+        }
+        await refreshUsers();
+      } catch (e: any) {
+        alert(e?.message || 'Помилка');
+      }
+    },
+    [refreshUsers]
+  );
+
   return (
     <div className="max-w-3xl space-y-4">
       <Card>
@@ -227,7 +278,7 @@ export default function AdminPageClient() {
         <CardHeader>
           <CardTitle>Користувачі</CardTitle>
           <CardDescription>
-            Всі зареєстровані користувачі та їх компанії (активні доступи). Пошук працює по email/ПІБ.
+            Всі зареєстровані користувачі та їх компанії (включно неактивні доступи). Пошук працює по email/ПІБ.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -286,9 +337,35 @@ export default function AdminPageClient() {
                             <div key={uc.companyId} className="text-sm">
                               <span className="font-medium">{uc.company.name}</span> ({uc.company.edrpou})
                               <span className="text-slate-500"> — {uc.role}</span>
-                              {u.activeCompanyId === uc.companyId && (
-                                <span className="ml-2 text-xs text-brand-teal">active</span>
-                              )}
+                              {u.activeCompanyId === uc.companyId && <span className="ml-2 text-xs text-brand-teal">active</span>}
+                              {!uc.isActive && <span className="ml-2 text-xs text-slate-500">inactive</span>}
+
+                              <div className="mt-1 flex flex-wrap gap-2">
+                                <Button
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  disabled={!uc.isActive || u.activeCompanyId === uc.companyId}
+                                  onClick={() =>
+                                    handleSetActiveCompany(u.id, uc.companyId, `${u.email} → ${uc.company.name} (${uc.company.edrpou})`)
+                                  }
+                                >
+                                  Зробити активною
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  className={`h-7 px-2 text-xs ${uc.isActive ? 'border-red-300 text-red-700 hover:bg-red-50' : ''}`}
+                                  onClick={() =>
+                                    handleToggleCompanyAccess(
+                                      u.id,
+                                      uc.companyId,
+                                      !uc.isActive,
+                                      `${u.email} ↔ ${uc.company.name} (${uc.company.edrpou})`
+                                    )
+                                  }
+                                >
+                                  {uc.isActive ? 'Вимкнути доступ' : 'Увімкнути доступ'}
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>

@@ -52,7 +52,6 @@ export async function listUsersWithCompanies(params?: {
         createdAt: true,
         companies: {
           where: {
-            isActive: true,
             company: { deletedAt: null },
           },
           orderBy: { createdAt: 'asc' },
@@ -93,6 +92,200 @@ export async function listUsersWithCompanies(params?: {
       })),
     })),
   };
+}
+
+export async function adminSetUserCompanyAccess(params: {
+  userId: string;
+  companyId: string;
+  isActive: boolean;
+}) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    return { error: 'Неавторизований доступ' };
+  }
+
+  if (session.user.email !== ADMIN_EMAIL) {
+    return { error: 'Forbidden' };
+  }
+
+  const userId = (params.userId || '').trim();
+  const companyId = (params.companyId || '').trim();
+  const isActive = Boolean(params.isActive);
+
+  if (!userId || !companyId) {
+    return { error: 'userId та companyId є обовʼязковими' };
+  }
+
+  let adminUserId = session.user.id;
+  if (!adminUserId) {
+    const adminUser = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    adminUserId = adminUser?.id;
+  }
+
+  const [targetUser, targetCompany] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, activeCompanyId: true },
+    }),
+    db.company.findUnique({
+      where: { id: companyId },
+      select: { id: true, name: true, edrpou: true, deletedAt: true },
+    }),
+  ]);
+
+  if (!targetUser) return { error: 'Користувача не знайдено' };
+  if (!targetCompany || targetCompany.deletedAt) return { error: 'Компанію не знайдено або вона видалена' };
+
+  const existing = await db.userCompany.findUnique({
+    where: { userId_companyId: { userId, companyId } },
+    select: { id: true, isActive: true, role: true },
+  });
+
+  if (!isActive) {
+    if (!existing) {
+      return { error: 'Звʼязок user-company не знайдено' };
+    }
+
+    if (existing.role === 'OWNER') {
+      const otherOwnersCount = await db.userCompany.count({
+        where: {
+          companyId,
+          isActive: true,
+          role: 'OWNER',
+          userId: { not: userId },
+        },
+      });
+
+      if (otherOwnersCount === 0) {
+        return { error: 'Не можна деактивувати доступ: користувач є єдиним OWNER цієї компанії' };
+      }
+    }
+  }
+
+  await db.$transaction(async (tx) => {
+    if (existing) {
+      await tx.userCompany.update({
+        where: { id: existing.id },
+        data: { isActive },
+      });
+    } else {
+      if (!isActive) {
+        throw new Error('Cannot create inactive link');
+      }
+
+      await tx.userCompany.create({
+        data: {
+          userId,
+          companyId,
+          role: 'MEMBER',
+          isActive: true,
+        },
+      });
+    }
+
+    if (!isActive && targetUser.activeCompanyId === companyId) {
+      const fallback = await tx.userCompany.findFirst({
+        where: { userId, isActive: true, company: { deletedAt: null } },
+        orderBy: { createdAt: 'asc' },
+        select: { companyId: true },
+      });
+
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          activeCompanyId: fallback?.companyId ?? null,
+          companyId: fallback?.companyId ?? null,
+        },
+      });
+    }
+
+    await (tx as any).operationLog.create({
+      data: {
+        operation: 'ADMIN_SET_USER_COMPANY_ACCESS',
+        status: 'success',
+        userId: adminUserId || null,
+        details: `${isActive ? 'Enabled' : 'Disabled'} access userId=${userId} email=${targetUser.email} companyId=${companyId} edrpou=${targetCompany.edrpou}`,
+        meta: {
+          targetUserId: userId,
+          targetUserEmail: targetUser.email,
+          companyId,
+          companyEdrpou: targetCompany.edrpou,
+          isActive,
+        },
+        finishedAt: new Date(),
+      },
+    });
+  });
+
+  revalidatePath('/dashboard/admin');
+  return { success: true };
+}
+
+export async function adminSetUserActiveCompany(params: { userId: string; companyId: string }) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    return { error: 'Неавторизований доступ' };
+  }
+
+  if (session.user.email !== ADMIN_EMAIL) {
+    return { error: 'Forbidden' };
+  }
+
+  const userId = (params.userId || '').trim();
+  const companyId = (params.companyId || '').trim();
+
+  if (!userId || !companyId) {
+    return { error: 'userId та companyId є обовʼязковими' };
+  }
+
+  let adminUserId = session.user.id;
+  if (!adminUserId) {
+    const adminUser = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    adminUserId = adminUser?.id;
+  }
+
+  const [targetUser, uc, targetCompany] = await Promise.all([
+    db.user.findUnique({ where: { id: userId }, select: { id: true, email: true } }),
+    db.userCompany.findUnique({
+      where: { userId_companyId: { userId, companyId } },
+      select: { id: true, isActive: true },
+    }),
+    db.company.findUnique({ where: { id: companyId }, select: { id: true, edrpou: true, deletedAt: true } }),
+  ]);
+
+  if (!targetUser) return { error: 'Користувача не знайдено' };
+  if (!targetCompany || targetCompany.deletedAt) return { error: 'Компанію не знайдено або вона видалена' };
+  if (!uc || !uc.isActive) return { error: 'Немає активного доступу користувача до цієї компанії' };
+
+  await db.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: userId },
+      data: { activeCompanyId: companyId, companyId },
+    });
+
+    await (tx as any).operationLog.create({
+      data: {
+        operation: 'ADMIN_SET_USER_ACTIVE_COMPANY',
+        status: 'success',
+        userId: adminUserId || null,
+        details: `Set active company userId=${userId} email=${targetUser.email} companyId=${companyId} edrpou=${targetCompany.edrpou}`,
+        meta: { targetUserId: userId, targetUserEmail: targetUser.email, companyId, companyEdrpou: targetCompany.edrpou },
+        finishedAt: new Date(),
+      },
+    });
+  });
+
+  revalidatePath('/dashboard/admin');
+  revalidatePath('/dashboard');
+  return { success: true };
 }
 
 export async function attachCompanyToUser(params: {
