@@ -27,7 +27,7 @@ export interface SyncSettings {
 const DEFAULT_SYNC_SETTINGS: SyncSettings = {
     autoSyncEnabled: false,
     showEeDeclarations: false,
-    requestDelay: 2,
+    requestDelay: 1,
     chunkSize: 7,
     emailNotifications: {
         onSyncComplete: false,
@@ -107,7 +107,7 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
         // Parse form data
         const autoSyncEnabled = formData.get('autoSyncEnabled') === 'true' || formData.get('autoSyncEnabled') === 'on';
         const showEeDeclarations = formData.get('showEeDeclarations') === 'true' || formData.get('showEeDeclarations') === 'on';
-        const requestDelay = parseInt(formData.get('requestDelay') as string) || 2;
+        const requestDelay = parseInt(formData.get('requestDelay') as string) || 1;
         const chunkSize = parseInt(formData.get('chunkSize') as string) || 7;
         
         const emailNotifications = {

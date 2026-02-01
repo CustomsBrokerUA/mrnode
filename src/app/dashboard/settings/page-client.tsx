@@ -897,11 +897,11 @@ export default function SettingsPageClient({
                                             value={syncSettings.requestDelay}
                                             onChange={(e) => setSyncSettings({
                                                 ...syncSettings,
-                                                requestDelay: parseInt(e.target.value) || 2
+                                                requestDelay: parseInt(e.target.value) || 1
                                             })}
                                             className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm"
                                         />
-                                        <p className="text-xs text-slate-500">Поточна: 2 секунди</p>
+                                        <p className="text-xs text-slate-500">Поточна: 1 секунда</p>
                                     </div>
 
                                     <div className="space-y-2">

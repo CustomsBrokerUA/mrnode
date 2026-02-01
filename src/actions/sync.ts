@@ -7,13 +7,31 @@ import { revalidatePath } from "next/cache";
 import { updateDeclarationSummary } from "@/lib/declaration-summary";
 import { splitPeriodIntoChunks } from "@/app/dashboard/sync/utils/period-splitter";
 
-function getSyncChunkDays() {
-    const raw = process.env.SYNC_CHUNK_DAYS;
-    const parsed = raw ? Number(raw) : NaN;
-    const defaultDays = process.env.NODE_ENV === 'production' ? 1 : 7;
-    const value = Number.isFinite(parsed) ? parsed : defaultDays;
-    const clamped = Math.max(1, Math.min(45, Math.floor(value)));
-    return clamped;
+async function getCompanySyncPerformanceSettings(companyId: string): Promise<{ chunkDays: number; requestDelayMs: number }> {
+    const defaults = { chunkDays: 7, requestDelayMs: 1000 };
+
+    try {
+        const company = await db.company.findUnique({
+            where: { id: companyId },
+            select: { syncSettings: true },
+        });
+
+        const settings = (company?.syncSettings as any) || {};
+
+        const requestDelaySecondsRaw = Number(settings.requestDelay);
+        const requestDelaySeconds = Number.isFinite(requestDelaySecondsRaw)
+            ? Math.max(1, Math.min(10, Math.floor(requestDelaySecondsRaw)))
+            : 1;
+
+        const chunkDaysRaw = Number(settings.chunkSize);
+        const chunkDays = Number.isFinite(chunkDaysRaw)
+            ? Math.max(1, Math.min(45, Math.floor(chunkDaysRaw)))
+            : defaults.chunkDays;
+
+        return { chunkDays, requestDelayMs: requestDelaySeconds * 1000 };
+    } catch {
+        return defaults;
+    }
 }
 
 function logMemory(label: string) {
@@ -126,7 +144,8 @@ async function processDetails61_1FromDb(
     edrpou: string,
     dateFrom: Date,
     dateTo: Date,
-    stage?: number
+    stage?: number,
+    requestDelayMs: number = 1000
 ) {
     if (!('syncJob' in db && db.syncJob)) return;
 
@@ -218,7 +237,7 @@ async function processDetails61_1FromDb(
                 tryGc('61.1 every 10');
             }
 
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, requestDelayMs));
         }
 
         cursorId = batch[batch.length - 1]!.id;
@@ -903,6 +922,8 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                     }
                 });
 
+                const perf = await getCompanySyncPerformanceSettings(access.companyId);
+
                 processDetails61_1FromDb(
                     access.companyId,
                     job.id,
@@ -910,6 +931,8 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                     access.edrpou,
                     dateFrom,
                     dateTo,
+                    undefined,
+                    perf.requestDelayMs,
                 ).catch(err => {
                     console.error("Error in background 61.1 processing:", err);
                     (db.syncJob as any).update({
@@ -1161,9 +1184,8 @@ export async function syncAllPeriod() {
         dateFrom.setDate(dateFrom.getDate() - 1095);
         dateFrom.setHours(0, 0, 0, 0);
 
-        // Split period into chunks (7 days for syncAllPeriod to avoid timeout issues with large companies)
-        // API allows up to 45 days, but for companies with many declarations, smaller chunks work better
-        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, getSyncChunkDays());
+        const perf = await getCompanySyncPerformanceSettings(access.companyId);
+        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, perf.chunkDays);
         const totalChunks = chunks.length;
 
         // Create SyncJob
@@ -1182,7 +1204,7 @@ export async function syncAllPeriod() {
 
         // Start processing in background (don't await - return immediately)
         // Process chunks sequentially
-        processChunks60_1(access.companyId, syncJob.id, chunks, decryptedToken, access.edrpou)
+        processChunks60_1(access.companyId, syncJob.id, chunks, decryptedToken, access.edrpou, perf.requestDelayMs)
             .catch(error => {
                 console.error("Error in background processing:", error);
                 // Update job status to error
@@ -1308,8 +1330,8 @@ export async function syncAllPeriodStaged(stage: number = 1) {
         dateFrom.setDate(dateFrom.getDate() - daysBack);
         dateFrom.setHours(0, 0, 0, 0);
 
-        // Split period into chunks (7 days for staged sync)
-        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, getSyncChunkDays());
+        const perf = await getCompanySyncPerformanceSettings(access.companyId);
+        const chunks = splitPeriodIntoChunks(dateFrom, dateTo, perf.chunkDays);
         const totalChunks = chunks.length;
 
         // Create SyncJob with stage information stored in errorMessage field (temporary workaround)
@@ -1335,6 +1357,7 @@ export async function syncAllPeriodStaged(stage: number = 1) {
             chunks,
             decryptedToken,
             access.edrpou,
+            perf.requestDelayMs,
             stage, // Pass stage number
             stage === 5 // isFinalStage - only stage 5 is final
         ).catch(error => {
@@ -1374,6 +1397,7 @@ async function processChunks60_1(
     chunks: Array<{ start: Date; end: Date }>,
     customsToken: string,
     edrpou: string,
+    requestDelayMs: number,
     stage?: number,
     isFinalStage: boolean = false
 ) {
@@ -1508,9 +1532,9 @@ async function processChunks60_1(
                 }
             });
 
-            // Rate limiting: wait 2 seconds between chunks to avoid overloading API
+            // Rate limiting
             if (i < chunks.length - 1) { // Don't wait after last chunk
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, requestDelayMs));
             }
 
             tryGc(`60.1 chunk ${chunkNumber} done`);
@@ -1562,7 +1586,7 @@ async function processChunks60_1(
             // Continue with next chunk even if this one fails
             // Wait before next chunk to avoid rapid-fire errors
             if (i < chunks.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, requestDelayMs));
             }
 
             tryGc(`60.1 chunk ${chunkNumber} error`);
@@ -1645,7 +1669,7 @@ async function processChunks60_1(
 
     // Start processing 61.1 details in background by reading missing-summary declarations from DB in small batches.
     if (jobPeriodFrom && jobPeriodTo) {
-        processDetails61_1FromDb(companyId, jobId, customsToken, edrpou, jobPeriodFrom, jobPeriodTo, stage)
+        processDetails61_1FromDb(companyId, jobId, customsToken, edrpou, jobPeriodFrom, jobPeriodTo, stage, requestDelayMs)
             .catch((error: unknown) => {
                 console.error("Error in 61.1 processing:", error);
             });
