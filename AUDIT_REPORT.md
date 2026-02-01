@@ -411,6 +411,8 @@ MRNode — Next.js (App Router) застосунок для перегляду, 
   - Виправити/стандартизувати `session.user.id`, щоб не було постійних fallback “знайти по email”.
 - **Критерій готовності:**
   - Усі критичні server actions/API (sync, delete, backfill, settings token) мають однаковий патерн перевірки ролей.
+ - **Статус:** ✅ виконано
+ - **Примітка:** додано/уніфіковано helper-и в `company-access.ts` (`requireActiveCompanyAccess`, `requireActiveCompanyFullAccess`, `checkCompanyAccess`, `filterAllowedCompanyIds`), критичні дії переведені на єдиний патерн; smoke-тести пройдені.
 
 2) **P1: Обмежити важкі операції (exchange-rates sync / backfill-hscodes / масові delete)**
 - **Ризик:** DDoS/випадкове перевантаження системи одним користувачем.
