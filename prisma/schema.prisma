@@ -25,6 +25,8 @@ model User {
   activeCompany Company? @relation("UserActiveCompany", fields: [activeCompanyId], references: [id], onDelete: SetNull)
   
   companies UserCompany[] // Many-to-many через UserCompany
+  operationLogs OperationLog[]
+  operationLocks OperationLock[]
   notifications Notification[]
 }
 
@@ -44,6 +46,8 @@ model Company {
   userCompanies UserCompany[] // Many-to-many через UserCompany
   invitations   CompanyInvitation[] // Запрошення до компанії
   auditLogs     CompanyAuditLog[] // Історія змін
+  operationLogs OperationLog[]
+  operationLocks OperationLock[]
   declarations  Declaration[]
   syncHistory   SyncHistory[]
   syncJobs      SyncJob[]
@@ -283,6 +287,55 @@ model CompanyAuditLog {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+}
+
+model OperationLog {
+  id        String   @id @default(uuid())
+  operation String
+  status    String
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  details   String?  @db.Text
+  meta      Json?
+
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  durationMs Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([operation])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OperationLock {
+  id        String   @id @default(uuid())
+  scopeKey  String   @unique
+  operation String
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  acquiredAt DateTime @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([operation])
+  @@index([expiresAt])
 }
 
 model Notification {

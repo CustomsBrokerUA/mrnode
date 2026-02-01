@@ -1200,6 +1200,74 @@ export async function deleteDeclaration(id: string) {
             return { error: access.error || "Активна компанія не встановлена" };
         }
 
+        const userId = session.user.id
+            ? session.user.id
+            : (await db.user.findUnique({ where: { email: session.user.email }, select: { id: true } }))?.id;
+
+        if (!userId) {
+            return { error: "Неавторизований доступ" };
+        }
+
+        const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
+
+        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        const userScopeKey = `delete_declarations_user_${userId}`;
+        const ttlMs = 5 * 60 * 1000;
+
+        const lock1 = await acquireOperationLock({
+            scopeKey: companyScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock1.ok) {
+            const op = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'single', id },
+            });
+            await finishOperationLog({
+                id: op.id,
+                status: 'blocked',
+                details: 'Delete already running (company lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const lock2 = await acquireOperationLock({
+            scopeKey: userScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock2.ok) {
+            await releaseOperationLock(companyScopeKey);
+            const op = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'single', id },
+            });
+            await finishOperationLog({
+                id: op.id,
+                status: 'blocked',
+                details: 'Delete already running (user lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const op = await startOperationLog({
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            meta: { kind: 'single', id },
+        });
+
         // Verify that the declaration belongs to the user's company
         const declaration = await db.declaration.findFirst({
             where: {
@@ -1209,6 +1277,13 @@ export async function deleteDeclaration(id: string) {
         });
 
         if (!declaration) {
+            await finishOperationLog({
+                id: op.id,
+                status: 'error',
+                details: 'Declaration not found or no access',
+            });
+            await releaseOperationLock(userScopeKey);
+            await releaseOperationLock(companyScopeKey);
             return { error: "Декларацію не знайдено або немає доступу" };
         }
 
@@ -1216,10 +1291,33 @@ export async function deleteDeclaration(id: string) {
             where: { id: id }
         });
 
+        await finishOperationLog({
+            id: op.id,
+            status: 'success',
+            meta: { deletedCount: 1 },
+        });
+
+        await releaseOperationLock(userScopeKey);
+        await releaseOperationLock(companyScopeKey);
+
         revalidatePath("/dashboard/archive");
         return { success: true };
     } catch (error: any) {
         console.error("Delete declaration error:", error);
+        try {
+            const { releaseOperationLock } = await import("@/lib/operations");
+            const companyId = (await (async () => {
+                const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
+                const a = await getActiveCompanyWithAccess();
+                return a.companyId;
+            })()) as string | undefined;
+            if (companyId && session?.user?.id) {
+                await releaseOperationLock(`delete_declarations_company_${companyId}`);
+                await releaseOperationLock(`delete_declarations_user_${session.user.id}`);
+            }
+        } catch {
+            // ignore
+        }
         return { error: "Помилка видалення: " + error.message };
     }
 }
@@ -1356,6 +1454,74 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
             return { error: access.error || "Активна компанія не встановлена" };
         }
 
+        const userId = session.user.id
+            ? session.user.id
+            : (await db.user.findUnique({ where: { email: session.user.email }, select: { id: true } }))?.id;
+
+        if (!userId) {
+            return { error: "Неавторизований доступ" };
+        }
+
+        const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
+
+        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        const userScopeKey = `delete_declarations_user_${userId}`;
+        const ttlMs = 10 * 60 * 1000;
+
+        const lock1 = await acquireOperationLock({
+            scopeKey: companyScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock1.ok) {
+            const blocked = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'period', dateFrom, dateTo },
+            });
+            await finishOperationLog({
+                id: blocked.id,
+                status: 'blocked',
+                details: 'Delete already running (company lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const lock2 = await acquireOperationLock({
+            scopeKey: userScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock2.ok) {
+            await releaseOperationLock(companyScopeKey);
+            const blocked = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'period', dateFrom, dateTo },
+            });
+            await finishOperationLog({
+                id: blocked.id,
+                status: 'blocked',
+                details: 'Delete already running (user lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const op = await startOperationLog({
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            meta: { kind: 'period', dateFrom, dateTo },
+        });
+
         // Ensure dateFrom starts at 00:00:00
         const startOfDay = new Date(dateFrom);
         startOfDay.setHours(0, 0, 0, 0);
@@ -1373,6 +1539,15 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
                 }
             }
         });
+
+        await finishOperationLog({
+            id: op.id,
+            status: 'success',
+            meta: { deletedCount: result.count },
+        });
+
+        await releaseOperationLock(userScopeKey);
+        await releaseOperationLock(companyScopeKey);
 
         revalidatePath("/dashboard/archive");
         return { success: true, count: result.count };
@@ -1401,6 +1576,74 @@ export async function deleteDeclarationsByIds(ids: string[]) {
             return { error: access.error || "Активна компанія не встановлена" };
         }
 
+        const userId = session.user.id
+            ? session.user.id
+            : (await db.user.findUnique({ where: { email: session.user.email }, select: { id: true } }))?.id;
+
+        if (!userId) {
+            return { error: "Неавторизований доступ" };
+        }
+
+        const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
+
+        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        const userScopeKey = `delete_declarations_user_${userId}`;
+        const ttlMs = 10 * 60 * 1000;
+
+        const lock1 = await acquireOperationLock({
+            scopeKey: companyScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock1.ok) {
+            const blocked = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'ids', idsCount: ids.length },
+            });
+            await finishOperationLog({
+                id: blocked.id,
+                status: 'blocked',
+                details: 'Delete already running (company lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const lock2 = await acquireOperationLock({
+            scopeKey: userScopeKey,
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            ttlMs,
+        });
+
+        if (!lock2.ok) {
+            await releaseOperationLock(companyScopeKey);
+            const blocked = await startOperationLog({
+                operation: 'DELETE_DECLARATIONS',
+                companyId: access.companyId,
+                userId,
+                meta: { kind: 'ids', idsCount: ids.length },
+            });
+            await finishOperationLog({
+                id: blocked.id,
+                status: 'blocked',
+                details: 'Delete already running (user lock)',
+            });
+            return { error: "Операція видалення вже виконується. Спробуйте пізніше." };
+        }
+
+        const op = await startOperationLog({
+            operation: 'DELETE_DECLARATIONS',
+            companyId: access.companyId,
+            userId,
+            meta: { kind: 'ids', idsCount: ids.length },
+        });
+
         // Verify all declarations belong to the user's company
         const declarations = await db.declaration.findMany({
             where: {
@@ -1410,6 +1653,15 @@ export async function deleteDeclarationsByIds(ids: string[]) {
         });
 
         if (declarations.length !== ids.length) {
+            await finishOperationLog({
+                id: op.id,
+                status: 'error',
+                details: 'Some declarations not found or no access',
+                meta: { idsCount: ids.length, foundCount: declarations.length },
+            });
+
+            await releaseOperationLock(userScopeKey);
+            await releaseOperationLock(companyScopeKey);
             return { error: "Деякі декларації не знайдено або немає доступу" };
         }
 
@@ -1419,6 +1671,15 @@ export async function deleteDeclarationsByIds(ids: string[]) {
                 companyId: access.companyId
             }
         });
+
+        await finishOperationLog({
+            id: op.id,
+            status: 'success',
+            meta: { deletedCount: result.count },
+        });
+
+        await releaseOperationLock(userScopeKey);
+        await releaseOperationLock(companyScopeKey);
 
         revalidatePath("/dashboard/archive");
         return { success: true, count: result.count };
