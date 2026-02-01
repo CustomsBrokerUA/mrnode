@@ -199,12 +199,12 @@ export default function AdminCompaniesPageClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-4">
               <Label htmlFor="q">Пошук (назва/ЄДРПОУ)</Label>
               <Input id="q" value={query} onChange={(e) => handleFilterChange(() => setQuery(e.target.value))} />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-6">
               <Label>Фільтри</Label>
               <div className="flex flex-wrap gap-3 text-sm">
                 <label className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
@@ -242,7 +242,7 @@ export default function AdminCompaniesPageClient() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2 md:flex md:flex-col md:items-end">
               <Label>Дії</Label>
               <Button variant="outline" onClick={() => loadCompanies()} disabled={loading}>
                 Оновити список
