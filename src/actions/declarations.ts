@@ -127,7 +127,7 @@ export async function getDeclarationsPaginated(
     }
 
     // Використовувати activeCompanyId замість user.company
-    const { getActiveCompanyWithAccess, checkCompanyAccess } = await import("@/lib/company-access");
+    const { getActiveCompanyWithAccess, filterAllowedCompanyIds } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
 
     if (!access.success || !access.companyId) {
@@ -140,12 +140,7 @@ export async function getDeclarationsPaginated(
     let targetCompanyIds: string[];
 
     if (companyIds && companyIds.length > 0) {
-        // Verify user has access to all requested companies
-        const accessChecks = await Promise.all(
-            companyIds.map(id => checkCompanyAccess(id))
-        );
-
-        const allowedIds = companyIds.filter((id, index) => accessChecks[index].success);
+        const allowedIds = await filterAllowedCompanyIds(companyIds);
 
         if (allowedIds.length === 0) {
             return { declarations: [], total: 0, page, pageSize, totalPages: 0 };
@@ -426,7 +421,7 @@ export async function getArchiveStatistics(
     }
 
     // Використовувати activeCompanyId замість user.company
-    const { getActiveCompanyWithAccess, checkCompanyAccess } = await import("@/lib/company-access");
+    const { getActiveCompanyWithAccess, filterAllowedCompanyIds } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
 
     if (!access.success || !access.companyId) {
@@ -439,12 +434,7 @@ export async function getArchiveStatistics(
     let targetCompanyIds: string[];
 
     if (companyIds && companyIds.length > 0) {
-        // Verify user has access to all requested companies
-        const accessChecks = await Promise.all(
-            companyIds.map(id => checkCompanyAccess(id))
-        );
-
-        const allowedIds = companyIds.filter((id, index) => accessChecks[index].success);
+        const allowedIds = await filterAllowedCompanyIds(companyIds);
 
         if (allowedIds.length === 0) {
             return null;
@@ -921,7 +911,7 @@ export async function getArchiveAutocompleteSuggestions(
 
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.floor(limit), 1), 20) : 10;
 
-    const { getActiveCompanyWithAccess, checkCompanyAccess } = await import("@/lib/company-access");
+    const { getActiveCompanyWithAccess, filterAllowedCompanyIds } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
 
     if (!access.success || !access.companyId) {
@@ -932,8 +922,7 @@ export async function getArchiveAutocompleteSuggestions(
 
     let targetCompanyIds: string[];
     if (companyIds && companyIds.length > 0) {
-        const accessChecks = await Promise.all(companyIds.map(id => checkCompanyAccess(id)));
-        const allowedIds = companyIds.filter((id, index) => accessChecks[index].success);
+        const allowedIds = await filterAllowedCompanyIds(companyIds);
         if (allowedIds.length === 0) {
             return [];
         }

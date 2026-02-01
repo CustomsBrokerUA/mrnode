@@ -52,7 +52,7 @@ export async function getDashboardAnalytics(params?: {
 
     const { companyIds, dateFrom, dateTo } = params || {};
 
-    const { getActiveCompanyWithAccess, checkCompanyAccess } = await import("@/lib/company-access");
+    const { getActiveCompanyWithAccess, filterAllowedCompanyIds } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
 
     if (!access.success || !access.companyId) {
@@ -66,10 +66,7 @@ export async function getDashboardAnalytics(params?: {
         if (validIds.length === 0) {
             targetCompanyIds = [access.companyId];
         } else {
-            const accessChecks = await Promise.all(
-                validIds.map(id => checkCompanyAccess(id))
-            );
-            targetCompanyIds = validIds.filter((id, index) => accessChecks[index].success);
+            targetCompanyIds = await filterAllowedCompanyIds(validIds);
         }
     } else {
         targetCompanyIds = [access.companyId];

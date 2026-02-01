@@ -14,6 +14,16 @@ export interface CompanyAccessResult {
   error?: string;
 }
 
+export async function filterAllowedCompanyIds(
+  companyIds: string[],
+  options?: { allowDeleted?: boolean }
+): Promise<string[]> {
+  if (!Array.isArray(companyIds) || companyIds.length === 0) return [];
+
+  const checks = await Promise.all(companyIds.map((id) => checkCompanyAccess(id, options)));
+  return companyIds.filter((id, index) => checks[index]?.success);
+}
+
 export interface CompanyFullAccessResult extends CompanyAccessResult {
   customsToken?: string;
   edrpou?: string;
