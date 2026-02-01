@@ -859,6 +859,15 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
             }
         }
 
+        try {
+            const { clearAllStatisticsCache } = await import("@/lib/statistics-cache");
+            clearAllStatisticsCache();
+        } catch {
+            // ignore
+        }
+
+        revalidatePath("/dashboard");
+
         // 61.1-only: automatically trigger details loading after successful 60.1 list sync.
         // Prefer background job (SyncJob) to avoid request timeouts.
         if ('syncJob' in db && db.syncJob) {
