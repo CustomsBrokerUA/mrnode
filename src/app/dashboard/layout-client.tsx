@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { logout } from "@/actions/logout";
@@ -59,6 +59,36 @@ export default function DashboardLayoutClient({
     const pathname = usePathname();
     const router = useRouter();
 
+    const clearAccountScopedClientStorage = useCallback(() => {
+        if (typeof window === 'undefined') return;
+
+        const keysToClear = [
+            'companyFilter',
+            'dashboardSettings',
+            'archiveActiveTab',
+            'archiveViewMode',
+            'archiveItemsPerPage',
+            'statsSettings',
+            'exportColumns',
+            'exportColumnOrder',
+            'mrnode_last_activity_at',
+        ];
+
+        try {
+            keysToClear.forEach((k) => {
+                try { localStorage.removeItem(k); } catch { }
+                try { sessionStorage.removeItem(k); } catch { }
+            });
+        } catch {
+            // ignore
+        }
+    }, []);
+
+    const handleLogout = useCallback(async () => {
+        clearAccountScopedClientStorage();
+        await logout();
+    }, [clearAccountScopedClientStorage]);
+
     const effectiveSidebarItems = userProfile?.email === 'andrii@brokerua.com'
         ? [...sidebarItems, { icon: Shield, label: 'Адмін', href: '/dashboard/admin' }]
         : sidebarItems;
@@ -86,7 +116,7 @@ export default function DashboardLayoutClient({
             const last = raw ? Number(raw) : now;
             if (Number.isFinite(last) && now - last > IDLE_TIMEOUT_MS) {
                 setIsIdleLoggingOut(true);
-                logout();
+                handleLogout();
                 return;
             }
         } catch {
@@ -120,7 +150,7 @@ export default function DashboardLayoutClient({
                 const last = raw ? Number(raw) : Date.now();
                 if (Number.isFinite(last) && Date.now() - last > IDLE_TIMEOUT_MS) {
                     setIsIdleLoggingOut(true);
-                    logout();
+                    handleLogout();
                 }
             } catch {
                 // ignore
@@ -131,7 +161,7 @@ export default function DashboardLayoutClient({
             events.forEach((e) => window.removeEventListener(e, updateActivity as any));
             window.clearInterval(interval);
         };
-    }, [isIdleLoggingOut]);
+    }, [isIdleLoggingOut, handleLogout]);
 
     // Listen for company switch events
     useEffect(() => {
@@ -244,7 +274,7 @@ export default function DashboardLayoutClient({
                         {isSidebarOpen ? (
                             userProfile?.email === 'test@gmail.com' ? (
                                 <button
-                                    onClick={() => logout()}
+                                    onClick={() => handleLogout()}
                                     className="text-xl font-bold bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent"
                                     title="Вийти з демо"
                                 >
@@ -261,7 +291,7 @@ export default function DashboardLayoutClient({
                         ) : (
                             userProfile?.email === 'test@gmail.com' ? (
                                 <button
-                                    onClick={() => logout()}
+                                    onClick={() => handleLogout()}
                                     className="text-xl font-bold text-brand-teal"
                                     title="Вийти з демо"
                                 >
@@ -304,7 +334,7 @@ export default function DashboardLayoutClient({
                         <div className={`flex items-center gap-3 ${!isSidebarOpen ? 'justify-center' : ''}`}>
                             <div
                                 className={`w-9 h-9 rounded-full bg-brand-blue flex items-center justify-center text-white font-medium border border-slate-300 dark:border-slate-700 cursor-pointer hover:bg-brand-teal transition-colors`}
-                                onClick={() => !isSidebarOpen && logout()}
+                                onClick={() => !isSidebarOpen && handleLogout()}
                                 title={!isSidebarOpen ? "Вийти" : undefined}
                             >
                                 {getInitials()}
@@ -320,7 +350,7 @@ export default function DashboardLayoutClient({
                         {isSidebarOpen && (
                             <Button
                                 variant="outline"
-                                onClick={() => logout()}
+                                onClick={() => handleLogout()}
                                 className="mt-3 w-full justify-center gap-2 border-red-200 text-red-600 hover:text-red-700 hover:bg-red-50"
                                 title="Вийти з акаунту"
                             >
