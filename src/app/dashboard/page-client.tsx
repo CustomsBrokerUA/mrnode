@@ -45,7 +45,7 @@ export default function DashboardPageClient({
     const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
 
     // Date range state
-    const [dateRange, setDateRange] = useState<string>('30d');
+    const [dateRange, setDateRange] = useState<string>('all');
     const [customDates, setCustomDates] = useState<{ from?: string; to?: string }>({});
 
     const didSkipInitialAutoRefresh = useRef(false);
