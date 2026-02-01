@@ -136,6 +136,9 @@ export default function AdminPageClient() {
           <a href="/dashboard/admin/sync">
             <Button variant="outline">Sync Jobs</Button>
           </a>
+          <a href="/dashboard/admin/companies">
+            <Button variant="outline">Companies</Button>
+          </a>
         </CardContent>
       </Card>
 
