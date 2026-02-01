@@ -19,7 +19,6 @@ type UsersResponse =
         id: string;
         email: string;
         fullName: string | null;
-        role: string;
         activeCompanyId: string | null;
         createdAt: string | Date;
         companies: Array<{
@@ -209,7 +208,6 @@ export default function AdminPageClient() {
                 <TableRow>
                   <TableHead>Email</TableHead>
                   <TableHead>ПІБ</TableHead>
-                  <TableHead>Роль</TableHead>
                   <TableHead>Active company</TableHead>
                   <TableHead>Компанії</TableHead>
                 </TableRow>
@@ -232,7 +230,6 @@ export default function AdminPageClient() {
                     <TableRow key={u.id}>
                       <TableCell className="font-medium">{u.email}</TableCell>
                       <TableCell>{u.fullName || '—'}</TableCell>
-                      <TableCell>{u.role}</TableCell>
                       <TableCell className="text-xs text-slate-600">
                         {u.activeCompanyId || '—'}
                       </TableCell>

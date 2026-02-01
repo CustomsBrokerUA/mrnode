@@ -103,15 +103,6 @@ export default function OnboardingPage() {
                                             <Input name="lastName" id="lastName" required placeholder="Петренко" />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="role">Ваша роль</Label>
-                                        <select name="role" id="role" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/50">
-                                            <option>Головний бухгалтер</option>
-                                            <option>Митний брокер</option>
-                                            <option>Менеджер</option>
-                                            <option>Директор</option>
-                                        </select>
-                                    </div>
                                     <div className="pt-4 flex justify-end">
                                         <Button type="submit" disabled={isLoading}>
                                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -18,7 +18,6 @@ export async function getUserProfile() {
         select: {
             fullName: true,
             email: true,
-            role: true,
             createdAt: true,
             activeCompanyId: true,
             activeCompany: {

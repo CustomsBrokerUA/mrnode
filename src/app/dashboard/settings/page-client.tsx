@@ -34,7 +34,6 @@ import { CSS } from '@dnd-kit/utilities';
 type UserProfile = {
     fullName: string | null;
     email: string;
-    role: string;
     createdAt: Date;
     company: {
         id: string;
@@ -381,15 +380,6 @@ export default function SettingsPageClient({
                             <Input
                                 id="email"
                                 value={userProfile?.email || ''}
-                                disabled
-                                className="bg-slate-50 dark:bg-slate-800"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="role">Роль</Label>
-                            <Input
-                                id="role"
-                                value={userProfile?.role || 'BROKER'}
                                 disabled
                                 className="bg-slate-50 dark:bg-slate-800"
                             />

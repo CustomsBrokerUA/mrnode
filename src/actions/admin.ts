@@ -48,7 +48,6 @@ export async function listUsersWithCompanies(params?: {
         id: true,
         email: true,
         fullName: true,
-        role: true,
         activeCompanyId: true,
         createdAt: true,
         companies: {
@@ -84,7 +83,6 @@ export async function listUsersWithCompanies(params?: {
       id: u.id,
       email: u.email,
       fullName: u.fullName,
-      role: u.role,
       activeCompanyId: u.activeCompanyId,
       createdAt: u.createdAt,
       companies: u.companies.map((uc) => ({
