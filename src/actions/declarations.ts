@@ -28,11 +28,30 @@ export async function getDeclarations() {
 
     const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
     const access = await getActiveCompanyWithAccess();
-    if (!access.success || !access.companyId) {
+    // Resolve effective active companyId in the same way as getDeclarationsPaginated
+    // to prevent SSR/client refetch mismatches.
+    let effectiveCompanyId: string | null = access.success && access.companyId ? access.companyId : null;
+    if (!effectiveCompanyId) {
+        try {
+            const activeLink = await db.userCompany.findFirst({
+                where: {
+                    user: { email: session.user.email },
+                    isActive: true,
+                    company: { deletedAt: null },
+                },
+                select: { companyId: true },
+            });
+            effectiveCompanyId = activeLink?.companyId || null;
+        } catch {
+            effectiveCompanyId = null;
+        }
+    }
+
+    if (!effectiveCompanyId) {
         return [];
     }
 
-    const showEeDeclarations = await getShowEeDeclarationsForCompany(access.companyId);
+    const showEeDeclarations = await getShowEeDeclarationsForCompany(effectiveCompanyId);
 
     const eeExcludeClause = showEeDeclarations
         ? {}
@@ -46,22 +65,9 @@ export async function getDeclarations() {
             }
         };
 
-    // Load declarations from all companies the user has access to
-    // Use relation query for better reliability (doesn't rely on IDs in session)
     const declarations = await db.declaration.findMany({
         where: {
-            company: {
-                userCompanies: {
-                    some: {
-                        user: {
-                            email: session.user.email
-                        },
-                        isActive: true
-                    }
-                },
-                // Also ensure company itself is not deleted
-                deletedAt: null
-            },
+            companyId: effectiveCompanyId,
             ...eeExcludeClause
         },
         select: {
