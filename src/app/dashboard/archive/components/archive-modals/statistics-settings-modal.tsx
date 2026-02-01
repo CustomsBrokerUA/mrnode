@@ -27,9 +27,6 @@ export default function StatisticsSettingsModal({
     const handleSettingChange = (key: string, checked: boolean) => {
         const newSettings = { ...statsSettings, [key]: checked };
         onSettingsChange(newSettings);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('statsSettings', JSON.stringify(newSettings));
-        }
     };
 
     const settingsLabels: { [key: string]: string } = {

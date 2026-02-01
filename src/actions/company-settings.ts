@@ -24,6 +24,8 @@ export interface SyncSettings {
     browserNotifications: boolean;
 }
 
+export type ArchiveStatsSettings = { [key: string]: boolean };
+
 const DEFAULT_SYNC_SETTINGS: SyncSettings = {
     autoSyncEnabled: false,
     showEeDeclarations: false,
@@ -136,9 +138,15 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
             browserNotifications,
         };
 
+        const currentCompany = await db.company.findUnique({
+            where: { id: access.companyId },
+            select: { syncSettings: true },
+        });
+        const current = (currentCompany?.syncSettings as any) || {};
+
         await db.company.update({
             where: { id: access.companyId },
-            data: { syncSettings: settings as any }
+            data: { syncSettings: { ...current, ...settings } as any }
         });
 
         revalidatePath("/dashboard/settings");
@@ -150,6 +158,77 @@ export async function updateSyncSettings(formData: FormData): Promise<{ success:
         return { success: true, message: "Налаштування синхронізації успішно збережено" };
     } catch (error: any) {
         console.error("Error updating sync settings:", error);
+        return { success: false, error: error.message || "Помилка збереження налаштувань" };
+    }
+}
+
+export async function getArchiveStatsSettings(): Promise<{ success: boolean; settings?: ArchiveStatsSettings; error?: string }> {
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.email) {
+        return { success: false, error: "Неавторизований доступ" };
+    }
+
+    try {
+        const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
+        const access = await getActiveCompanyWithAccess();
+
+        if (!access.success || !access.companyId) {
+            return { success: false, error: "Активна компанія не встановлена" };
+        }
+
+        const company = await db.company.findUnique({
+            where: { id: access.companyId },
+            select: { syncSettings: true },
+        });
+
+        const settings = (company?.syncSettings as any) || {};
+        const archiveStatsSettings = settings.archiveStatsSettings;
+
+        if (archiveStatsSettings && typeof archiveStatsSettings === 'object') {
+            return { success: true, settings: archiveStatsSettings as ArchiveStatsSettings };
+        }
+
+        return { success: true, settings: {} };
+    } catch (error: any) {
+        console.error("Error getting archive stats settings:", error);
+        return { success: false, error: error.message || "Помилка отримання налаштувань" };
+    }
+}
+
+export async function updateArchiveStatsSettings(
+    archiveStatsSettings: ArchiveStatsSettings
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.email) {
+        return { success: false, error: "Неавторизований доступ" };
+    }
+
+    try {
+        const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
+        const access = await getActiveCompanyWithAccess();
+
+        if (!access.success || !access.companyId) {
+            return { success: false, error: "Активна компанія не встановлена" };
+        }
+
+        const company = await db.company.findUnique({
+            where: { id: access.companyId },
+            select: { syncSettings: true },
+        });
+
+        const current = (company?.syncSettings as any) || {};
+
+        await db.company.update({
+            where: { id: access.companyId },
+            data: { syncSettings: { ...current, archiveStatsSettings } as any },
+        });
+
+        revalidatePath("/dashboard/archive");
+        return { success: true, message: "Налаштування статистики успішно збережено" };
+    } catch (error: any) {
+        console.error("Error updating archive stats settings:", error);
         return { success: false, error: error.message || "Помилка збереження налаштувань" };
     }
 }

@@ -7,6 +7,7 @@ import { Search, FileSpreadsheet, Eye, Trash2, Calendar, ChevronLeft, ChevronRig
 import { deleteDeclaration, deleteDeclarationsByIds, deleteDeclarationsByPeriod } from "@/actions/declarations";
 import { getArchiveStatistics } from "@/actions/declarations";
 import { getDeclarationsPaginated } from "@/actions/declarations";
+import { getArchiveStatsSettings, updateArchiveStatsSettings } from "@/actions/company-settings";
 import { Declaration, DeclarationWithRawData, SortColumn } from './types';
 import { statusStyles, statusLabels, DEFAULT_STATS_SETTINGS, DEFAULT_EXPORT_COLUMNS } from './constants';
 import { getRawData, formatRegisteredDate, decodeWindows1251, getMDNumber } from './utils';
@@ -140,14 +141,6 @@ export default function ArchivePageClient({
     useEffect(() => {
         setIsMounted(true);
         if (typeof window !== 'undefined') {
-            // Stats
-            const savedStats = localStorage.getItem('statsSettings');
-            if (savedStats) {
-                try {
-                    setStatsSettings({ ...DEFAULT_STATS_SETTINGS, ...JSON.parse(savedStats) });
-                } catch (e) { console.error(e); }
-            }
-
             // Export
             const savedExportColumns = localStorage.getItem('exportColumns');
             if (savedExportColumns) {
@@ -171,6 +164,26 @@ export default function ArchivePageClient({
 
             const savedItems = localStorage.getItem('archiveItemsPerPage');
             if (savedItems) setItemsPerPage(parseInt(savedItems, 10));
+        }
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const res = await getArchiveStatsSettings();
+            if (!res?.success || !res.settings) return;
+            if (cancelled) return;
+            setStatsSettings({ ...DEFAULT_STATS_SETTINGS, ...res.settings });
+        })();
+        return () => { cancelled = true; };
+    }, []);
+
+    const handleStatsSettingsChange = useCallback((settings: { [key: string]: boolean }) => {
+        setStatsSettings(settings);
+        try {
+            void updateArchiveStatsSettings(settings);
+        } catch {
+            // ignore
         }
     }, []);
     const [exportColumns, setExportColumns] = useState<{ [key: string]: boolean }>(DEFAULT_EXPORT_COLUMNS);
@@ -1292,7 +1305,7 @@ export default function ArchivePageClient({
                 isOpen={showStatsSettings}
                 onClose={() => setShowStatsSettings(false)}
                 statsSettings={statsSettings}
-                onSettingsChange={setStatsSettings}
+                onSettingsChange={handleStatsSettingsChange}
             />
 
 
