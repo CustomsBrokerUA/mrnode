@@ -448,6 +448,7 @@ MRNode — Next.js (App Router) застосунок для перегляду, 
 - **Де:** `src/actions/sync.ts` (`fetchDeclarationDetail` vs `fetchDeclarationDetails`).
 - **Що зробити:** винести в helper спільний код збереження `xmlData`/`updateDeclarationSummary`.
 - **Критерій:** одна реалізація шляху оновлення 61.1.
+ - **Rollback commit (якщо щось зламається під час чистки P2.1):** `47dc431`
 
 2) **P2: Крипто-гігієна**
 - **Де:** `src/lib/crypto.ts`.

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Button, Input, Card, CardContent, CardHeader, CardTitle, Label } from "@/components/ui";
 import { RefreshCw, DownloadCloud, Clock, CheckCircle2, AlertCircle, Play, CheckSquare, Square, ChevronDown, Calendar } from "lucide-react";
-import { syncDeclarations, getDeclarationsWithoutDetails, fetchDeclarationDetails, fetchDeclarationDetail, getSyncHistory, syncAllPeriod, syncAllPeriodStaged, getSyncJobStatus, cancelSyncJob } from "@/actions/sync";
+import { syncDeclarations, getDeclarationsWithoutDetails, fetchDeclarationDetail, getSyncHistory, syncAllPeriod, syncAllPeriodStaged, getSyncJobStatus, cancelSyncJob } from "@/actions/sync";
 import SyncPeriodsStatusBar from "@/components/sync-periods-status-bar";
 
 type SyncHistoryItem = {
