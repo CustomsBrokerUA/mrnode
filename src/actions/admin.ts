@@ -6,6 +6,97 @@ import { revalidatePath } from 'next/cache';
 
 const ADMIN_EMAIL = 'andrii@brokerua.com';
 
+export async function listUsersWithCompanies(params?: {
+  query?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    return { error: 'Неавторизований доступ' };
+  }
+
+  if (session.user.email !== ADMIN_EMAIL) {
+    return { error: 'Forbidden' };
+  }
+
+  const query = (params?.query || '').trim();
+  const pageSizeRaw = params?.pageSize ?? 50;
+  const pageSize = Math.min(Math.max(Number(pageSizeRaw) || 50, 1), 200);
+  const pageRaw = params?.page ?? 1;
+  const page = Math.max(Number(pageRaw) || 1, 1);
+  const skip = (page - 1) * pageSize;
+
+  const where = query
+    ? {
+        OR: [
+          { email: { contains: query, mode: 'insensitive' as const } },
+          { fullName: { contains: query, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+
+  const [total, users] = await Promise.all([
+    db.user.count({ where }),
+    db.user.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: pageSize,
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        activeCompanyId: true,
+        createdAt: true,
+        companies: {
+          where: {
+            isActive: true,
+            company: { deletedAt: null },
+          },
+          orderBy: { createdAt: 'asc' },
+          select: {
+            role: true,
+            isActive: true,
+            companyId: true,
+            company: {
+              select: {
+                id: true,
+                name: true,
+                edrpou: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  return {
+    success: true,
+    page,
+    pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    users: users.map((u) => ({
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      role: u.role,
+      activeCompanyId: u.activeCompanyId,
+      createdAt: u.createdAt,
+      companies: u.companies.map((uc) => ({
+        role: uc.role,
+        isActive: uc.isActive,
+        companyId: uc.companyId,
+        company: uc.company,
+      })),
+    })),
+  };
+}
+
 export async function attachCompanyToUser(params: {
   userEmail: string;
   companyEdrpou: string;
