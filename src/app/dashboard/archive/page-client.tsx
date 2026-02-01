@@ -250,8 +250,6 @@ export default function ArchivePageClient({
 
                         if (Array.isArray(decls)) {
                             setLoadedDeclarations(decls);
-                        } else {
-                            setLoadedDeclarations([]);
                         }
 
                         if (Number.isFinite(total)) {
