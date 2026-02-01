@@ -96,9 +96,7 @@ export function useArchiveFilters({
     // Filter for list61 (extended logic with mappedData)
     const filteredDocs61 = useMemo(() => {
         let filtered = declarationsWithDetails.filter(doc => {
-            // For list61 we keep declarations that have at least summary.
-            // 61.1 details may still be loading in background, so do not hide such rows.
-            if (!doc.summary) return false;
+            // For list61 we keep declarations even if 61.1 details are not ready yet.
             return true;
         });
         

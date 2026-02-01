@@ -233,7 +233,7 @@ describe('useArchiveFilters', () => {
             expect(result.current.filteredDocs61.length).toBe(1);
         });
 
-        it('should exclude docs without mappedData', () => {
+        it('should keep docs without mappedData', () => {
             const docs = [
                 mockDeclaration61('1', 'Відправник А', 'Отримувач 1'),
                 { ...mockDeclaration61('2', 'Відправник Б', 'Отримувач 2'), summary: null }
@@ -246,8 +246,7 @@ describe('useArchiveFilters', () => {
                 filters: defaultFilters
             }));
 
-            expect(result.current.filteredDocs61.length).toBe(1);
-            expect(result.current.filteredDocs61[0].id).toBe('1');
+            expect(result.current.filteredDocs61.length).toBe(2);
         });
 
         it('should filter by declaration type', () => {

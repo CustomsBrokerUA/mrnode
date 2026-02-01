@@ -720,6 +720,19 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                 status = "REJECTED";
             }
 
+            let registeredAt: Date | null = null;
+            try {
+                const reg = String(item.ccd_registered || '').trim();
+                if (reg) {
+                    registeredAt = new Date(reg.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6'));
+                    if (Number.isNaN(registeredAt.getTime())) {
+                        registeredAt = null;
+                    }
+                }
+            } catch {
+                registeredAt = null;
+            }
+
             // Store data from 60.1 as JSON (contains: guid, MRN, ccd_registered, ccd_status, ccd_type, trn_all, etc.)
             const data60_1 = item; // Keep as object for merging
 
@@ -760,6 +773,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                         where: { id: existing.id },
                         data: {
                             status: status,
+                            date: registeredAt || existing.date,
                             declarantName: item.ccd_decl_name || existing.declarantName,
                             senderName: item.ccd_sender_name || existing.senderName,
                             recipientName: item.ccd_recipient_name || existing.recipientName,
@@ -773,6 +787,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                         data: {
                             status: status,
                             xmlData: JSON.stringify({ data60_1: data60_1 }),
+                            date: registeredAt || existing.date,
                             declarantName: item.ccd_decl_name || existing.declarantName,
                             senderName: item.ccd_sender_name || existing.senderName,
                             recipientName: item.ccd_recipient_name || existing.recipientName,
@@ -794,6 +809,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
                         mrn: item.MRN,
                         xmlData: JSON.stringify(dataToStore),
                         status: status,
+                        date: registeredAt || new Date(),
                     }
                 });
 
