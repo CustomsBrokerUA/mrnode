@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useCallback, useState, useMemo, useRef, useEffect } from "react";
 import { Button, Input, cn } from "@/components/ui";
 import { Search, FileSpreadsheet, Eye, Trash2, Calendar, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, SlidersHorizontal, X, Download, RotateCcw, Table, LayoutGrid, List } from "lucide-react";
 // No router needed - all state is client-side
@@ -70,6 +70,8 @@ export default function ArchivePageClient({
         current: number;
         total: number;
     } | null>(null);
+
+    const extendedExportAbortRef = useRef<AbortController | null>(null);
 
     // View mode state (table, cards, compact)
     const [viewMode, setViewMode] = useState<'table' | 'cards' | 'compact'>('table');
@@ -557,6 +559,11 @@ export default function ArchivePageClient({
 
     // Extended export function (one row per goods item)
     const handleExtendedExport = async () => {
+        if (extendedExportAbortRef.current) {
+            try { extendedExportAbortRef.current.abort(); } catch { }
+        }
+        extendedExportAbortRef.current = new AbortController();
+
         setIsExtendedExporting(true);
         setExtendedExportProgress({ phase: 'fetching_details', current: 0, total: sortedDocs.length || 1 });
         try {
@@ -565,13 +572,23 @@ export default function ArchivePageClient({
                 activeTab,
                 exportColumns,
                 exportColumnOrder,
-                (p) => setExtendedExportProgress(p)
+                (p) => setExtendedExportProgress(p),
+                extendedExportAbortRef.current.signal
             );
         } finally {
             setIsExtendedExporting(false);
             setExtendedExportProgress(null);
+            extendedExportAbortRef.current = null;
         }
     };
+
+    const handleCancelExtendedExport = useCallback(() => {
+        try {
+            extendedExportAbortRef.current?.abort();
+        } catch {
+            // ignore
+        }
+    }, []);
 
     const extendedExportPhaseLabel = (phase: string) => {
         switch (phase) {
@@ -661,13 +678,27 @@ export default function ArchivePageClient({
                                     }}
                                 />
                             </div>
-                            <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
-                                {extendedExportProgress.current} / {extendedExportProgress.total}
+                            <div className="mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                                <span>
+                                    {extendedExportProgress.current} / {extendedExportProgress.total}
+                                </span>
+                                <span>
+                                    {Math.min(
+                                        100,
+                                        Math.round((Math.max(0, extendedExportProgress.current) / Math.max(1, extendedExportProgress.total)) * 100)
+                                    )}%
+                                </span>
                             </div>
                         </div>
 
-                        <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                            Не закривай вкладку під час експорту.
+                        <div className="mt-6 flex justify-end">
+                            <Button
+                                variant="outline"
+                                className="gap-2"
+                                onClick={handleCancelExtendedExport}
+                            >
+                                Скасувати експорт
+                            </Button>
                         </div>
                     </div>
                 </div>

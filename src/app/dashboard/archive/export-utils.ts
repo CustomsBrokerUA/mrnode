@@ -36,12 +36,20 @@ function getXmlData61_1(xmlData: string | null | undefined): string | null {
     return null;
 }
 
-async function fetchDeclarationXmlData(id: string): Promise<string | null> {
+function throwIfAborted(signal?: AbortSignal) {
+    if (signal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+    }
+}
+
+async function fetchDeclarationXmlData(id: string, signal?: AbortSignal): Promise<string | null> {
+    throwIfAborted(signal);
     const res = await fetch(`/api/declarations/${encodeURIComponent(id)}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json'
-        }
+        },
+        signal,
     });
 
     if (!res.ok) return null;
@@ -54,7 +62,8 @@ async function fetchDeclarationXmlData(id: string): Promise<string | null> {
 async function enrichDocsWith61Details(
     docs: any[],
     concurrency = 5,
-    onProgress?: (p: ExtendedExportProgress) => void
+    onProgress?: (p: ExtendedExportProgress) => void,
+    signal?: AbortSignal
 ): Promise<any[]> {
     const result = [...docs];
     let cursor = 0;
@@ -63,6 +72,7 @@ async function enrichDocsWith61Details(
 
     async function worker() {
         while (cursor < result.length) {
+            throwIfAborted(signal);
             const idx = cursor++;
             const doc = result[idx];
 
@@ -73,7 +83,7 @@ async function enrichDocsWith61Details(
             if (!id) continue;
 
             try {
-                const xmlData = await fetchDeclarationXmlData(id);
+                const xmlData = await fetchDeclarationXmlData(id, signal);
                 const xml61 = getXmlData61_1(xmlData);
                 if (!xml61) continue;
 
@@ -532,16 +542,18 @@ export async function exportExtendedGoodsToExcel(
     activeTab: ActiveTab,
     exportColumns?: { [key: string]: boolean },
     columnOrder?: string[],
-    onProgress?: (p: ExtendedExportProgress) => void
+    onProgress?: (p: ExtendedExportProgress) => void,
+    signal?: AbortSignal
 ): Promise<void> {
     try {
+        throwIfAborted(signal);
         if (activeTab !== 'list61') {
             alert('Розширений експорт доступний лише на вкладці "Деталі (61.1)"');
             return;
         }
 
         const docsToEnrich = sortedDocs.filter(d => typeof (d as any)?.id === 'string' && (d as any).id);
-        const docsWithFullDetails = await enrichDocsWith61Details(docsToEnrich, 5, onProgress);
+        const docsWithFullDetails = await enrichDocsWith61Details(docsToEnrich, 5, onProgress, signal);
 
         if (docsWithFullDetails.length === 0) {
             alert('Немає декларацій з деталями для розширеного експорту');
@@ -628,6 +640,7 @@ export async function exportExtendedGoodsToExcel(
         let docsDoneForRows = 0;
 
         for (const doc of docsWithFullDetails) {
+            throwIfAborted(signal);
             const mappedData = (doc as any).mappedData;
             docsDoneForRows++;
             onProgress?.({ phase: 'generating_rows', current: docsDoneForRows, total: totalDocsForRows });
@@ -677,6 +690,7 @@ export async function exportExtendedGoodsToExcel(
             if (!mappedData.goods || mappedData.goods.length === 0) {
                 const row: any[] = [];
                 activeKeys.forEach(key => {
+                    throwIfAborted(signal);
                     switch (key) {
                         case 'mdNumber': row.push(getMDNumber(getRawData(doc), doc.mrn)); break;
                         case 'registeredDate': row.push(completionDate); break;
@@ -727,6 +741,7 @@ export async function exportExtendedGoodsToExcel(
             }
 
             for (const goods of mappedData.goods) {
+                throwIfAborted(signal);
                 if (!goods) continue;
 
                 const producerName = goods.producerName || '---';
@@ -799,6 +814,7 @@ export async function exportExtendedGoodsToExcel(
                 const paymentMap = new Map<string, number>();
                 if (mappedData.generalPayments) {
                     mappedData.generalPayments.forEach((payment: any) => {
+                        throwIfAborted(signal);
                         if (payment.code && payment.code !== '---') {
                             const existing = paymentMap.get(payment.code) || 0;
                             paymentMap.set(payment.code, existing + (payment.amount || 0));
@@ -807,6 +823,7 @@ export async function exportExtendedGoodsToExcel(
                 }
 
                 paymentCodes.forEach(code => {
+                    throwIfAborted(signal);
                     row.push(paymentMap.get(code)?.toFixed(2) || '0.00');
                 });
 
@@ -820,6 +837,8 @@ export async function exportExtendedGoodsToExcel(
         }
 
         onProgress?.({ phase: 'writing_file', current: 1, total: 1 });
+
+        throwIfAborted(signal);
 
         // Create workbook and worksheet
         const wb = XLSX.utils.book_new();
@@ -841,6 +860,9 @@ export async function exportExtendedGoodsToExcel(
         XLSX.writeFile(wb, filename);
 
     } catch (error) {
+        if ((error as any)?.name === 'AbortError') {
+            return;
+        }
         console.error('Помилка розширеного експорту в Excel:', error);
         alert('Помилка при розширеному експорті в Excel. Спробуйте ще раз.');
     }
