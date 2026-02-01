@@ -864,6 +864,53 @@ export async function getCompanyAuditLog(companyId: string, limit: number = 50) 
   }
 }
 
+export async function getCompanyOperationLogs(companyId: string, limit: number = 50) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { error: "Неавторизований доступ" };
+    }
+
+    const { checkCompanyAccess } = await import("@/lib/company-access");
+    const access = await checkCompanyAccess(companyId);
+    if (!access.success) {
+      return { error: access.error || "Доступ до компанії заборонено" };
+    }
+
+    if (access.role !== 'OWNER' && access.role !== 'MEMBER') {
+      return { error: "Недостатньо прав" };
+    }
+
+    const logs = await (db as any).operationLog.findMany({
+      where: {
+        companyId: companyId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: limit,
+    });
+
+    return {
+      success: true,
+      logs: (logs || []).map((log: any) => ({
+        id: log.id,
+        operation: log.operation,
+        status: log.status,
+        details: log.details,
+        meta: log.meta,
+        startedAt: log.startedAt,
+        finishedAt: log.finishedAt,
+        durationMs: log.durationMs,
+        createdAt: log.createdAt,
+      })),
+    };
+  } catch (error: any) {
+    console.error("Error getting operation logs:", error);
+    return { error: "Помилка отримання операцій" };
+  }
+}
+
 /**
  * Отримати список учасників компанії
  */

@@ -1192,6 +1192,9 @@ export async function deleteDeclaration(id: string) {
         return { error: "Неавторизований доступ" };
     }
 
+    let companyScopeKey: string | null = null;
+    let userScopeKey: string | null = null;
+
     try {
         const { requireActiveCompanyAccess } = await import("@/lib/company-access");
         const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
@@ -1210,8 +1213,8 @@ export async function deleteDeclaration(id: string) {
 
         const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
 
-        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
-        const userScopeKey = `delete_declarations_user_${userId}`;
+        companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        userScopeKey = `delete_declarations_user_${userId}`;
         const ttlMs = 5 * 60 * 1000;
 
         const lock1 = await acquireOperationLock({
@@ -1282,8 +1285,6 @@ export async function deleteDeclaration(id: string) {
                 status: 'error',
                 details: 'Declaration not found or no access',
             });
-            await releaseOperationLock(userScopeKey);
-            await releaseOperationLock(companyScopeKey);
             return { error: "Декларацію не знайдено або немає доступу" };
         }
 
@@ -1297,28 +1298,21 @@ export async function deleteDeclaration(id: string) {
             meta: { deletedCount: 1 },
         });
 
-        await releaseOperationLock(userScopeKey);
-        await releaseOperationLock(companyScopeKey);
-
         revalidatePath("/dashboard/archive");
         return { success: true };
     } catch (error: any) {
         console.error("Delete declaration error:", error);
+        return { error: "Помилка видалення: " + error.message };
+    } finally {
         try {
-            const { releaseOperationLock } = await import("@/lib/operations");
-            const companyId = (await (async () => {
-                const { getActiveCompanyWithAccess } = await import("@/lib/company-access");
-                const a = await getActiveCompanyWithAccess();
-                return a.companyId;
-            })()) as string | undefined;
-            if (companyId && session?.user?.id) {
-                await releaseOperationLock(`delete_declarations_company_${companyId}`);
-                await releaseOperationLock(`delete_declarations_user_${session.user.id}`);
+            if (userScopeKey || companyScopeKey) {
+                const { releaseOperationLock } = await import("@/lib/operations");
+                if (userScopeKey) await releaseOperationLock(userScopeKey);
+                if (companyScopeKey) await releaseOperationLock(companyScopeKey);
             }
         } catch {
             // ignore
         }
-        return { error: "Помилка видалення: " + error.message };
     }
 }
 
@@ -1446,6 +1440,9 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
         return { error: "Неавторизований доступ" };
     }
 
+    let companyScopeKey: string | null = null;
+    let userScopeKey: string | null = null;
+
     try {
         const { requireActiveCompanyAccess } = await import("@/lib/company-access");
         const access = await requireActiveCompanyAccess(['OWNER', 'MEMBER']);
@@ -1464,8 +1461,8 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
 
         const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
 
-        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
-        const userScopeKey = `delete_declarations_user_${userId}`;
+        companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        userScopeKey = `delete_declarations_user_${userId}`;
         const ttlMs = 10 * 60 * 1000;
 
         const lock1 = await acquireOperationLock({
@@ -1546,14 +1543,21 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
             meta: { deletedCount: result.count },
         });
 
-        await releaseOperationLock(userScopeKey);
-        await releaseOperationLock(companyScopeKey);
-
         revalidatePath("/dashboard/archive");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by period error:", error);
         return { error: "Помилка видалення: " + error.message };
+    } finally {
+        try {
+            if (userScopeKey || companyScopeKey) {
+                const { releaseOperationLock } = await import("@/lib/operations");
+                if (userScopeKey) await releaseOperationLock(userScopeKey);
+                if (companyScopeKey) await releaseOperationLock(companyScopeKey);
+            }
+        } catch {
+            // ignore
+        }
     }
 }
 
@@ -1567,6 +1571,9 @@ export async function deleteDeclarationsByIds(ids: string[]) {
     if (!ids || ids.length === 0) {
         return { error: "Не вибрано декларацій для видалення" };
     }
+
+    let companyScopeKey: string | null = null;
+    let userScopeKey: string | null = null;
 
     try {
         const { requireActiveCompanyAccess } = await import("@/lib/company-access");
@@ -1586,8 +1593,8 @@ export async function deleteDeclarationsByIds(ids: string[]) {
 
         const { acquireOperationLock, releaseOperationLock, startOperationLog, finishOperationLog } = await import("@/lib/operations");
 
-        const companyScopeKey = `delete_declarations_company_${access.companyId}`;
-        const userScopeKey = `delete_declarations_user_${userId}`;
+        companyScopeKey = `delete_declarations_company_${access.companyId}`;
+        userScopeKey = `delete_declarations_user_${userId}`;
         const ttlMs = 10 * 60 * 1000;
 
         const lock1 = await acquireOperationLock({
@@ -1659,9 +1666,6 @@ export async function deleteDeclarationsByIds(ids: string[]) {
                 details: 'Some declarations not found or no access',
                 meta: { idsCount: ids.length, foundCount: declarations.length },
             });
-
-            await releaseOperationLock(userScopeKey);
-            await releaseOperationLock(companyScopeKey);
             return { error: "Деякі декларації не знайдено або немає доступу" };
         }
 
@@ -1678,13 +1682,20 @@ export async function deleteDeclarationsByIds(ids: string[]) {
             meta: { deletedCount: result.count },
         });
 
-        await releaseOperationLock(userScopeKey);
-        await releaseOperationLock(companyScopeKey);
-
         revalidatePath("/dashboard/archive");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by IDs error:", error);
         return { error: "Помилка видалення: " + error.message };
+    } finally {
+        try {
+            if (userScopeKey || companyScopeKey) {
+                const { releaseOperationLock } = await import("@/lib/operations");
+                if (userScopeKey) await releaseOperationLock(userScopeKey);
+                if (companyScopeKey) await releaseOperationLock(companyScopeKey);
+            }
+        } catch {
+            // ignore
+        }
     }
 }
