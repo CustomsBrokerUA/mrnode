@@ -129,6 +129,18 @@ export default function AdminPageClient() {
     <div className="max-w-3xl space-y-4">
       <Card>
         <CardHeader>
+          <CardTitle>Навігація</CardTitle>
+          <CardDescription>Операційні екрани для адміністрування</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <a href="/dashboard/admin/sync">
+            <Button variant="outline">Sync Jobs</Button>
+          </a>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Адмін панель</CardTitle>
           <CardDescription>
             Привʼязка компаній до користувачів (створює/активує UserCompany та ставить activeCompanyId).
