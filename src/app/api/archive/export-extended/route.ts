@@ -562,6 +562,8 @@ export async function GET(req: Request) {
           }
           const completionDate = completionDateRaw ? formatDateForExport(completionDateRaw) : '---';
 
+          const usdRateDateRaw = header.currencyRateDateRaw || header.rawDate || rawData60?.ccd_registered || '';
+
           const declarationType = rawData60
             ? [rawData60.ccd_01_01, rawData60.ccd_01_02, rawData60.ccd_01_03].filter(Boolean).join(' ') || rawData60.ccd_type || '---'
             : header.type || header.declarationType || '---';
@@ -582,14 +584,14 @@ export async function GET(req: Request) {
           const goodsList = Array.isArray(mapped.goods) ? mapped.goods : [];
 
           let usdRate = 0;
-          if (completionDateRaw) {
-            const key = String(completionDateRaw);
+          if (usdRateDateRaw) {
+            const key = String(usdRateDateRaw);
             const cached = usdRateCache.get(key);
             if (typeof cached === 'number') {
               usdRate = cached;
             } else {
               try {
-                const rate = await getUSDExchangeRateForDate(completionDateRaw);
+                const rate = await getUSDExchangeRateForDate(usdRateDateRaw);
                 usdRate = typeof rate === 'number' && Number.isFinite(rate) ? rate : 0;
               } catch {
                 usdRate = 0;
