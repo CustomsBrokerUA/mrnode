@@ -1074,7 +1074,7 @@ export default function ArchivePageClient({
                         >
                             <SlidersHorizontal className="w-4 h-4" />
                             Фільтри
-                            {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
+                            {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterRepresentative || filterCarrier || filterBank || filterContractHolder || filterHSCode || filterDeclarationType) && (
                                 <span className="bg-brand-blue text-white text-xs rounded-full px-2 py-0.5">
                                     {(filterDateFrom ? 1 : 0) +
                                         (filterDateTo ? 1 : 0) +
@@ -1082,6 +1082,9 @@ export default function ArchivePageClient({
                                         (filterCurrency !== 'all' ? 1 : 0) +
                                         (filterConsignor ? 1 : 0) +
                                         (filterConsignee ? 1 : 0) +
+                                        (filterRepresentative ? 1 : 0) +
+                                        (filterCarrier ? 1 : 0) +
+                                        (filterBank ? 1 : 0) +
                                         (filterContractHolder ? 1 : 0) +
                                         (filterHSCode ? 1 : 0) +
                                         (filterDeclarationType ? 1 : 0)}
@@ -1089,7 +1092,7 @@ export default function ArchivePageClient({
                             )}
                         </Button>
                     )}
-                    {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterContractHolder || filterHSCode || filterDeclarationType) && (
+                    {(filterDateFrom || filterDateTo || filterCustomsOffice || filterCurrency !== 'all' || filterConsignor || filterConsignee || filterRepresentative || filterCarrier || filterBank || filterContractHolder || filterHSCode || filterDeclarationType) && (
                         <Button
                             variant="outline"
                             className="gap-2 text-slate-600 hover:text-slate-900"
@@ -1100,6 +1103,9 @@ export default function ArchivePageClient({
                                 setFilterCurrency('all');
                                 setFilterConsignor('');
                                 setFilterConsignee('');
+                                setFilterRepresentative('');
+                                setFilterCarrier('');
+                                setFilterBank('');
                                 setFilterContractHolder('');
                                 setFilterHSCode('');
                                 setFilterDeclarationType('');
