@@ -572,26 +572,46 @@ export default function ArchivePageClient({
 
     // Extended export function (one row per goods item)
     const handleExtendedExport = async () => {
-        if (extendedExportAbortRef.current) {
-            try { extendedExportAbortRef.current.abort(); } catch { }
+        if (activeTab !== 'list61') {
+            alert('Розширений експорт доступний лише на вкладці "Деталі (61.1)"');
+            return;
         }
-        extendedExportAbortRef.current = new AbortController();
+
+        if (!confirm('Експорт може тривати довго, якщо декларацій багато. Продовжити?')) {
+            return;
+        }
 
         setIsExtendedExporting(true);
-        setExtendedExportProgress({ phase: 'fetching_details', current: 0, total: sortedDocs.length || 1 });
+        setExtendedExportProgress(null);
+
         try {
-            await exportExtendedGoodsToExcel(
-                sortedDocs,
-                activeTab,
-                exportColumns,
-                exportColumnOrder,
-                (p) => setExtendedExportProgress(p),
-                extendedExportAbortRef.current.signal
-            );
+            const params = new URLSearchParams();
+
+            if (filterDateFrom) params.set('dateFrom', filterDateFrom);
+            if (filterDateTo) params.set('dateTo', filterDateTo);
+            if (filterCustomsOffice) params.set('customsOffice', filterCustomsOffice);
+            if (filterCurrency && filterCurrency !== 'all') params.set('currency', filterCurrency);
+            if (filterConsignor) params.set('consignor', filterConsignor);
+            if (filterConsignee) params.set('consignee', filterConsignee);
+            if (filterContractHolder) params.set('contractHolder', filterContractHolder);
+            if (filterHSCode) params.set('hsCode', filterHSCode);
+            if (filterDeclarationType) params.set('declarationType', filterDeclarationType);
+            if (searchTerm) params.set('searchTerm', searchTerm);
+
+            if (sanitizedSelectedCompanyIds.length > 0) {
+                params.set('companyIds', sanitizedSelectedCompanyIds.join(','));
+            }
+
+            const selectedKeys = Object.keys(exportColumns || {}).filter((k) => (exportColumns as any)[k]);
+            if (selectedKeys.length > 0) params.set('columns', selectedKeys.join(','));
+            if (Array.isArray(exportColumnOrder) && exportColumnOrder.length > 0) {
+                params.set('columnOrder', exportColumnOrder.join(','));
+            }
+
+            const url = `/api/archive/export-extended?${params.toString()}`;
+            window.location.href = url;
         } finally {
             setIsExtendedExporting(false);
-            setExtendedExportProgress(null);
-            extendedExportAbortRef.current = null;
         }
     };
 
