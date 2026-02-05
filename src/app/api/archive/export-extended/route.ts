@@ -342,6 +342,7 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
+  const debug = url.searchParams.get('debug') === '1';
 
   const companyIdsRaw = getQueryStringParams(url, 'companyIds');
   let targetCompanyIds: string[];
@@ -437,6 +438,13 @@ export async function GET(req: Request) {
     { key: 'customsValueUsdPerKg', label: 'Митна вартість в дол за кг нетто' },
   ];
 
+  const debugHeaders = debug
+    ? [
+        { key: 'usdRateDateRawUsed', label: 'debug_usdRateDateRaw' },
+        { key: 'usdRateUsed', label: 'debug_usdRate' },
+      ]
+    : [];
+
   const where = buildWhere({ companyIds: targetCompanyIds, showEeDeclarations, filters });
 
   const paymentCodes = new Set<string>();
@@ -498,6 +506,7 @@ export async function GET(req: Request) {
   const headers = [
     ...keys.map((k) => baseColumnMap[k] || k),
     ...extraColumns.map((c) => c.label),
+    ...debugHeaders.map((c) => c.label),
     ...Array.from(paymentCodes).sort().map((code) => `Платіж ${code}`),
   ];
 
@@ -734,9 +743,11 @@ export async function GET(req: Request) {
               paymentMap.set(code, (paymentMap.get(code) || 0) + amount);
             }
 
+            const debugCols: any[] = debug ? [usdRateDateRaw || '---', usdRate > 0 ? usdRate : '---'] : [];
+
             const payments: any[] = paymentCodeList.map((code) => (paymentMap.get(code) || 0).toFixed(2));
 
-            ws.addRow([...base, ...extra, ...payments]).commit();
+            ws.addRow([...base, ...extra, ...debugCols, ...payments]).commit();
           };
 
           if (goodsList.length === 0) {
