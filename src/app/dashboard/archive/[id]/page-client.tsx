@@ -99,12 +99,29 @@ export default function DeclarationDetailsClient({ declaration }: { declaration:
     
     const mappedData = React.useMemo(() => mapXmlToDeclaration(xmlDataForMapping), [xmlDataForMapping]);
 
+    const usdRateDateRaw = React.useMemo(() => {
+        try {
+            const s = declaration.xmlData ? declaration.xmlData.trim() : '';
+            if (s && (s.startsWith('{') || s.startsWith('['))) {
+                const parsed = JSON.parse(declaration.xmlData as string);
+                const v = parsed?.data60_1?.ccd?.ccd_22_date || parsed?.data60_1?.ccd_22_date;
+                if (typeof v === 'string' && v.trim() && v.trim() !== '---') {
+                    return v.trim();
+                }
+            }
+        } catch {
+            // ignore
+        }
+
+        const v = mappedData?.header?.currencyRateDateRaw || mappedData?.header?.rawDate;
+        return typeof v === 'string' && v.trim() ? v.trim() : v;
+    }, [declaration.xmlData, mappedData?.header?.currencyRateDateRaw, mappedData?.header?.rawDate]);
+
     // Load USD exchange rate
     React.useEffect(() => {
-        const rateDate = mappedData?.header?.currencyRateDateRaw || mappedData?.header?.rawDate;
-        if (rateDate) {
+        if (usdRateDateRaw) {
             setUsdRateLoading(true);
-            getUSDExchangeRateForDate(rateDate)
+            getUSDExchangeRateForDate(usdRateDateRaw)
                 .then(rate => {
                     setUsdRate(rate);
                     setUsdRateLoading(false);
@@ -114,7 +131,7 @@ export default function DeclarationDetailsClient({ declaration }: { declaration:
                     setUsdRateLoading(false);
                 });
         }
-    }, [mappedData?.header?.currencyRateDateRaw, mappedData?.header?.rawDate]);
+    }, [usdRateDateRaw]);
 
     // Handle body scroll locking
     React.useEffect(() => {
