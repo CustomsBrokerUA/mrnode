@@ -94,8 +94,10 @@ model DeclarationSummary {
   totalItems       Int?
   customsOffice    String?
   declarantName    String?
+  representativeName String?
   senderName       String?
   recipientName    String?
+  carrierName      String?
   declarationType  String?
   contractHolder   String?
   registeredDate   DateTime?
@@ -104,6 +106,7 @@ model DeclarationSummary {
   invoiceValueUah  Float?
   exchangeRate     Float?
   transportDetails String?
+  bankName         String?
 
   updatedAt DateTime @updatedAt
 }

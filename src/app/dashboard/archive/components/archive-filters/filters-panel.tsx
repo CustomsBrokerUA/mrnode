@@ -13,6 +13,9 @@ interface FiltersPanelProps {
     filterCurrency: string;
     filterConsignor: string;
     filterConsignee: string;
+    filterRepresentative: string;
+    filterCarrier: string;
+    filterBank: string;
     filterContractHolder: string;
     filterHSCode: string;
     filterDeclarationType: string;
@@ -21,6 +24,9 @@ interface FiltersPanelProps {
         customsOffices?: string[];
         consignors?: string[];
         consignees?: string[];
+        representatives?: string[];
+        carriers?: string[];
+        banks?: string[];
         contractHolders?: string[];
         hsCodes?: string[];
         declarationTypes?: string[];
@@ -35,6 +41,9 @@ interface FiltersPanelProps {
     setFilterCurrency: (value: string) => void;
     setFilterConsignor: (value: string) => void;
     setFilterConsignee: (value: string) => void;
+    setFilterRepresentative: (value: string) => void;
+    setFilterCarrier: (value: string) => void;
+    setFilterBank: (value: string) => void;
     setFilterContractHolder: (value: string) => void;
     setFilterHSCode: (value: string) => void;
     setFilterDeclarationType: (value: string) => void;
@@ -51,6 +60,9 @@ export default function FiltersPanel({
     filterCurrency,
     filterConsignor,
     filterConsignee,
+    filterRepresentative,
+    filterCarrier,
+    filterBank,
     filterContractHolder,
     filterHSCode,
     filterDeclarationType,
@@ -62,6 +74,9 @@ export default function FiltersPanel({
     setFilterCurrency,
     setFilterConsignor,
     setFilterConsignee,
+    setFilterRepresentative,
+    setFilterCarrier,
+    setFilterBank,
     setFilterContractHolder,
     setFilterHSCode,
     setFilterDeclarationType,
@@ -70,6 +85,9 @@ export default function FiltersPanel({
     const [liveCustomsOffices, setLiveCustomsOffices] = useState<string[]>([]);
     const [liveConsignors, setLiveConsignors] = useState<string[]>([]);
     const [liveConsignees, setLiveConsignees] = useState<string[]>([]);
+    const [liveRepresentatives, setLiveRepresentatives] = useState<string[]>([]);
+    const [liveCarriers, setLiveCarriers] = useState<string[]>([]);
+    const [liveBanks, setLiveBanks] = useState<string[]>([]);
     const [liveContractHolders, setLiveContractHolders] = useState<string[]>([]);
     const [liveHSCodes, setLiveHSCodes] = useState<string[]>([]);
     const [liveDeclarationTypes, setLiveDeclarationTypes] = useState<string[]>([]);
@@ -82,6 +100,9 @@ export default function FiltersPanel({
             currency: filterCurrency,
             consignor: filterConsignor,
             consignee: filterConsignee,
+            representative: filterRepresentative,
+            carrier: filterCarrier,
+            bank: filterBank,
             contractHolder: filterContractHolder,
             hsCode: filterHSCode,
             declarationType: filterDeclarationType,
@@ -93,6 +114,9 @@ export default function FiltersPanel({
             filterCurrency,
             filterConsignor,
             filterConsignee,
+            filterRepresentative,
+            filterCarrier,
+            filterBank,
             filterContractHolder,
             filterHSCode,
             filterDeclarationType,
@@ -102,7 +126,16 @@ export default function FiltersPanel({
     const timersRef = useRef<Record<string, number | null>>({});
 
     const scheduleFetch = (
-        field: 'customsOffice' | 'consignor' | 'consignee' | 'contractHolder' | 'hsCode' | 'declarationType',
+        field:
+            | 'customsOffice'
+            | 'consignor'
+            | 'consignee'
+            | 'representative'
+            | 'carrier'
+            | 'bank'
+            | 'contractHolder'
+            | 'hsCode'
+            | 'declarationType',
         rawValue: string,
         setResult: (values: string[]) => void
     ) => {
@@ -158,6 +191,27 @@ export default function FiltersPanel({
     }, [filterConsignee, filtersForAutocomplete, companyIds]);
 
     useEffect(() => {
+        scheduleFetch('representative', filterRepresentative, setLiveRepresentatives);
+        return () => {
+            if (timersRef.current.representative) window.clearTimeout(timersRef.current.representative);
+        };
+    }, [filterRepresentative, filtersForAutocomplete, companyIds]);
+
+    useEffect(() => {
+        scheduleFetch('carrier', filterCarrier, setLiveCarriers);
+        return () => {
+            if (timersRef.current.carrier) window.clearTimeout(timersRef.current.carrier);
+        };
+    }, [filterCarrier, filtersForAutocomplete, companyIds]);
+
+    useEffect(() => {
+        scheduleFetch('bank', filterBank, setLiveBanks);
+        return () => {
+            if (timersRef.current.bank) window.clearTimeout(timersRef.current.bank);
+        };
+    }, [filterBank, filtersForAutocomplete, companyIds]);
+
+    useEffect(() => {
         scheduleFetch('contractHolder', filterContractHolder, setLiveContractHolders);
         return () => {
             if (timersRef.current.contractHolder) window.clearTimeout(timersRef.current.contractHolder);
@@ -185,6 +239,9 @@ export default function FiltersPanel({
         setFilterCurrency('all');
         setFilterConsignor('');
         setFilterConsignee('');
+        setFilterRepresentative('');
+        setFilterCarrier('');
+        setFilterBank('');
         setFilterContractHolder('');
         setFilterHSCode('');
         setFilterDeclarationType('');
@@ -297,6 +354,66 @@ export default function FiltersPanel({
                     />
                     <datalist id="archive-consignee-suggestions">
                         {((liveConsignees.length > 0 ? liveConsignees : (suggestions?.consignees || [])) || []).map((v) => (
+                            <option key={v} value={v} />
+                        ))}
+                    </datalist>
+                </div>
+
+                {/* Representative Filter */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        Декларант / представник (гр.14)
+                        <span className="text-xs text-slate-500 ml-1 font-normal">(через кому для кількох)</span>
+                    </label>
+                    <Input
+                        placeholder="Назва представника..."
+                        value={filterRepresentative}
+                        onChange={(e) => setFilterRepresentative(e.target.value)}
+                        list="archive-representative-suggestions"
+                        className="w-full"
+                    />
+                    <datalist id="archive-representative-suggestions">
+                        {((liveRepresentatives.length > 0 ? liveRepresentatives : (suggestions?.representatives || [])) || []).map((v) => (
+                            <option key={v} value={v} />
+                        ))}
+                    </datalist>
+                </div>
+
+                {/* Carrier Filter */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        Перевізник (гр.50)
+                        <span className="text-xs text-slate-500 ml-1 font-normal">(через кому для кількох)</span>
+                    </label>
+                    <Input
+                        placeholder="Назва перевізника..."
+                        value={filterCarrier}
+                        onChange={(e) => setFilterCarrier(e.target.value)}
+                        list="archive-carrier-suggestions"
+                        className="w-full"
+                    />
+                    <datalist id="archive-carrier-suggestions">
+                        {((liveCarriers.length > 0 ? liveCarriers : (suggestions?.carriers || [])) || []).map((v) => (
+                            <option key={v} value={v} />
+                        ))}
+                    </datalist>
+                </div>
+
+                {/* Bank Filter */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        Банк
+                        <span className="text-xs text-slate-500 ml-1 font-normal">(через кому для кількох)</span>
+                    </label>
+                    <Input
+                        placeholder="Назва банку..."
+                        value={filterBank}
+                        onChange={(e) => setFilterBank(e.target.value)}
+                        list="archive-bank-suggestions"
+                        className="w-full"
+                    />
+                    <datalist id="archive-bank-suggestions">
+                        {((liveBanks.length > 0 ? liveBanks : (suggestions?.banks || [])) || []).map((v) => (
                             <option key={v} value={v} />
                         ))}
                     </datalist>

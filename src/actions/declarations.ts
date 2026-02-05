@@ -116,6 +116,9 @@ export async function getDeclarationsPaginated(
         currency?: string;
         consignor?: string;
         consignee?: string;
+        representative?: string;
+        carrier?: string;
+        bank?: string;
         contractHolder?: string;
         hsCode?: string;
         declarationType?: string;
@@ -263,6 +266,27 @@ export async function getDeclarationsPaginated(
         };
     }
 
+    if (filters.representative) {
+        summaryFilters.representativeName = {
+            contains: filters.representative,
+            mode: 'insensitive' as const,
+        };
+    }
+
+    if (filters.carrier) {
+        summaryFilters.carrierName = {
+            contains: filters.carrier,
+            mode: 'insensitive' as const,
+        };
+    }
+
+    if (filters.bank) {
+        summaryFilters.bankName = {
+            contains: filters.bank,
+            mode: 'insensitive' as const,
+        };
+    }
+
     // Contract holder filter (from summary)
     if (filters.contractHolder) {
         summaryFilters.contractHolder = {
@@ -391,7 +415,8 @@ export async function getDeclarationsPaginated(
                 // xmlData is heavy; we need it mostly for list60 parsing.
                 xmlData: activeTab === 'list60',
                 summary: activeTab === 'list61' || !!filters.customsOffice || !!filters.currency ||
-                    !!filters.consignor || !!filters.consignee || !!filters.contractHolder || !!filters.declarationType ||
+                    !!filters.consignor || !!filters.consignee || !!filters.representative || !!filters.carrier || !!filters.bank ||
+                    !!filters.contractHolder || !!filters.declarationType ||
                     sortColumn === 'type' || sortColumn === 'consignor' ||
                     sortColumn === 'consignee' || sortColumn === 'invoiceValue' ||
                     sortColumn === 'goodsCount' || sortColumn === 'registeredDate',
@@ -431,6 +456,9 @@ export async function getArchiveStatistics(
         currency?: string;
         consignor?: string;
         consignee?: string;
+        representative?: string;
+        carrier?: string;
+        bank?: string;
         contractHolder?: string;
         hsCode?: string;
         declarationType?: string;
@@ -636,6 +664,18 @@ export async function getArchiveStatistics(
         summaryWhere.recipientName = { contains: filters.consignee, mode: 'insensitive' as const };
     }
 
+    if (filters.representative) {
+        summaryWhere.representativeName = { contains: filters.representative, mode: 'insensitive' as const };
+    }
+
+    if (filters.carrier) {
+        summaryWhere.carrierName = { contains: filters.carrier, mode: 'insensitive' as const };
+    }
+
+    if (filters.bank) {
+        summaryWhere.bankName = { contains: filters.bank, mode: 'insensitive' as const };
+    }
+
     if (filters.contractHolder) {
         summaryWhere.contractHolder = { contains: filters.contractHolder, mode: 'insensitive' as const };
     }
@@ -702,7 +742,15 @@ export async function getArchiveStatistics(
         };
     }
 
-    const [totals, statusGroups, topConsignors, topConsignees, topContractHolders, topDeclarationTypes, topCustomsOffices] = await Promise.all([
+    const [
+        totals,
+        statusGroups,
+        topConsignors,
+        topConsignees,
+        topContractHolders,
+        topDeclarationTypes,
+        topCustomsOffices,
+    ] = await Promise.all([
         db.declarationSummary.aggregate({
             where: summaryWhere,
             _count: { _all: true },
@@ -806,6 +854,18 @@ export async function getArchiveStatistics(
         ? Prisma.sql` AND ds."contractHolder" ILIKE ${'%' + filters.contractHolder + '%'}`
         : Prisma.empty;
 
+    const representativeSql = filters.representative
+        ? Prisma.sql` AND ds."representativeName" ILIKE ${'%' + filters.representative + '%'}`
+        : Prisma.empty;
+
+    const carrierSql = filters.carrier
+        ? Prisma.sql` AND ds."carrierName" ILIKE ${'%' + filters.carrier + '%'}`
+        : Prisma.empty;
+
+    const bankSql = filters.bank
+        ? Prisma.sql` AND ds."bankName" ILIKE ${'%' + filters.bank + '%'}`
+        : Prisma.empty;
+
     const declarationTypeSql = filters.declarationType
         ? Prisma.sql` AND ds."declarationType" = ANY(${filters.declarationType.split(',').map(t => t.trim()).filter(Boolean)}::text[])`
         : Prisma.empty;
@@ -826,6 +886,85 @@ export async function getArchiveStatistics(
         ? Prisma.sql` AND dh."hsCode" ILIKE ${'%' + filters.hsCode + '%'}`
         : Prisma.empty;
 
+    // Use raw SQL for new fields to avoid coupling to Prisma Client regeneration.
+    const [topRepresentatives, topCarriers, topBanks] = await Promise.all([
+        db.$queryRaw<Array<{ name: string; count: bigint | number; totalValue: number | null }>>(Prisma.sql`
+            SELECT
+                ds."representativeName" as name,
+                COUNT(*) as count,
+                COALESCE(SUM(ds."customsValue"), 0) as "totalValue"
+            FROM "DeclarationSummary" ds
+            JOIN "Declaration" d ON d."id" = ds."declarationId"
+            WHERE d."companyId" = ANY(${companyIdArray}::text[])
+            ${eeSql}
+            ${dateSql}
+            ${customsOfficeSql}
+            ${currencySql}
+            ${consignorSql}
+            ${consigneeSql}
+            ${representativeSql}
+            ${carrierSql}
+            ${bankSql}
+            ${contractHolderSql}
+            ${declarationTypeSql}
+            ${searchSql}
+            AND ds."representativeName" IS NOT NULL
+            GROUP BY ds."representativeName"
+            ORDER BY count DESC
+            LIMIT 10;
+        `),
+        db.$queryRaw<Array<{ name: string; count: bigint | number; totalValue: number | null }>>(Prisma.sql`
+            SELECT
+                ds."carrierName" as name,
+                COUNT(*) as count,
+                COALESCE(SUM(ds."customsValue"), 0) as "totalValue"
+            FROM "DeclarationSummary" ds
+            JOIN "Declaration" d ON d."id" = ds."declarationId"
+            WHERE d."companyId" = ANY(${companyIdArray}::text[])
+            ${eeSql}
+            ${dateSql}
+            ${customsOfficeSql}
+            ${currencySql}
+            ${consignorSql}
+            ${consigneeSql}
+            ${representativeSql}
+            ${carrierSql}
+            ${bankSql}
+            ${contractHolderSql}
+            ${declarationTypeSql}
+            ${searchSql}
+            AND ds."carrierName" IS NOT NULL
+            GROUP BY ds."carrierName"
+            ORDER BY count DESC
+            LIMIT 10;
+        `),
+        db.$queryRaw<Array<{ name: string; count: bigint | number; totalValue: number | null }>>(Prisma.sql`
+            SELECT
+                ds."bankName" as name,
+                COUNT(*) as count,
+                COALESCE(SUM(ds."customsValue"), 0) as "totalValue"
+            FROM "DeclarationSummary" ds
+            JOIN "Declaration" d ON d."id" = ds."declarationId"
+            WHERE d."companyId" = ANY(${companyIdArray}::text[])
+            ${eeSql}
+            ${dateSql}
+            ${customsOfficeSql}
+            ${currencySql}
+            ${consignorSql}
+            ${consigneeSql}
+            ${representativeSql}
+            ${carrierSql}
+            ${bankSql}
+            ${contractHolderSql}
+            ${declarationTypeSql}
+            ${searchSql}
+            AND ds."bankName" IS NOT NULL
+            GROUP BY ds."bankName"
+            ORDER BY count DESC
+            LIMIT 10;
+        `),
+    ]);
+
     const topHSCodes = await db.$queryRaw<
         Array<{ code: string; count: bigint | number; totalvalue: number | null }>
     >(Prisma.sql`
@@ -843,6 +982,9 @@ export async function getArchiveStatistics(
         ${currencySql}
         ${consignorSql}
         ${consigneeSql}
+        ${representativeSql}
+        ${carrierSql}
+        ${bankSql}
         ${contractHolderSql}
         ${declarationTypeSql}
         ${searchSql}
@@ -872,6 +1014,21 @@ export async function getArchiveStatistics(
                 count: x._count?.recipientName ?? 0,
                 totalValue: x._sum?.customsValue ?? 0,
             })),
+        topRepresentatives: (topRepresentatives || []).map((x: any) => ({
+            name: x.name,
+            count: Number(x.count),
+            totalValue: Number(x.totalValue ?? 0),
+        })),
+        topCarriers: (topCarriers || []).map((x: any) => ({
+            name: x.name,
+            count: Number(x.count),
+            totalValue: Number(x.totalValue ?? 0),
+        })),
+        topBanks: (topBanks || []).map((x: any) => ({
+            name: x.name,
+            count: Number(x.count),
+            totalValue: Number(x.totalValue ?? 0),
+        })),
         topContractHolders: (topContractHolders || [])
             .filter(x => x.contractHolder)
             .map((x: any) => ({
@@ -906,7 +1063,16 @@ export async function getArchiveStatistics(
 }
 
 export async function getArchiveAutocompleteSuggestions(
-    field: 'customsOffice' | 'consignor' | 'consignee' | 'contractHolder' | 'hsCode' | 'declarationType',
+    field:
+        | 'customsOffice'
+        | 'consignor'
+        | 'consignee'
+        | 'representative'
+        | 'carrier'
+        | 'bank'
+        | 'contractHolder'
+        | 'hsCode'
+        | 'declarationType',
     query: string,
     filters: {
         dateFrom?: string;
@@ -915,6 +1081,9 @@ export async function getArchiveAutocompleteSuggestions(
         currency?: string;
         consignor?: string;
         consignee?: string;
+        representative?: string;
+        carrier?: string;
+        bank?: string;
         contractHolder?: string;
         hsCode?: string;
         declarationType?: string;
@@ -983,6 +1152,18 @@ export async function getArchiveAutocompleteSuggestions(
 
     if (field !== 'consignee' && filters.consignee) {
         summaryWhere.recipientName = { contains: filters.consignee, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'representative' && filters.representative) {
+        summaryWhere.representativeName = { contains: filters.representative, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'carrier' && filters.carrier) {
+        summaryWhere.carrierName = { contains: filters.carrier, mode: 'insensitive' as const };
+    }
+
+    if (field !== 'bank' && filters.bank) {
+        summaryWhere.bankName = { contains: filters.bank, mode: 'insensitive' as const };
     }
 
     if (field !== 'contractHolder' && filters.contractHolder) {
@@ -1153,6 +1334,9 @@ export async function getArchiveAutocompleteSuggestions(
         customsOffice: 'customsOffice',
         consignor: 'senderName',
         consignee: 'recipientName',
+        representative: 'representativeName',
+        carrier: 'carrierName',
+        bank: 'bankName',
         contractHolder: 'contractHolder',
         hsCode: 'hsCode',
         declarationType: 'declarationType',

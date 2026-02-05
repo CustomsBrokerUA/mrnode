@@ -76,8 +76,10 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     totalItems: mapped.header.totalItems || null,
                     customsOffice: mapped.header.customsOffice || null,
                     declarantName: mapped.header.declarantName || null,
+                    representativeName: (mapped.clients || []).find((c: any) => String(c?.box || '').trim() === '14')?.name || null,
                     senderName: mapped.header.consignor || null,
                     recipientName: mapped.header.consignee || null,
+                    carrierName: (mapped.clients || []).find((c: any) => String(c?.box || '').trim() === '50')?.name || null,
                     declarationType: mapped.header.type || null,
                     contractHolder: mapped.header.contractHolder || null,
                     registeredDate: registeredDate || null,
@@ -86,6 +88,7 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     invoiceValueUah: mapped.header.invoiceValueUah || null,
                     exchangeRate: mapped.header.exchangeRate || null,
                     transportDetails: mapped.header.transportDetails || null,
+                    bankName: (mapped.banks || []).find((b: any) => String(b?.name || '').trim() && String(b?.name || '').trim() !== '---')?.name || null,
                 };
 
                 // Upsert summary + sync HS codes atomically

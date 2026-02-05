@@ -97,6 +97,9 @@ export default function ArchivePageClient({
     const [filterCurrency, setFilterCurrency] = useState<string>('all');
     const [filterConsignor, setFilterConsignor] = useState<string>('');
     const [filterConsignee, setFilterConsignee] = useState<string>('');
+    const [filterRepresentative, setFilterRepresentative] = useState<string>('');
+    const [filterCarrier, setFilterCarrier] = useState<string>('');
+    const [filterBank, setFilterBank] = useState<string>('');
     const [filterContractHolder, setFilterContractHolder] = useState<string>('');
     const [filterHSCode, setFilterHSCode] = useState<string>('');
     const [filterDeclarationType, setFilterDeclarationType] = useState<string>('');
@@ -244,6 +247,9 @@ export default function ArchivePageClient({
                             currency: filterCurrency,
                             consignor: filterConsignor,
                             consignee: filterConsignee,
+                            representative: filterRepresentative,
+                            carrier: filterCarrier,
+                            bank: filterBank,
                             contractHolder: filterContractHolder,
                             hsCode: filterHSCode,
                             declarationType: filterDeclarationType,
@@ -302,6 +308,9 @@ export default function ArchivePageClient({
         filterCurrency,
         filterConsignor,
         filterConsignee,
+        filterRepresentative,
+        filterCarrier,
+        filterBank,
         filterContractHolder,
         filterHSCode,
         filterDeclarationType,
@@ -344,6 +353,9 @@ export default function ArchivePageClient({
         currency: filterCurrency,
         consignor: filterConsignor,
         consignee: filterConsignee,
+        representative: filterRepresentative,
+        carrier: filterCarrier,
+        bank: filterBank,
         contractHolder: filterContractHolder,
         hsCode: filterHSCode,
         declarationType: filterDeclarationType,
@@ -387,6 +399,9 @@ export default function ArchivePageClient({
                             currency: filters.currency,
                             consignor: filters.consignor,
                             consignee: filters.consignee,
+                            representative: filters.representative,
+                            carrier: filters.carrier,
+                            bank: filters.bank,
                             contractHolder: filters.contractHolder,
                             hsCode: filters.hsCode,
                             declarationType: filters.declarationType,
@@ -419,6 +434,9 @@ export default function ArchivePageClient({
         filters.currency,
         filters.consignor,
         filters.consignee,
+        filters.representative,
+        filters.carrier,
+        filters.bank,
         filters.contractHolder,
         filters.hsCode,
         filters.declarationType,
@@ -1203,6 +1221,9 @@ export default function ArchivePageClient({
                                         setFilterDateTo('');
                                         setFilterCustomsOffice('');
                                         setFilterCurrency('all');
+                                        setFilterRepresentative('');
+                                        setFilterCarrier('');
+                                        setFilterBank('');
                                         setFilterDeclarationType('');
                                         setCurrentPage(1);
                                     }}
@@ -1231,6 +1252,9 @@ export default function ArchivePageClient({
                         filterCurrency={filterCurrency}
                         filterConsignor={filterConsignor}
                         filterConsignee={filterConsignee}
+                        filterRepresentative={filterRepresentative}
+                        filterCarrier={filterCarrier}
+                        filterBank={filterBank}
                         filterContractHolder={filterContractHolder}
                         filterHSCode={filterHSCode}
                         filterDeclarationType={filterDeclarationType}
@@ -1239,6 +1263,9 @@ export default function ArchivePageClient({
                             customsOffices: (serverStatistics?.topCustomsOffices || []).map((x: any) => String(x.office || '')).filter(Boolean),
                             consignors: (serverStatistics?.topConsignors || []).map((x: any) => String(x.name || '')).filter(Boolean),
                             consignees: (serverStatistics?.topConsignees || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            representatives: (serverStatistics?.topRepresentatives || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            carriers: (serverStatistics?.topCarriers || []).map((x: any) => String(x.name || '')).filter(Boolean),
+                            banks: (serverStatistics?.topBanks || []).map((x: any) => String(x.name || '')).filter(Boolean),
                             contractHolders: (serverStatistics?.topContractHolders || []).map((x: any) => String(x.name || '')).filter(Boolean),
                             hsCodes: (serverStatistics?.topHSCodes || []).map((x: any) => String(x.code || '')).filter(Boolean),
                             declarationTypes: (serverStatistics?.topDeclarationTypes || []).map((x: any) => String(x.type || '')).filter(Boolean),
@@ -1265,6 +1292,18 @@ export default function ArchivePageClient({
                         }}
                         setFilterConsignee={(value) => {
                             setFilterConsignee(value);
+                            setCurrentPage(1);
+                        }}
+                        setFilterRepresentative={(value) => {
+                            setFilterRepresentative(value);
+                            setCurrentPage(1);
+                        }}
+                        setFilterCarrier={(value) => {
+                            setFilterCarrier(value);
+                            setCurrentPage(1);
+                        }}
+                        setFilterBank={(value) => {
+                            setFilterBank(value);
                             setCurrentPage(1);
                         }}
                         setFilterContractHolder={(value) => {
