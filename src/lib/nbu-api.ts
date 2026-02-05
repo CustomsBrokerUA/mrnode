@@ -62,27 +62,29 @@ export async function getUSDExchangeRate(date: string | Date): Promise<number | 
  * Парсить дату з різних форматів у формат YYYYMMDD для API НБУ
  */
 function parseDateToYYYYMMDD(dateStr: string): string | null {
+    const s = dateStr.trim();
+    if (!s || s === '---') return null;
     // Формат YYYYMMDDTHHMMSS (Customs format)
-    const customsMatch = dateStr.match(/^(\d{4})(\d{2})(\d{2})T/);
+    const customsMatch = s.match(/^(\d{4})(\d{2})(\d{2})T/);
     if (customsMatch) {
         const [, year, month, day] = customsMatch;
         return `${year}${month}${day}`;
     }
     
     // Формат YYYYMMDD
-    if (/^\d{8}$/.test(dateStr)) {
-        return dateStr;
+    if (/^\d{8}$/.test(s)) {
+        return s;
     }
     
     // Формат DD.MM.YYYY або DD.MM.YYYY HH:MM:SS (з formatDate)
-    const ddmmyyyyMatch = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
+    const ddmmyyyyMatch = s.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
     if (ddmmyyyyMatch) {
         const [, day, month, year] = ddmmyyyyMatch;
         return `${year}${month}${day}`;
     }
     
     // Формат YYYY-MM-DD
-    const yyyymmddMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const yyyymmddMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (yyyymmddMatch) {
         const [, year, month, day] = yyyymmddMatch;
         return `${year}${month}${day}`;
@@ -110,8 +112,8 @@ export async function getUSDExchangeRateForDate(declarationDate: string | Date |
         // Парсимо рядок дати
         const dateStr = parseDateToYYYYMMDD(declarationDate);
         if (!dateStr) {
-            // Якщо не вдалося розпарсити, пробуємо поточний курс
-            return await getUSDExchangeRate(new Date());
+            // Якщо передано дату, але її не вдалося розпарсити, не підміняємо її поточним курсом
+            return null;
         }
         // Конвертуємо YYYYMMDD в Date
         const year = parseInt(dateStr.substring(0, 4));

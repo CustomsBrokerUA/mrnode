@@ -562,7 +562,10 @@ export async function GET(req: Request) {
           }
           const completionDate = completionDateRaw ? formatDateForExport(completionDateRaw) : '---';
 
-          const usdRateDateRaw = header.currencyRateDateRaw || header.rawDate || rawData60?.ccd_registered || '';
+          const usdRateDateRaw = (() => {
+            const v = String(header.currencyRateDateRaw || header.rawDate || rawData60?.ccd_registered || '').trim();
+            return v && v !== '---' ? v : '';
+          })();
 
           const declarationType = rawData60
             ? [rawData60.ccd_01_01, rawData60.ccd_01_02, rawData60.ccd_01_03].filter(Boolean).join(' ') || rawData60.ccd_type || '---'
@@ -585,7 +588,7 @@ export async function GET(req: Request) {
 
           let usdRate = 0;
           if (usdRateDateRaw) {
-            const key = String(usdRateDateRaw);
+            const key = usdRateDateRaw;
             const cached = usdRateCache.get(key);
             if (typeof cached === 'number') {
               usdRate = cached;
