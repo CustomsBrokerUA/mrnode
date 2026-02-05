@@ -62,6 +62,11 @@ export default function AdminSyncPageClient() {
   const [auditMismatches, setAuditMismatches] = useState<Array<{ date: string; dbRate: number; nbuRate: number; diff: number }>>([]);
   const auditAbortRef = useState<{ abort: (() => void) | null }>({ abort: null })[0];
 
+  const [fixRunning, setFixRunning] = useState(false);
+  const [fixProgress, setFixProgress] = useState<{ checkedDays: number; totalDays: number; date?: string; upserted: number; nbuMissingDays: number; errors: number } | null>(null);
+  const [fixError, setFixError] = useState<string | null>(null);
+  const fixAbortRef = useState<{ abort: (() => void) | null }>({ abort: null })[0];
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(50);
 
@@ -267,6 +272,101 @@ export default function AdminSyncPageClient() {
     auditAbortRef.abort?.();
   }, [auditAbortRef]);
 
+  const startExchangeRateFix = useCallback(async () => {
+    if (fixRunning) return;
+    if (!confirm('УВАГА: це перезапише курси ВСІХ валют в БД офіційними значеннями НБУ по днях за 3 роки. Продовжити?')) return;
+
+    const controller = new AbortController();
+    fixAbortRef.abort = () => {
+      try {
+        controller.abort();
+      } catch {
+        // ignore
+      }
+    };
+
+    setFixRunning(true);
+    setFixError(null);
+    setFixProgress(null);
+
+    try {
+      const res = await fetch('/api/admin/fix-exchange-rates?years=3', {
+        signal: controller.signal,
+        headers: { Accept: 'application/x-ndjson' },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      if (!res.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let idx: number;
+        while ((idx = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, idx).trim();
+          buffer = buffer.slice(idx + 1);
+          if (!line) continue;
+
+          let msg: any;
+          try {
+            msg = JSON.parse(line);
+          } catch {
+            continue;
+          }
+
+          if (msg?.type === 'progress') {
+            setFixProgress({
+              checkedDays: Number(msg.checkedDays) || 0,
+              totalDays: Number(msg.totalDays) || 0,
+              date: msg.date,
+              upserted: Number(msg.upserted) || 0,
+              nbuMissingDays: Number(msg.nbuMissingDays) || 0,
+              errors: Number(msg.errors) || 0,
+            });
+          } else if (msg?.type === 'done' || msg?.type === 'aborted') {
+            setFixProgress({
+              checkedDays: Number(msg.checkedDays) || 0,
+              totalDays: Number(msg.totalDays) || 0,
+              upserted: Number(msg.upserted) || 0,
+              nbuMissingDays: Number(msg.nbuMissingDays) || 0,
+              errors: Number(msg.errors) || 0,
+            });
+            if (msg?.type === 'aborted') {
+              setFixError('Скасовано');
+            }
+          } else if (msg?.type === 'error') {
+            setFixError(`Error on ${msg?.date || ''}: ${msg?.message || 'Error'}`);
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.name === 'AbortError') {
+        setFixError('Скасовано');
+      } else {
+        setFixError(e?.message || 'Помилка виправлення курсів');
+      }
+    } finally {
+      setFixRunning(false);
+      fixAbortRef.abort = null;
+    }
+  }, [fixAbortRef, fixRunning]);
+
+  const cancelExchangeRateFix = useCallback(() => {
+    fixAbortRef.abort?.();
+  }, [fixAbortRef]);
+
   const getStageInfoFromErrorMessage = useCallback((message: string | null) => {
     if (!message || !message.includes('STAGE:')) return null;
     const stageMatch = message.match(/STAGE:(\d+):([^|]+)/);
@@ -357,6 +457,48 @@ export default function AdminSyncPageClient() {
                       ))}
                   </TableBody>
                 </Table>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-slate-200 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="font-medium">Fix: перезаписати курси (всі валюти) з НБУ (тимчасово)</div>
+                <div className="text-xs text-slate-500">Проходить по днях за 3 роки та upsert-ить усі курси валют з НБУ в таблицю ExchangeRate.</div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={startExchangeRateFix} disabled={fixRunning}>
+                  {fixRunning ? 'Виправляю…' : 'Виправити'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                  onClick={cancelExchangeRateFix}
+                  disabled={!fixRunning}
+                >
+                  Скасувати
+                </Button>
+              </div>
+            </div>
+
+            {fixError && <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-800">{fixError}</div>}
+
+            {fixProgress && (
+              <div className="mt-2 text-sm text-slate-700">
+                <div>
+                  Прогрес: <span className="font-medium">{fixProgress.checkedDays}</span> /{' '}
+                  <span className="font-medium">{fixProgress.totalDays}</span>
+                  {fixProgress.totalDays ? (
+                    <span className="text-slate-500"> ({Math.round((fixProgress.checkedDays / fixProgress.totalDays) * 100)}%)</span>
+                  ) : null}
+                  {fixProgress.date ? <span className="ml-2 text-slate-500">останній день: {fixProgress.date}</span> : null}
+                </div>
+                <div className="text-xs text-slate-600">
+                  upserted: <span className="font-medium">{fixProgress.upserted}</span> | nbu missing days:{' '}
+                  <span className="font-medium">{fixProgress.nbuMissingDays}</span> | errors:{' '}
+                  <span className="font-medium">{fixProgress.errors}</span>
+                </div>
               </div>
             )}
           </div>
