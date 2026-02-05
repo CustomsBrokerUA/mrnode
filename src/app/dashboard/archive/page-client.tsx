@@ -67,9 +67,9 @@ export default function ArchivePageClient({
 
     const [isExtendedExporting, setIsExtendedExporting] = useState(false);
     const [extendedExportProgress, setExtendedExportProgress] = useState<{
-        phase: 'fetching_details' | 'generating_rows' | 'writing_file';
-        current: number;
-        total: number;
+        phase: 'starting' | 'downloading' | 'saving';
+        receivedBytes: number;
+        totalBytes: number | null;
     } | null>(null);
 
     const extendedExportAbortRef = useRef<AbortController | null>(null);
@@ -581,8 +581,13 @@ export default function ArchivePageClient({
             return;
         }
 
+        if (extendedExportAbortRef.current) {
+            try { extendedExportAbortRef.current.abort(); } catch { }
+        }
+        extendedExportAbortRef.current = new AbortController();
+
         setIsExtendedExporting(true);
-        setExtendedExportProgress(null);
+        setExtendedExportProgress({ phase: 'starting', receivedBytes: 0, totalBytes: null });
 
         try {
             const params = new URLSearchParams();
@@ -609,9 +614,79 @@ export default function ArchivePageClient({
             }
 
             const url = `/api/archive/export-extended?${params.toString()}`;
-            window.location.href = url;
+            const res = await fetch(url, { signal: extendedExportAbortRef.current.signal });
+            if (!res.ok) {
+                const text = await res.text().catch(() => '');
+                throw new Error(text || `Export failed (${res.status})`);
+            }
+
+            const contentLengthHeader = res.headers.get('content-length');
+            const totalBytes = contentLengthHeader ? Number(contentLengthHeader) : null;
+            const filename =
+                parseFilenameFromContentDisposition(res.headers.get('content-disposition')) ||
+                `Розширений_експорт_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+            if (!res.body) {
+                const blob = await res.blob();
+                setExtendedExportProgress({ phase: 'saving', receivedBytes: blob.size, totalBytes: blob.size });
+                const objectUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = objectUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(objectUrl);
+                return;
+            }
+
+            setExtendedExportProgress({ phase: 'downloading', receivedBytes: 0, totalBytes: Number.isFinite(totalBytes as any) ? (totalBytes as number) : null });
+
+            const reader = res.body.getReader();
+            const chunks: BlobPart[] = [];
+            let received = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                if (value) {
+                    chunks.push(value);
+                    received += value.byteLength;
+                    setExtendedExportProgress((prev) => {
+                        if (!prev) return prev;
+                        return { ...prev, phase: 'downloading', receivedBytes: received, totalBytes: prev.totalBytes };
+                    });
+                }
+            }
+
+            setExtendedExportProgress((prev) => ({
+                phase: 'saving',
+                receivedBytes: received,
+                totalBytes: prev?.totalBytes ?? totalBytes,
+            }));
+
+            const blob = new Blob(chunks, {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const objectUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(objectUrl);
+        } catch (e: any) {
+            if (e?.name === 'AbortError') {
+                return;
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            alert(`Помилка експорту.\n${message}`);
         } finally {
             setIsExtendedExporting(false);
+            setExtendedExportProgress(null);
+            extendedExportAbortRef.current = null;
         }
     };
 
@@ -625,15 +700,42 @@ export default function ArchivePageClient({
 
     const extendedExportPhaseLabel = (phase: string) => {
         switch (phase) {
-            case 'fetching_details':
-                return 'Підвантаження деталей (61.1)';
-            case 'generating_rows':
-                return 'Формування рядків Excel';
-            case 'writing_file':
+            case 'starting':
+                return 'Підготовка експорту';
+            case 'downloading':
+                return 'Завантаження файлу';
+            case 'saving':
                 return 'Збереження файлу';
             default:
                 return 'Експорт...';
         }
+    };
+
+    const parseFilenameFromContentDisposition = (contentDisposition: string | null): string | null => {
+        if (!contentDisposition) return null;
+        const matchUtf8 = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (matchUtf8?.[1]) {
+            try {
+                return decodeURIComponent(matchUtf8[1]);
+            } catch {
+                return matchUtf8[1];
+            }
+        }
+
+        const matchPlain = contentDisposition.match(/filename="?([^";]+)"?/i);
+        return matchPlain?.[1] || null;
+    };
+
+    const formatBytes = (bytes: number) => {
+        if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let v = bytes;
+        let idx = 0;
+        while (v >= 1024 && idx < units.length - 1) {
+            v /= 1024;
+            idx += 1;
+        }
+        return `${v.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
     };
 
     // Save view mode to localStorage
@@ -702,25 +804,32 @@ export default function ArchivePageClient({
                         <div className="mt-4">
                             <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded">
                                 <div
-                                    className="h-2 bg-brand-blue rounded"
+                                    className={`h-2 bg-brand-blue rounded ${extendedExportProgress.totalBytes ? '' : 'animate-shimmer'}`}
                                     style={{
-                                        width: `${Math.min(
-                                            100,
-                                            Math.round((Math.max(0, extendedExportProgress.current) / Math.max(1, extendedExportProgress.total)) * 100)
-                                        )}%`
+                                        width: extendedExportProgress.totalBytes
+                                            ? `${Math.min(
+                                                100,
+                                                Math.round((Math.max(0, extendedExportProgress.receivedBytes) / Math.max(1, extendedExportProgress.totalBytes)) * 100)
+                                            )}%`
+                                            : '35%'
                                     }}
                                 />
                             </div>
                             <div className="mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
                                 <span>
-                                    {extendedExportProgress.current} / {extendedExportProgress.total}
+                                    {formatBytes(extendedExportProgress.receivedBytes)}
+                                    {extendedExportProgress.totalBytes ? ` / ${formatBytes(extendedExportProgress.totalBytes)}` : ''}
                                 </span>
-                                <span>
-                                    {Math.min(
-                                        100,
-                                        Math.round((Math.max(0, extendedExportProgress.current) / Math.max(1, extendedExportProgress.total)) * 100)
-                                    )}%
-                                </span>
+                                {extendedExportProgress.totalBytes ? (
+                                    <span>
+                                        {Math.min(
+                                            100,
+                                            Math.round((Math.max(0, extendedExportProgress.receivedBytes) / Math.max(1, extendedExportProgress.totalBytes)) * 100)
+                                        )}%
+                                    </span>
+                                ) : (
+                                    <span>...</span>
+                                )}
                             </div>
                         </div>
 
