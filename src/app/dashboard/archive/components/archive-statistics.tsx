@@ -32,6 +32,9 @@ interface Statistics {
     totalItems: number;
     topConsignors: Array<{ name: string; count: number; totalValue: number }>;
     topConsignees: Array<{ name: string; count: number; totalValue: number }>;
+    topRepresentatives: Array<{ name: string; count: number; totalValue: number }>;
+    topCarriers: Array<{ name: string; count: number; totalValue: number }>;
+    topBanks: Array<{ name: string; count: number; totalValue: number }>;
     topContractHolders: Array<{ name: string; count: number; totalValue: number }>;
     topHSCodes: Array<{ code: string; count: number; totalValue: number }>;
     topDeclarationTypes: Array<{ type: string; count: number; totalValue: number }>;
@@ -60,6 +63,12 @@ interface ArchiveStatisticsProps {
     onFilterByConsignee?: (name: string) => void;
     /** Callback для фільтрації по контрактотримачу (опціонально) */
     onFilterByContractHolder?: (name: string) => void;
+    /** Callback для фільтрації по декларанту/представнику (опціонально) */
+    onFilterByRepresentative?: (name: string) => void;
+    /** Callback для фільтрації по перевізнику (опціонально) */
+    onFilterByCarrier?: (name: string) => void;
+    /** Callback для фільтрації по банку (опціонально) */
+    onFilterByBank?: (name: string) => void;
     /** Callback для фільтрації по коду УКТЗЕД (опціонально) */
     onFilterByHSCode?: (code: string) => void;
 }
@@ -80,6 +89,9 @@ export default function ArchiveStatistics({
     onFilterByConsignor,
     onFilterByConsignee,
     onFilterByContractHolder,
+    onFilterByRepresentative,
+    onFilterByCarrier,
+    onFilterByBank,
     onFilterByHSCode,
 }: ArchiveStatisticsProps) {
     return (
@@ -190,6 +202,9 @@ export default function ArchiveStatistics({
             {(
                 ((statsSettings.topConsignors ?? true) && statistics.topConsignors?.length > 0) ||
                 ((statsSettings.topConsignees ?? true) && statistics.topConsignees?.length > 0) ||
+                ((statsSettings.topRepresentatives ?? true) && statistics.topRepresentatives?.length > 0) ||
+                ((statsSettings.topCarriers ?? true) && statistics.topCarriers?.length > 0) ||
+                ((statsSettings.topBanks ?? true) && statistics.topBanks?.length > 0) ||
                 ((statsSettings.topContractHolders ?? true) && statistics.topContractHolders?.length > 0) ||
                 ((statsSettings.topHSCodes ?? true) && statistics.topHSCodes?.length > 0) ||
                 ((statsSettings.topDeclarationTypes ?? true) && statistics.topDeclarationTypes?.length > 0) ||
@@ -296,6 +311,72 @@ export default function ArchiveStatistics({
                                                 key={idx}
                                                 className="flex items-center justify-between text-xs hover:bg-slate-100 rounded px-2 py-1 cursor-pointer transition-colors"
                                                 onClick={() => onFilterByContractHolder?.(item.name)}
+                                                title="Клікніть для фільтрації"
+                                            >
+                                                <span className="text-slate-700 flex-1 truncate" title={item.name}>
+                                                    {idx + 1}. {item.name}
+                                                </span>
+                                                <span className="text-slate-500 ml-2">{item.count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Top Representatives */}
+                            {(statsSettings.topRepresentatives ?? true) && statistics.topRepresentatives?.length > 0 && (
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
+                                    <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 декларантів/представників</h4>
+                                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                                        {statistics.topRepresentatives.map((item, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="flex items-center justify-between text-xs hover:bg-slate-100 rounded px-2 py-1 cursor-pointer transition-colors"
+                                                onClick={() => onFilterByRepresentative?.(item.name)}
+                                                title="Клікніть для фільтрації"
+                                            >
+                                                <span className="text-slate-700 flex-1 truncate" title={item.name}>
+                                                    {idx + 1}. {item.name}
+                                                </span>
+                                                <span className="text-slate-500 ml-2">{item.count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Top Carriers */}
+                            {(statsSettings.topCarriers ?? true) && statistics.topCarriers?.length > 0 && (
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
+                                    <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 перевізників</h4>
+                                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                                        {statistics.topCarriers.map((item, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="flex items-center justify-between text-xs hover:bg-slate-100 rounded px-2 py-1 cursor-pointer transition-colors"
+                                                onClick={() => onFilterByCarrier?.(item.name)}
+                                                title="Клікніть для фільтрації"
+                                            >
+                                                <span className="text-slate-700 flex-1 truncate" title={item.name}>
+                                                    {idx + 1}. {item.name}
+                                                </span>
+                                                <span className="text-slate-500 ml-2">{item.count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Top Banks */}
+                            {(statsSettings.topBanks ?? true) && statistics.topBanks?.length > 0 && (
+                                <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 hidden sm:block">
+                                    <h4 className="text-xs font-semibold text-slate-600 uppercase mb-2">Топ-10 банків</h4>
+                                    <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                                        {statistics.topBanks.map((item, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="flex items-center justify-between text-xs hover:bg-slate-100 rounded px-2 py-1 cursor-pointer transition-colors"
+                                                onClick={() => onFilterByBank?.(item.name)}
                                                 title="Клікніть для фільтрації"
                                             >
                                                 <span className="text-slate-700 flex-1 truncate" title={item.name}>

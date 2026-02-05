@@ -938,7 +938,7 @@ export default function ArchivePageClient({
             {/* Statistics - Only show for list61 */}
             {activeTab === 'list61' && (
                 <ArchiveStatistics
-                    statistics={serverStatistics || clientStatistics || { total: 0, totalCustomsValue: 0, totalInvoiceValue: 0, totalItems: 0, topConsignors: [], topConsignees: [], topContractHolders: [], topHSCodes: [], topDeclarationTypes: [], topCustomsOffices: [] }}
+                    statistics={serverStatistics || clientStatistics || { total: 0, totalCustomsValue: 0, totalInvoiceValue: 0, totalItems: 0, topConsignors: [], topConsignees: [], topRepresentatives: [], topCarriers: [], topBanks: [], topContractHolders: [], topHSCodes: [], topDeclarationTypes: [], topCustomsOffices: [] }}
                     statsSettings={statsSettings}
                     isMounted={isMounted}
                     onSettingsClick={() => setShowStatsSettings(true)}
@@ -956,6 +956,18 @@ export default function ArchivePageClient({
                     }}
                     onFilterByConsignee={(name) => {
                         setFilterConsignee(name);
+                        setCurrentPage(1);
+                    }}
+                    onFilterByRepresentative={(name) => {
+                        setFilterRepresentative(name);
+                        setCurrentPage(1);
+                    }}
+                    onFilterByCarrier={(name) => {
+                        setFilterCarrier(name);
+                        setCurrentPage(1);
+                    }}
+                    onFilterByBank={(name) => {
+                        setFilterBank(name);
                         setCurrentPage(1);
                     }}
                     onFilterByContractHolder={(name) => {
