@@ -106,6 +106,48 @@ export default function ArchivePageClient({
     const [showFilters, setShowFilters] = useState(false);
     const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
 
+    const searchPlaceholder = useMemo(() => {
+        if (activeTab === 'list60') {
+            return 'Пошук за номером МД, GUID, типом, транспортом...';
+        }
+
+        const base = 'Пошук за номером МД, відправником, отримувачем, фактурною вартістю...';
+        const active: string[] = [];
+
+        if (filterDateFrom) active.push(`дата від ${filterDateFrom}`);
+        if (filterDateTo) active.push(`дата до ${filterDateTo}`);
+        if (filterCustomsOffice) active.push('митниця');
+        if (filterCurrency !== 'all') active.push('валюта');
+        if (filterConsignor) active.push('відправник');
+        if (filterConsignee) active.push('отримувач');
+        if (filterRepresentative) active.push('декларант/представник');
+        if (filterCarrier) active.push('перевізник');
+        if (filterBank) active.push('банк');
+        if (filterContractHolder) active.push('контрактотримач');
+        if (filterHSCode) active.push('УКТЗЕД');
+        if (filterDeclarationType) active.push('тип');
+
+        if (active.length === 0) {
+            return base;
+        }
+
+        return `${base} (активні фільтри: ${active.join(', ')})`;
+    }, [
+        activeTab,
+        filterDateFrom,
+        filterDateTo,
+        filterCustomsOffice,
+        filterCurrency,
+        filterConsignor,
+        filterConsignee,
+        filterRepresentative,
+        filterCarrier,
+        filterBank,
+        filterContractHolder,
+        filterHSCode,
+        filterDeclarationType,
+    ]);
+
     const sanitizedSelectedCompanyIds = useMemo(() => {
         return Array.isArray(selectedCompanyIds)
             ? selectedCompanyIds.map((id) => String(id || '').trim()).filter(Boolean)
@@ -1054,10 +1096,7 @@ export default function ArchivePageClient({
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <Input
-                            placeholder={activeTab === 'list60'
-                                ? "Пошук за номером МД, GUID, типом, транспортом..."
-                                : "Пошук за номером МД, відправником, отримувачем, фактурною вартістю..."
-                            }
+                            placeholder={searchPlaceholder}
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
