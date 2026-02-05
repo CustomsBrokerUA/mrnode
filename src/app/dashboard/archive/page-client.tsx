@@ -571,7 +571,7 @@ export default function ArchivePageClient({
     };
 
     // Extended export function (one row per goods item)
-    const handleExtendedExport = async () => {
+    const handleExtendedExport = async (e?: React.MouseEvent) => {
         if (activeTab !== 'list61') {
             alert('Розширений експорт доступний лише на вкладці "Деталі (61.1)"');
             return;
@@ -611,6 +611,10 @@ export default function ArchivePageClient({
             if (selectedKeys.length > 0) params.set('columns', selectedKeys.join(','));
             if (Array.isArray(exportColumnOrder) && exportColumnOrder.length > 0) {
                 params.set('columnOrder', exportColumnOrder.join(','));
+            }
+
+            if (e?.shiftKey) {
+                params.set('debug', '1');
             }
 
             const url = `/api/archive/export-extended?${params.toString()}`;
@@ -895,7 +899,7 @@ export default function ArchivePageClient({
                         <Button
                             variant="outline"
                             className="gap-2"
-                            onClick={handleExtendedExport}
+                            onClick={(e) => handleExtendedExport(e)}
                             disabled={isExtendedExporting}
                         >
                             <FileSpreadsheet className="w-4 h-4" />
