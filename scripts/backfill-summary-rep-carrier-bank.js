@@ -23,15 +23,54 @@ function extractRepresentativeCarrierBank(xmlDataStr) {
     return { representativeName: null, carrierName: null, bankName: null };
   }
 
+  const normalizeGroup = (val) => {
+    const s = String(val ?? '').trim();
+    if (!s) return '';
+    const digits = s.replace(/\D/g, '');
+    return digits.replace(/^0+/, '') || digits;
+  };
+
+  const extractFirstTagText = (block, tagName) => {
+    try {
+      const re = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+      const m = String(block).match(re);
+      if (!m || !m[1]) return null;
+      const text = String(m[1]).trim();
+      return text ? text : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const getClientBlocks = () => {
+    const blocks = [];
+    try {
+      const re = /<ccd_clients\b[^>]*>[\s\S]*?<\/ccd_clients>|<ccd_client\b[^>]*>[\s\S]*?<\/ccd_client>/gi;
+      let m;
+      while ((m = re.exec(xml61)) !== null) {
+        blocks.push(m[0]);
+        if (blocks.length > 2000) break;
+      }
+    } catch {
+      // ignore
+    }
+    return blocks;
+  };
+
   const pickClientNameByGroup = (group) => {
     try {
-      // Find the first client entry where ccd_cl_gr == group, and extract ccd_cl_name
-      // We keep it regex-based to avoid heavy XML parsing dependencies in a one-off script.
-      const re = new RegExp(`<ccd_client>[\\s\\S]*?<ccd_cl_gr>\\s*${group}\\s*<\\/ccd_cl_gr>[\\s\\S]*?<ccd_cl_name>([\\s\\S]*?)<\\/ccd_cl_name>[\\s\\S]*?<\\/ccd_client>`, 'i');
-      const m = xml61.match(re);
-      if (!m || !m[1]) return null;
-      const name = String(m[1]).trim();
-      return name && name !== '---' ? name : null;
+      const target = String(group);
+      const blocks = getClientBlocks();
+      for (const block of blocks) {
+        const grRaw = extractFirstTagText(block, 'ccd_cl_gr');
+        const gr = normalizeGroup(grRaw);
+        if (gr !== target) continue;
+        const nameRaw = extractFirstTagText(block, 'ccd_cl_name');
+        const name = String(nameRaw || '').trim();
+        if (!name || name === '---') return null;
+        return name;
+      }
+      return null;
     } catch {
       return null;
     }
@@ -39,10 +78,10 @@ function extractRepresentativeCarrierBank(xmlDataStr) {
 
   const pickBankName = () => {
     try {
-      const re = /<ccd_bank>[\s\S]*?<ccd_bn_name>([\s\S]*?)<\/ccd_bn_name>[\s\S]*?<\/ccd_bank>/i;
+      const re = /<ccd_bank\b[^>]*>[\s\S]*?<\/ccd_bank>/i;
       const m = xml61.match(re);
-      if (!m || !m[1]) return null;
-      const name = String(m[1]).trim();
+      if (!m || !m[0]) return null;
+      const name = String(extractFirstTagText(m[0], 'ccd_bn_name') || '').trim();
       return name && name !== '---' ? name : null;
     } catch {
       return null;

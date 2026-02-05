@@ -50,6 +50,13 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     return digitsOnly;
                 };
 
+                const normalizeBox = (val: unknown) => {
+                    const s = String(val ?? '').trim();
+                    if (!s) return '';
+                    const digits = s.replace(/\D/g, '');
+                    return digits.replace(/^0+/, '') || digits;
+                };
+
                 const hsCodes = Array.from(
                     new Set(
                         (mapped.goods || [])
@@ -76,10 +83,10 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     totalItems: mapped.header.totalItems || null,
                     customsOffice: mapped.header.customsOffice || null,
                     declarantName: mapped.header.declarantName || null,
-                    representativeName: (mapped.clients || []).find((c: any) => String(c?.box || '').trim() === '14')?.name || null,
+                    representativeName: (mapped.clients || []).find((c: any) => normalizeBox(c?.box) === '14')?.name || null,
                     senderName: mapped.header.consignor || null,
                     recipientName: mapped.header.consignee || null,
-                    carrierName: (mapped.clients || []).find((c: any) => String(c?.box || '').trim() === '50')?.name || null,
+                    carrierName: (mapped.clients || []).find((c: any) => normalizeBox(c?.box) === '50')?.name || null,
                     declarationType: mapped.header.type || null,
                     contractHolder: mapped.header.contractHolder || null,
                     registeredDate: registeredDate || null,
