@@ -1275,7 +1275,22 @@ export default function DeclarationDetailsClient({ declaration }: { declaration:
                                                 <span className="text-[9px] font-black uppercase text-slate-500">Графа 49: Реквізити складу</span>
                                             </CardHeader>
                                             <CardContent className="p-2">
-                                                <p className="text-xs text-slate-500 italic">Дані відсутні</p>
+                                                {(() => {
+                                                    const normalizeBox = (v: unknown) => {
+                                                        const s = String(v ?? '').trim();
+                                                        const digits = s.replace(/\D/g, '');
+                                                        return digits.replace(/^0+/, '') || digits;
+                                                    };
+
+                                                    const lic49 = (licenses || []).find((l) => normalizeBox((l as any)?.box) === '49');
+                                                    const licNum = String((lic49 as any)?.number || '').trim();
+
+                                                    if (licNum && licNum !== '---') {
+                                                        return <p className="text-xs font-bold text-slate-800">{licNum}</p>;
+                                                    }
+
+                                                    return <p className="text-xs text-slate-500 italic">---</p>;
+                                                })()}
                                             </CardContent>
                                         </Card>
                                                 </div>
