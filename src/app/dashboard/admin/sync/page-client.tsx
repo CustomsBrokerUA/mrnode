@@ -56,6 +56,12 @@ export default function AdminSyncPageClient() {
   const [createdFrom, setCreatedFrom] = useState('');
   const [createdTo, setCreatedTo] = useState('');
 
+  const [auditRunning, setAuditRunning] = useState(false);
+  const [auditProgress, setAuditProgress] = useState<{ checked: number; totalDays: number; date?: string; mismatches: number; dbMissing: number; nbuMissing: number } | null>(null);
+  const [auditError, setAuditError] = useState<string | null>(null);
+  const [auditMismatches, setAuditMismatches] = useState<Array<{ date: string; dbRate: number; nbuRate: number; diff: number }>>([]);
+  const auditAbortRef = useState<{ abort: (() => void) | null }>({ abort: null })[0];
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(50);
 
@@ -164,6 +170,103 @@ export default function AdminSyncPageClient() {
     [loadJobs]
   );
 
+  const startExchangeRateAudit = useCallback(async () => {
+    if (auditRunning) return;
+    if (!confirm('Перевірити USD курс в БД проти НБУ по днях за останні 3 роки? Це може тривати довго.')) return;
+
+    const controller = new AbortController();
+    auditAbortRef.abort = () => {
+      try {
+        controller.abort();
+      } catch {
+        // ignore
+      }
+    };
+
+    setAuditRunning(true);
+    setAuditError(null);
+    setAuditProgress(null);
+    setAuditMismatches([]);
+
+    try {
+      const res = await fetch('/api/admin/audit-exchange-rates?years=3', {
+        signal: controller.signal,
+        headers: { Accept: 'application/x-ndjson' },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      if (!res.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let idx: number;
+        while ((idx = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, idx).trim();
+          buffer = buffer.slice(idx + 1);
+          if (!line) continue;
+
+          let msg: any;
+          try {
+            msg = JSON.parse(line);
+          } catch {
+            continue;
+          }
+
+          if (msg?.type === 'progress') {
+            setAuditProgress({
+              checked: Number(msg.checked) || 0,
+              totalDays: Number(msg.totalDays) || 0,
+              date: msg.date,
+              mismatches: Number(msg.mismatches) || 0,
+              dbMissing: Number(msg.dbMissing) || 0,
+              nbuMissing: Number(msg.nbuMissing) || 0,
+            });
+          } else if (msg?.type === 'mismatch') {
+            setAuditMismatches((prev) => {
+              const next = [...prev, { date: msg.date, dbRate: msg.dbRate, nbuRate: msg.nbuRate, diff: msg.diff }];
+              if (next.length > 500) next.shift();
+              return next;
+            });
+          } else if (msg?.type === 'done') {
+            setAuditProgress({
+              checked: Number(msg.checked) || 0,
+              totalDays: Number(msg.totalDays) || 0,
+              mismatches: Number(msg.mismatches) || 0,
+              dbMissing: Number(msg.dbMissing) || 0,
+              nbuMissing: Number(msg.nbuMissing) || 0,
+            });
+          }
+        }
+      }
+    } catch (e: any) {
+      if (e?.name === 'AbortError') {
+        setAuditError('Скасовано');
+      } else {
+        setAuditError(e?.message || 'Помилка аудиту');
+      }
+    } finally {
+      setAuditRunning(false);
+      auditAbortRef.abort = null;
+    }
+  }, [auditAbortRef, auditRunning]);
+
+  const cancelExchangeRateAudit = useCallback(() => {
+    auditAbortRef.abort?.();
+  }, [auditAbortRef]);
+
   const getStageInfoFromErrorMessage = useCallback((message: string | null) => {
     if (!message || !message.includes('STAGE:')) return null;
     const stageMatch = message.match(/STAGE:(\d+):([^|]+)/);
@@ -188,6 +291,76 @@ export default function AdminSyncPageClient() {
           <CardDescription>Моніторинг виконання синхронізацій та помилок</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-lg border border-slate-200 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="font-medium">Audit: USD курс в БД vs НБУ (тимчасово)</div>
+                <div className="text-xs text-slate-500">Перевіряє кожен день за останні 3 роки. Показує розбіжності (зберігає останні 500).</div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={startExchangeRateAudit} disabled={auditRunning}>
+                  {auditRunning ? 'Перевіряю…' : 'Запустити перевірку'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                  onClick={cancelExchangeRateAudit}
+                  disabled={!auditRunning}
+                >
+                  Скасувати
+                </Button>
+              </div>
+            </div>
+
+            {auditError && <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-800">{auditError}</div>}
+
+            {auditProgress && (
+              <div className="mt-2 text-sm text-slate-700">
+                <div>
+                  Прогрес: <span className="font-medium">{auditProgress.checked}</span> /{' '}
+                  <span className="font-medium">{auditProgress.totalDays}</span>
+                  {auditProgress.totalDays ? (
+                    <span className="text-slate-500"> ({Math.round((auditProgress.checked / auditProgress.totalDays) * 100)}%)</span>
+                  ) : null}
+                  {auditProgress.date ? <span className="ml-2 text-slate-500">останній день: {auditProgress.date}</span> : null}
+                </div>
+                <div className="text-xs text-slate-600">
+                  mismatches: <span className="font-medium">{auditProgress.mismatches}</span> | db missing:{' '}
+                  <span className="font-medium">{auditProgress.dbMissing}</span> | nbu missing:{' '}
+                  <span className="font-medium">{auditProgress.nbuMissing}</span>
+                </div>
+              </div>
+            )}
+
+            {auditMismatches.length > 0 && (
+              <div className="mt-3 rounded-lg border border-slate-200">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Дата</TableHead>
+                      <TableHead>DB</TableHead>
+                      <TableHead>NBU</TableHead>
+                      <TableHead>Diff</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {auditMismatches
+                      .slice()
+                      .reverse()
+                      .map((m) => (
+                        <TableRow key={`${m.date}-${m.dbRate}-${m.nbuRate}`}>
+                          <TableCell className="font-medium">{m.date}</TableCell>
+                          <TableCell className="text-xs">{m.dbRate}</TableCell>
+                          <TableCell className="text-xs">{m.nbuRate}</TableCell>
+                          <TableCell className="text-xs">{m.diff}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="q">Компанія (назва/ЄДРПОУ)</Label>
