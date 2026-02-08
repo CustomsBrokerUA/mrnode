@@ -94,6 +94,7 @@ async function main() {
 
       const headerInvoiceUah = parseNum(extractTagText(xml61, 'ccd_22_03'));
       const headerInvoiceVal = parseNum(extractTagText(xml61, 'ccd_22_02'));
+      const headerInvoiceCur = String(extractTagText(xml61, 'ccd_22_01') || extractTagText(xml61, 'ccd_22_cur') || '').trim().toUpperCase();
       const headerRate = parseNum(extractTagText(xml61, 'ccd_23_01'));
 
       let goodsInvoiceUahSum = 0;
@@ -111,22 +112,24 @@ async function main() {
 
       let invoiceValueUah = 0;
 
-      // 1) ccd_22_03 (direct in UAH)
-      invoiceValueUah = headerInvoiceUah;
-
-      // 2) sum ccd_42_02 per goods (UAH)
-      if (invoiceValueUah === 0 && goodsInvoiceUahSum > 0) {
+      // 1) Prefer sum ccd_42_02 per goods (UAH)
+      if (goodsInvoiceUahSum > 0) {
         invoiceValueUah = goodsInvoiceUahSum;
       }
 
-      // 3) ccd_22_02 * ccd_23_01
+      // 2) header invoiceValue (ccd_22_02) * exchangeRate (ccd_23_01)
       if (invoiceValueUah === 0 && headerInvoiceVal > 0 && headerRate > 0) {
         invoiceValueUah = headerInvoiceVal * headerRate;
       }
 
-      // 4) sum ccd_42_01 * ccd_23_01
+      // 3) sum goods invoiceValue in currency (ccd_42_01) * exchangeRate
       if (invoiceValueUah === 0 && goodsInvoiceValSum > 0 && headerRate > 0) {
         invoiceValueUah = goodsInvoiceValSum * headerRate;
+      }
+
+      // 4) Only trust ccd_22_03 when invoice currency is UAH
+      if (invoiceValueUah === 0 && headerInvoiceUah > 0 && (headerInvoiceCur === 'UAH' || headerInvoiceCur === '980')) {
+        invoiceValueUah = headerInvoiceUah;
       }
 
       const valueToStore = invoiceValueUah > 0 ? invoiceValueUah : null;

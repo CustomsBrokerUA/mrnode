@@ -111,14 +111,16 @@ export function useArchiveStatistics({
                     }, 0);
                     // If goods don't have invoiceValueUah, try header.invoiceValueUah or calculate from invoiceValue * exchangeRate
                     if (invoiceValueUah === 0) {
-                        if (mappedData.header?.invoiceValueUah) {
+                        const invCur = String(mappedData.header?.invoiceCurrency || mappedData.header?.currency || '').trim().toUpperCase();
+                        if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
                             invoiceValueUah = mappedData.header.invoiceValueUah;
                         } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
                             invoiceValueUah = mappedData.header.invoiceValue * mappedData.header.exchangeRate;
                         }
                     }
                 } else if (invoiceValueUah === 0) {
-                    if (mappedData.header?.invoiceValueUah) {
+                    const invCur = String(mappedData.header?.invoiceCurrency || mappedData.header?.currency || '').trim().toUpperCase();
+                    if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
                         invoiceValueUah = mappedData.header.invoiceValueUah;
                     } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
                         invoiceValueUah = mappedData.header.invoiceValue * mappedData.header.exchangeRate;
