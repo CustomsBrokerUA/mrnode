@@ -14,6 +14,7 @@
     "sync-exchange-rates:full": "node sync-exchange-rates.js full",
     "sync-exchange-rates:daily": "node sync-exchange-rates.js daily",
     "backfill:summary-rep-carrier-bank": "node scripts/backfill-summary-rep-carrier-bank.js",
+    "backfill:summary-invoice-uah": "node scripts/backfill-summary-invoice-uah.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
