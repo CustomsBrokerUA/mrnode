@@ -117,13 +117,21 @@ function formatGoodsPayments(goods: any): string {
   const payments = Array.isArray(goods?.payments) ? goods.payments : [];
   if (payments.length === 0) return '---';
 
+  const allowedMethods = new Set(['1', '2', '70', '71', '72', '99']);
+
   return payments
     .map((p: any) => {
       const code = String(p?.code || '').trim();
       const ch = String(p?.char || '').trim();
-      const amount = typeof p?.amount === 'number' ? p.amount : Number(p?.amount || 0);
-      const value = Number.isFinite(amount) ? amount : 0;
-      return `${code || ''} ${ch || ''}: ${value.toLocaleString('uk-UA')}`.trim();
+      const method = String(p?.method ?? '').trim();
+      if (!allowedMethods.has(method)) return '';
+
+      const sumRaw = p?.sum;
+      const num = typeof sumRaw === 'number' ? sumRaw : Number(sumRaw || 0);
+      const sum = Number.isFinite(num) ? num : 0;
+      const signed = method === '99' ? -Math.abs(sum) : sum;
+
+      return `${code || ''} ${ch || ''}: ${signed.toLocaleString('uk-UA')}`.trim();
     })
     .filter(Boolean)
     .join('; ');
@@ -480,11 +488,15 @@ export async function GET(req: Request) {
       if (!xml61) continue;
       try {
         const mapped = mapXmlToDeclaration(xml61);
-        const gps = (mapped as any)?.generalPayments;
-        if (Array.isArray(gps)) {
-          for (const p of gps) {
+        const goodsList = Array.isArray((mapped as any)?.goods) ? (mapped as any).goods : [];
+        for (const g of goodsList) {
+          const payments = Array.isArray((g as any)?.payments) ? (g as any).payments : [];
+          for (const p of payments) {
             const code = String((p as any)?.code || '').trim();
-            if (code && code !== '---') paymentCodes.add(code);
+            const method = String((p as any)?.method ?? '').trim();
+            if (!code || code === '---') continue;
+            if (method !== '1' && method !== '2' && method !== '70' && method !== '71' && method !== '72' && method !== '99') continue;
+            paymentCodes.add(code);
           }
         }
       } catch {
@@ -590,7 +602,6 @@ export async function GET(req: Request) {
                 .join('/') || '---'
             : '---';
 
-          const generalPayments = Array.isArray(mapped.generalPayments) ? mapped.generalPayments : [];
           const paymentCodeList = Array.from(paymentCodes).sort();
 
           const goodsList = Array.isArray(mapped.goods) ? mapped.goods : [];
@@ -734,13 +745,20 @@ export async function GET(req: Request) {
             extra.push(customsValueUsdPerKg || 0);
 
             const paymentMap = new Map<string, number>();
-            for (const p of generalPayments) {
+            const goodsPayments = Array.isArray(goods?.payments) ? goods.payments : [];
+            for (const p of goodsPayments) {
               const code = String(p?.code || '').trim();
+              const method = String(p?.method ?? '').trim();
               if (!code || code === '---') continue;
-              const amountRaw = p?.amount;
-              const num = typeof amountRaw === 'number' ? amountRaw : Number(amountRaw || 0);
-              const amount = Number.isFinite(num) ? num : 0;
-              paymentMap.set(code, (paymentMap.get(code) || 0) + amount);
+
+              if (method !== '1' && method !== '2' && method !== '70' && method !== '71' && method !== '72' && method !== '99') continue;
+
+              const sumRaw = p?.sum;
+              const num = typeof sumRaw === 'number' ? sumRaw : Number(sumRaw || 0);
+              const sum = Number.isFinite(num) ? num : 0;
+              const signed = method === '99' ? -Math.abs(sum) : sum;
+
+              paymentMap.set(code, (paymentMap.get(code) || 0) + signed);
             }
 
             const debugCols: any[] = debug ? [usdRateDateRaw || '---', usdRate > 0 ? usdRate : '---'] : [];
