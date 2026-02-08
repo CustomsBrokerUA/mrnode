@@ -43,8 +43,6 @@ async function main() {
     where = { ...where, companyId };
   }
 
-  const { mapXmlToDeclaration } = require('../src/lib/xml-mapper');
-
   console.log(`[backfill-invoice-uah] Starting. batch=${batchSize}${companyId ? ` companyId=${companyId}` : ''}`);
 
   let cursorId = null;
@@ -77,47 +75,58 @@ async function main() {
         continue;
       }
 
-      let mapped;
+      const extractTagText = (xml, tagName) => {
+        try {
+          const re = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+          const m = String(xml).match(re);
+          return m && m[1] != null ? String(m[1]).trim() : '';
+        } catch {
+          return '';
+        }
+      };
+
+      const parseNum = (v) => {
+        const s = String(v || '').trim();
+        if (!s || s === '---') return 0;
+        const n = Number(s.replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const headerInvoiceUah = parseNum(extractTagText(xml61, 'ccd_22_03'));
+      const headerInvoiceVal = parseNum(extractTagText(xml61, 'ccd_22_02'));
+      const headerRate = parseNum(extractTagText(xml61, 'ccd_23_01'));
+
+      let goodsInvoiceUahSum = 0;
+      let goodsInvoiceValSum = 0;
       try {
-        mapped = mapXmlToDeclaration(xml61);
+        const goodsBlocks = String(xml61).matchAll(/<ccd_goods\b[^>]*>([\\s\\S]*?)<\/ccd_goods>/gi);
+        for (const m of goodsBlocks) {
+          const block = m[1] || '';
+          goodsInvoiceUahSum += parseNum(extractTagText(block, 'ccd_42_02'));
+          goodsInvoiceValSum += parseNum(extractTagText(block, 'ccd_42_01'));
+        }
       } catch {
-        skippedNoXml++;
-        continue;
+        // ignore
       }
-
-      if (!mapped) {
-        skippedNoXml++;
-        continue;
-      }
-
-      const header = mapped.header || {};
-      const goods = Array.isArray(mapped.goods) ? mapped.goods : [];
 
       let invoiceValueUah = 0;
 
-      // 1) direct field (often ccd_22_03)
-      invoiceValueUah = num(header.invoiceValueUah);
+      // 1) ccd_22_03 (direct in UAH)
+      invoiceValueUah = headerInvoiceUah;
 
-      // 2) sum per-goods invoiceValueUah (ccd_42_02)
-      if (invoiceValueUah === 0) {
-        invoiceValueUah = goods.reduce((sum, g) => sum + num(g && g.invoiceValueUah), 0);
+      // 2) sum ccd_42_02 per goods (UAH)
+      if (invoiceValueUah === 0 && goodsInvoiceUahSum > 0) {
+        invoiceValueUah = goodsInvoiceUahSum;
       }
 
-      // 3) header invoiceValue (ccd_22_02) * exchangeRate (ccd_23_01)
-      if (invoiceValueUah === 0) {
-        const inv = num(header.invoiceValue);
-        const rate = num(header.exchangeRate);
-        if (inv > 0 && rate > 0) {
-          invoiceValueUah = inv * rate;
-        }
+      // 3) ccd_22_02 * ccd_23_01
+      if (invoiceValueUah === 0 && headerInvoiceVal > 0 && headerRate > 0) {
+        invoiceValueUah = headerInvoiceVal * headerRate;
       }
 
-      // 4) sum goods.price (ccd_42_01) * exchangeRate
-      if (invoiceValueUah === 0) {
-        const rate = num(header.exchangeRate);
-        if (rate > 0) {
-          invoiceValueUah = goods.reduce((sum, g) => sum + num(g && g.price) * rate, 0);
-        }
+      // 4) sum ccd_42_01 * ccd_23_01
+      if (invoiceValueUah === 0 && goodsInvoiceValSum > 0 && headerRate > 0) {
+        invoiceValueUah = goodsInvoiceValSum * headerRate;
       }
 
       const valueToStore = invoiceValueUah > 0 ? invoiceValueUah : null;
