@@ -57,6 +57,26 @@ export default function SyncPeriodsStatusBar() {
         loadPeriodsStatus(selectedPeriodDays);
     }, [selectedPeriodDays]);
 
+    // Reload when the user returns to the tab/window (e.g. after deleting or re-syncing).
+    useEffect(() => {
+        const onFocus = () => {
+            loadPeriodsStatus(selectedPeriodDays);
+        };
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                loadPeriodsStatus(selectedPeriodDays);
+            }
+        };
+
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        return () => {
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+        };
+    }, [selectedPeriodDays]);
+
     // Reload status when sync job completes
     useEffect(() => {
         if (syncJobStatus?.status === 'completed') {

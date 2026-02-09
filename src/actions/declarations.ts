@@ -1517,6 +1517,7 @@ export async function deleteDeclaration(id: string) {
 
         revalidatePath("/dashboard/archive");
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/sync");
         return { success: true };
     } catch (error: any) {
         console.error("Delete declaration error:", error);
@@ -1770,6 +1771,7 @@ export async function deleteDeclarationsByPeriod(dateFrom: Date, dateTo: Date) {
 
         revalidatePath("/dashboard/archive");
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/sync");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by period error:", error);
@@ -1918,6 +1920,7 @@ export async function deleteDeclarationsByIds(ids: string[]) {
 
         revalidatePath("/dashboard/archive");
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/sync");
         return { success: true, count: result.count };
     } catch (error: any) {
         console.error("Delete declarations by IDs error:", error);
