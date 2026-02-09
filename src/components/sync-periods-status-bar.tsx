@@ -207,10 +207,11 @@ export default function SyncPeriodsStatusBar() {
                     <div className="flex flex-wrap gap-1">
                         {periodsStatus.map((period, index) => {
                             const tooltip = `${new Date(period.start).toLocaleDateString('uk-UA')} - ${new Date(period.end).toLocaleDateString('uk-UA')}\n${getStatusLabel(period.status)}\n${period.count} декларацій${period.status === 'partial' || period.status === 'full' ? `, ${period.fullDataCount} з повними даними` : ''}`;
+                            const key = `${new Date(period.start).toISOString()}_${new Date(period.end).toISOString()}`;
                             
                             return (
                                 <div
-                                    key={index}
+                                    key={key}
                                     title={tooltip}
                                     className={`${getStatusColor(period.status)} h-8 w-8 rounded flex items-center justify-center cursor-help transition-all hover:scale-110 hover:shadow-md ${
                                         period.status === 'empty' ? 'opacity-40' : ''
