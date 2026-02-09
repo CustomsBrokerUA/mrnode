@@ -74,7 +74,9 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                         return Number.isFinite(n) ? n : 0;
                     };
 
-                    const invoiceCurrency = String(header.invoiceCurrency || header.currency || '').trim().toUpperCase();
+                    // IMPORTANT: rely only on invoiceCurrency for UAH trust.
+                    // header.currency (ccd_22_cur) may be UAH by default and does not necessarily represent invoice currency.
+                    const invoiceCurrency = String(header.invoiceCurrency || '').trim().toUpperCase();
 
                     // ccd_22_03 is not reliably UAH in some datasets; only trust it when invoice currency is UAH
                     const headerInvoiceUah = num(header.invoiceValueUah);

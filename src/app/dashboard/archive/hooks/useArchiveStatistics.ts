@@ -111,7 +111,9 @@ export function useArchiveStatistics({
                     }, 0);
                     // If goods don't have invoiceValueUah, try header.invoiceValueUah or calculate from invoiceValue * exchangeRate
                     if (invoiceValueUah === 0) {
-                        const invCur = String(mappedData.header?.invoiceCurrency || mappedData.header?.currency || '').trim().toUpperCase();
+                        // IMPORTANT: rely only on invoiceCurrency for UAH trust.
+                        // header.currency may be UAH by default and does not necessarily represent invoice currency.
+                        const invCur = String(mappedData.header?.invoiceCurrency || '').trim().toUpperCase();
                         if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
                             invoiceValueUah = mappedData.header.invoiceValueUah;
                         } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
@@ -119,7 +121,9 @@ export function useArchiveStatistics({
                         }
                     }
                 } else if (invoiceValueUah === 0) {
-                    const invCur = String(mappedData.header?.invoiceCurrency || mappedData.header?.currency || '').trim().toUpperCase();
+                    // IMPORTANT: rely only on invoiceCurrency for UAH trust.
+                    // header.currency may be UAH by default and does not necessarily represent invoice currency.
+                    const invCur = String(mappedData.header?.invoiceCurrency || '').trim().toUpperCase();
                     if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
                         invoiceValueUah = mappedData.header.invoiceValueUah;
                     } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
