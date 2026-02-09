@@ -78,15 +78,32 @@ export async function updateDeclarationSummary(declarationId: string, xmlData: s
                     // header.currency (ccd_22_cur) may be UAH by default and does not necessarily represent invoice currency.
                     const invoiceCurrency = String(header.invoiceCurrency || '').trim().toUpperCase();
 
+                    const headerInvoice = num(header.invoiceValue);
+                    const rate = num(header.exchangeRate);
+
+                    // If invoice currency is NOT UAH, some datasets still populate ccd_22_03 / ccd_42_02 with amounts
+                    // that are actually in invoice currency (not UAH). In that case we must compute UAH via exchange rate.
+                    if (invoiceCurrency && invoiceCurrency !== 'UAH' && invoiceCurrency !== '980') {
+                        if (headerInvoice > 0 && rate > 0) return headerInvoice * rate;
+
+                        if (rate > 0) {
+                            const goodsComputedSum = goods.reduce((sum, g) => sum + num(g?.price) * rate, 0);
+                            if (goodsComputedSum > 0) return goodsComputedSum;
+                        }
+
+                        // As a last resort, keep whatever is in goods invoiceValueUah, but it's potentially not UAH.
+                        const goodsInvoiceUahSum = goods.reduce((sum, g) => sum + num(g?.invoiceValueUah), 0);
+                        if (goodsInvoiceUahSum > 0) return goodsInvoiceUahSum;
+
+                        return 0;
+                    }
+
                     // ccd_22_03 is not reliably UAH in some datasets; only trust it when invoice currency is UAH
                     const headerInvoiceUah = num(header.invoiceValueUah);
                     if (headerInvoiceUah > 0 && (invoiceCurrency === 'UAH' || invoiceCurrency === '980')) return headerInvoiceUah;
 
                     const goodsInvoiceUahSum = goods.reduce((sum, g) => sum + num(g?.invoiceValueUah), 0);
                     if (goodsInvoiceUahSum > 0) return goodsInvoiceUahSum;
-
-                    const headerInvoice = num(header.invoiceValue);
-                    const rate = num(header.exchangeRate);
                     if (headerInvoice > 0 && rate > 0) return headerInvoice * rate;
 
                     if (rate > 0) {

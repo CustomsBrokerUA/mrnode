@@ -104,30 +104,47 @@ export function useArchiveStatistics({
                     customsValue = mappedData.header.totalValue;
                 }
 
-                // Calculate total invoice value in UAH from goods
-                if (invoiceValueUah === 0 && mappedData.goods && Array.isArray(mappedData.goods)) {
-                    invoiceValueUah = mappedData.goods.reduce((sum: number, good: any) => {
-                        return sum + (good?.invoiceValueUah || 0);
-                    }, 0);
-                    // If goods don't have invoiceValueUah, try header.invoiceValueUah or calculate from invoiceValue * exchangeRate
-                    if (invoiceValueUah === 0) {
-                        // IMPORTANT: rely only on invoiceCurrency for UAH trust.
-                        // header.currency may be UAH by default and does not necessarily represent invoice currency.
-                        const invCur = String(mappedData.header?.invoiceCurrency || '').trim().toUpperCase();
-                        if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
-                            invoiceValueUah = mappedData.header.invoiceValueUah;
-                        } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
-                            invoiceValueUah = mappedData.header.invoiceValue * mappedData.header.exchangeRate;
-                        }
-                    }
-                } else if (invoiceValueUah === 0) {
-                    // IMPORTANT: rely only on invoiceCurrency for UAH trust.
-                    // header.currency may be UAH by default and does not necessarily represent invoice currency.
+                // Calculate total invoice value in UAH
+                // IMPORTANT: for non-UAH invoice currency, some datasets fill ccd_42_02/ccd_22_03 with invoice-currency amounts.
+                // In that case we must compute UAH via exchange rate and not trust invoiceValueUah fields.
+                if (invoiceValueUah === 0) {
                     const invCur = String(mappedData.header?.invoiceCurrency || '').trim().toUpperCase();
-                    if ((invCur === 'UAH' || invCur === '980') && mappedData.header?.invoiceValueUah) {
-                        invoiceValueUah = mappedData.header.invoiceValueUah;
-                    } else if (mappedData.header?.invoiceValue && mappedData.header?.exchangeRate) {
-                        invoiceValueUah = mappedData.header.invoiceValue * mappedData.header.exchangeRate;
+                    const inv = Number(mappedData.header?.invoiceValue || 0) || 0;
+                    const rate = Number(mappedData.header?.exchangeRate || 0) || 0;
+
+                    if (invCur && invCur !== 'UAH' && invCur !== '980') {
+                        if (inv > 0 && rate > 0) {
+                            invoiceValueUah = inv * rate;
+                        } else if (rate > 0 && mappedData.goods && Array.isArray(mappedData.goods)) {
+                            const goodsComputed = mappedData.goods.reduce((sum: number, good: any) => {
+                                const price = Number(good?.price || 0) || 0;
+                                return sum + price * rate;
+                            }, 0);
+                            if (goodsComputed > 0) invoiceValueUah = goodsComputed;
+                        }
+
+                        if (invoiceValueUah === 0 && mappedData.goods && Array.isArray(mappedData.goods)) {
+                            // Last resort: keep whatever is in invoiceValueUah fields (may be incorrect units)
+                            invoiceValueUah = mappedData.goods.reduce((sum: number, good: any) => {
+                                const v = Number(good?.invoiceValueUah || 0) || 0;
+                                return sum + v;
+                            }, 0);
+                        }
+                    } else {
+                        // invoice currency is UAH: we can trust invoiceValueUah fields
+                        if (mappedData.goods && Array.isArray(mappedData.goods)) {
+                            invoiceValueUah = mappedData.goods.reduce((sum: number, good: any) => {
+                                const v = Number(good?.invoiceValueUah || 0) || 0;
+                                return sum + v;
+                            }, 0);
+                        }
+
+                        if (invoiceValueUah === 0 && mappedData.header?.invoiceValueUah) {
+                            invoiceValueUah = Number(mappedData.header.invoiceValueUah || 0) || 0;
+                        }
+                        if (invoiceValueUah === 0 && inv > 0 && rate > 0) {
+                            invoiceValueUah = inv * rate;
+                        }
                     }
                 }
 
