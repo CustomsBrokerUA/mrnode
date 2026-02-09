@@ -109,9 +109,11 @@ export async function syncFromLastSync() {
             };
         }
 
-        // Don't sync if the period is too large (e.g., more than 3 years)
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        if (daysDiff > 1095) {
+        // Don't sync if the period is too large (larger than allowed full-period range)
+        const fromLimit = new Date(now.getFullYear() - 3, 0, 1);
+        fromLimit.setHours(0, 0, 0, 0);
+        if (fromDate < fromLimit) {
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
             return {
                 error: `Період синхронізації занадто великий (${daysDiff} днів). Використайте повну синхронізацію.`
             };

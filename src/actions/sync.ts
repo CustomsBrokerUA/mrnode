@@ -7,6 +7,19 @@ import { revalidatePath } from "next/cache";
 import { updateDeclarationSummary } from "@/lib/declaration-summary";
 import { splitPeriodIntoChunks } from "@/app/dashboard/sync/utils/period-splitter";
 
+function getFullPeriodRange(nowInput?: Date): { dateFrom: Date; dateTo: Date } {
+    const now = nowInput ? new Date(nowInput) : new Date();
+
+    const dateTo = new Date(now);
+    dateTo.setHours(23, 59, 59, 999);
+
+    const year = now.getFullYear();
+    const dateFrom = new Date(year - 3, 0, 1);
+    dateFrom.setHours(0, 0, 0, 0);
+
+    return { dateFrom, dateTo };
+}
+
 async function getCompanySyncPerformanceSettings(companyId: string): Promise<{ chunkDays: number; requestDelayMs: number }> {
     const defaults = { chunkDays: 7, requestDelayMs: 1000 };
 
@@ -386,8 +399,15 @@ export async function getSyncHistory(limit: number = 50) {
         return {
             success: true, history: history.map((item: any) => {
                 // Determine type label based on dateFrom/dateTo - if they span a large period (1095 days), it's "Завантаження всього періоду"
-                const isFullPeriod = item.dateFrom && item.dateTo &&
-                    (new Date(item.dateTo).getTime() - new Date(item.dateFrom).getTime()) > (1090 * 24 * 60 * 60 * 1000);
+                const isFullPeriod = (() => {
+                    if (!item.dateFrom || !item.dateTo) return false;
+                    const to = new Date(item.dateTo);
+                    const expectedFrom = new Date(to.getFullYear() - 3, 0, 1);
+                    expectedFrom.setHours(0, 0, 0, 0);
+                    const from = new Date(item.dateFrom);
+                    from.setHours(0, 0, 0, 0);
+                    return from.getTime() === expectedFrom.getTime();
+                })();
 
                 const typeLabel = isFullPeriod
                     ? (item.type === "60.1" ? "Завантаження всього періоду (60.1)" : "Завантаження всього періоду (61.1)")
@@ -971,7 +991,7 @@ export async function cancelSyncJob() {
 }
 
 /**
- * Sync all available period (1095 days) - Phase 1: Load 60.1 lists
+ * Sync all available period (current year + 3 previous full years) - Phase 1: Load 60.1 lists
  * This function will:
  * 1. Create SyncJob
  * 2. Split period into chunks (45 days each)
@@ -1028,14 +1048,7 @@ export async function syncAllPeriod() {
             return { error: "Вже виконується завантаження. Зачекайте завершення або скасуйте поточне завдання." };
         }
 
-        // Calculate date range: 1095 days ago to today
-        const now = new Date();
-        const dateTo = new Date(now);
-        dateTo.setHours(23, 59, 59, 999);
-
-        const dateFrom = new Date(now);
-        dateFrom.setDate(dateFrom.getDate() - 1095);
-        dateFrom.setHours(0, 0, 0, 0);
+        const { dateFrom, dateTo } = getFullPeriodRange();
 
         const perf = await getCompanySyncPerformanceSettings(access.companyId);
         const chunks = splitPeriodIntoChunks(dateFrom, dateTo, perf.chunkDays);
@@ -1086,7 +1099,7 @@ export async function syncAllPeriod() {
  * 2. Last month (30 days) - ~1-2 minutes
  * 3. Last quarter (90 days) - ~3-5 minutes
  * 4. Last year (365 days) - ~10-15 minutes
- * 5. Full period (1095 days) - ~30-60 minutes
+ * 5. Full period (current year + 3 previous full years) - ~30-60 minutes
  * 
  * @param stage - Stage number (1-5), if not provided, starts from stage 1
  * @returns { success: boolean, jobId?: string, error?: string, stage?: number, stageName?: string, nextStage?: number, daysBack?: number }
@@ -1172,16 +1185,20 @@ export async function syncAllPeriodStaged(stage: number = 1) {
                 stageName = "Останній рік";
                 break;
             case 5: // Full period
-                daysBack = 1095;
+                daysBack = 0;
                 stageName = "Весь період";
                 break;
             default:
                 return { error: "Невірний номер етапу" };
         }
 
-        dateFrom = new Date(now);
-        dateFrom.setDate(dateFrom.getDate() - daysBack);
-        dateFrom.setHours(0, 0, 0, 0);
+        if (stage === 5) {
+            dateFrom = getFullPeriodRange(now).dateFrom;
+        } else {
+            dateFrom = new Date(now);
+            dateFrom.setDate(dateFrom.getDate() - daysBack);
+            dateFrom.setHours(0, 0, 0, 0);
+        }
 
         const perf = await getCompanySyncPerformanceSettings(access.companyId);
         const chunks = splitPeriodIntoChunks(dateFrom, dateTo, perf.chunkDays);
