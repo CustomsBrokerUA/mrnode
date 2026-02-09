@@ -474,7 +474,7 @@ export async function GET(req: Request) {
             skip: 1,
           }
         : {}),
-      orderBy: { id: 'asc' },
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
       select: {
         id: true,
         xmlData: true,
@@ -542,7 +542,7 @@ export async function GET(req: Request) {
                 skip: 1,
               }
             : {}),
-          orderBy: { id: 'asc' },
+          orderBy: [{ date: 'desc' }, { id: 'desc' }],
           select: {
             id: true,
             customsId: true,
