@@ -173,7 +173,7 @@ export default function SyncPeriodsStatusBar() {
             {/* Timeline visualization */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-600 mb-2">
-                    <span>Візуалізація періодів (1095 днів, останні 3 роки):</span>
+                    <span>Візуалізація періодів (поточний + 3 попередні роки):</span>
                     <button
                         onClick={() => loadPeriodsStatus(selectedPeriodDays)}
                         className="text-blue-600 hover:text-blue-700 underline"

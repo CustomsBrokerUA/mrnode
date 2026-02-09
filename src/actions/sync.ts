@@ -492,10 +492,9 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
         return { error: "Період не може перевищувати 45 днів (обмеження API митниці)" };
     }
 
-    // Validate: start date cannot be more than 1095 days (3 years) ago (legislative requirement)
+    // Validate: start date cannot be earlier than Jan 1 of (current year - 3)
     const now = new Date();
-    const maxAllowedDate = new Date(now);
-    maxAllowedDate.setDate(maxAllowedDate.getDate() - 1095);
+    const maxAllowedDate = new Date(now.getFullYear() - 3, 0, 1);
     maxAllowedDate.setHours(0, 0, 0, 0);
 
     const startDate = new Date(dateFrom);
@@ -503,7 +502,7 @@ export async function syncDeclarations(type: "60.1", dateFrom: Date, dateTo: Dat
 
     if (startDate < maxAllowedDate) {
         const maxAllowedDateStr = maxAllowedDate.toLocaleDateString('uk-UA');
-        return { error: `Дата початку не може бути раніше ${maxAllowedDateStr}. Згідно з законодавством, документи зберігаються протягом 1095 днів (3 роки).` };
+        return { error: `Дата початку не може бути раніше ${maxAllowedDateStr}. Доступний період: поточний та повністю 3 попередні роки (з 1 січня).` };
     }
 
     let access: any = null;

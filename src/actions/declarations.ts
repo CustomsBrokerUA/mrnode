@@ -1556,13 +1556,12 @@ export async function getPeriodsLoadingStatus(periodDays: number = 7) {
             return { error: "Активна компанія не встановлена" };
         }
 
-        // Calculate date range: 1095 days ago to today
+        // Calculate date range: current year + 3 previous full years (from Jan 1) to today
         const now = new Date();
         const dateTo = new Date(now);
         dateTo.setHours(23, 59, 59, 999);
 
-        const dateFrom = new Date(now);
-        dateFrom.setDate(dateFrom.getDate() - 1095);
+        const dateFrom = new Date(now.getFullYear() - 3, 0, 1);
         dateFrom.setHours(0, 0, 0, 0);
 
         // Split into periods

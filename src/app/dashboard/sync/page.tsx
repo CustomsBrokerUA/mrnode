@@ -538,14 +538,13 @@ export default function SyncPage() {
             return;
         }
 
-        // Validate: start date cannot be more than 1095 days (3 years) ago (legislative requirement)
-        const maxAllowedDate = new Date(now);
-        maxAllowedDate.setDate(maxAllowedDate.getDate() - 1095);
+        // Validate: start date cannot be earlier than Jan 1 of (current year - 3)
+        const maxAllowedDate = new Date(now.getFullYear() - 3, 0, 1);
         maxAllowedDate.setHours(0, 0, 0, 0);
 
         if (start < maxAllowedDate) {
             const maxAllowedDateStr = maxAllowedDate.toLocaleDateString('uk-UA');
-            alert(`Дата початку не може бути раніше ${maxAllowedDateStr}.\n\nЗгідно з законодавством, документи зберігаються протягом 1095 днів (3 роки).`);
+            alert(`Дата початку не може бути раніше ${maxAllowedDateStr}.\n\nДоступний період: поточний та повністю 3 попередні роки (з 1 січня).`);
             return;
         }
 
@@ -802,7 +801,7 @@ export default function SyncPage() {
                                                         </div>
                                                         <div className="text-left">
                                                             <p className="text-sm font-semibold text-slate-900">Весь період</p>
-                                                            <p className="text-xs text-slate-500">1095 днів</p>
+                                                            <p className="text-xs text-slate-500">Поточний + 3 попередні роки</p>
                                                         </div>
                                                     </div>
                                                 </button>
@@ -834,7 +833,7 @@ export default function SyncPage() {
                                     </div>
                                     <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">Завантажити весь період одразу</h3>
                                     <p className="text-xs text-center text-slate-600 dark:text-slate-300 mt-1 max-w-xs">
-                                        Автоматичне завантаження за 1095 днів (3 роки)
+                                        Автоматичне завантаження: поточний та повністю 3 попередні роки (з 1 січня)
                                     </p>
                                 </button>
                             </div>
@@ -1194,7 +1193,7 @@ export default function SyncPage() {
                             <ul className="space-y-1 list-disc list-inside">
                                 <li>Митниця дозволяє робити запит 60.1 не частіше ніж раз на 15 хвилин.</li>
                                 <li>Максимальний період запиту: 45 днів (обмеження API митниці).</li>
-                                <li>Максимальний доступний період: 1095 днів (3 роки) назад від поточної дати (згідно з законодавством про зберігання документів).</li>
+                                <li>Максимальний доступний період: поточний та повністю 3 попередні роки (з 1 січня).</li>
                             </ul>
                         </div>
                     </div>

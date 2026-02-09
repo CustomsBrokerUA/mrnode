@@ -556,7 +556,7 @@ export class CustomsService {
                 if (error.response.status === 500) {
                     const errorMsg = typeof error.response.data === 'string' && error.response.data.trim()
                         ? error.response.data
-                        : "Сервер митниці повернув помилку 500. Можливо, дані за цей період недоступні або період занадто старий (більше 1095 днів).";
+                        : "Сервер митниці повернув помилку 500. Можливо, дані за цей період недоступні або період занадто старий.";
                     return { success: false, error: errorMsg };
                 }
             }
