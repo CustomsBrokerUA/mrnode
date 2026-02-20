@@ -596,28 +596,42 @@ export class CustomsService {
      * ```
      */
     async getDeclarationDetails(guid: string): Promise<CustomsResponse> {
-        try {
-            // 1. Construct XML Body for 61.1
-            const creationDate = this.getTimestamp();
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        const parseRetryAfterMs = (v: any) => {
+            if (!v) return 0;
+            const raw = Array.isArray(v) ? v[0] : v;
+            const s = String(raw).trim();
+            const sec = Number(s);
+            if (Number.isFinite(sec)) return Math.max(0, Math.floor(sec * 1000));
+            const dateMs = Date.parse(s);
+            if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+            return 0;
+        };
 
-            const xmlBody = `<UA.SFS.REQ.61.1><creation_date>${creationDate}</creation_date><cli_code>${this.edrpou}</cli_code><guid>${guid}</guid></UA.SFS.REQ.61.1>`;
+        const maxAttempts = 6;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                // 1. Construct XML Body for 61.1
+                const creationDate = this.getTimestamp();
 
-            // 2. Construct Payload
-            const payload = {
-                "MessageType": "UA.SFS.REQ.61.1",
-                "MessageBody": xmlBody,
-                "Token": this.token
-            };
+                const xmlBody = `<UA.SFS.REQ.61.1><creation_date>${creationDate}</creation_date><cli_code>${this.edrpou}</cli_code><guid>${guid}</guid></UA.SFS.REQ.61.1>`;
+
+                // 2. Construct Payload
+                const payload = {
+                    "MessageType": "UA.SFS.REQ.61.1",
+                    "MessageBody": xmlBody,
+                    "Token": this.token
+                };
 
 
-            // 3. Send Request
-            const response = await axios.post(API_ENDPOINT, payload, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                httpsAgent: httpsAgent,
-                timeout: 60000 // Increased to 60 seconds for 61.1 requests (details can be large)
-            });
+                // 3. Send Request
+                const response = await axios.post(API_ENDPOINT, payload, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    httpsAgent: httpsAgent,
+                    timeout: 60000 // Increased to 60 seconds for 61.1 requests (details can be large)
+                });
 
 
             // 4. Handle Response (same Base64/ZIP format)
@@ -669,24 +683,38 @@ export class CustomsService {
             console.log("  - Full Response Object Keys:", Object.keys(response));
             return { success: false, error: "Invalid Response Structure" };
 
-        } catch (error: any) {
-            console.error("❌ API ERROR (61.1):");
-            console.error("Message:", error.message);
-            console.error("Stack:", error.stack);
-            if (error.response) {
-                console.error("Status:", error.response.status);
-                console.error("Status Text:", error.response.statusText);
-                console.error("Headers:", JSON.stringify(error.response.headers, null, 2));
-                if (Buffer.isBuffer(error.response.data)) {
-                    console.error("Response Data (Buffer):");
-                    console.error("  - Length:", error.response.data.length);
-                    console.error("  - Preview (first 500 bytes):", error.response.data.slice(0, 500).toString('utf8'));
-                    console.error("  - Hex (first 100 bytes):", error.response.data.slice(0, 100).toString('hex'));
-                } else {
-                    console.error("Response Data:", JSON.stringify(error.response.data, null, 2));
+            } catch (error: any) {
+                const status = error?.response?.status;
+                if (status === 429 && attempt < maxAttempts) {
+                    const retryAfterMs = parseRetryAfterMs(error?.response?.headers?.['retry-after']);
+                    const backoffMs = Math.min(60000, 1000 * Math.pow(2, attempt - 1));
+                    const jitterMs = Math.floor(Math.random() * 250);
+                    const waitMs = Math.max(retryAfterMs, backoffMs + jitterMs);
+                    console.warn(`⚠️ 61.1 rate limited (429). Retry ${attempt}/${maxAttempts} in ${waitMs}ms`);
+                    await sleep(waitMs);
+                    continue;
                 }
+
+                console.error("❌ API ERROR (61.1):");
+                console.error("Message:", error.message);
+                console.error("Stack:", error.stack);
+                if (error.response) {
+                    console.error("Status:", error.response.status);
+                    console.error("Status Text:", error.response.statusText);
+                    console.error("Headers:", JSON.stringify(error.response.headers, null, 2));
+                    if (Buffer.isBuffer(error.response.data)) {
+                        console.error("Response Data (Buffer):");
+                        console.error("  - Length:", error.response.data.length);
+                        console.error("  - Preview (first 500 bytes):", error.response.data.slice(0, 500).toString('utf8'));
+                        console.error("  - Hex (first 100 bytes):", error.response.data.slice(0, 100).toString('hex'));
+                    } else {
+                        console.error("Response Data:", JSON.stringify(error.response.data, null, 2));
+                    }
+                }
+                return { success: false, error: error.message };
             }
-            return { success: false, error: error.message };
         }
+
+        return { success: false, error: "Too Many Requests" };
     }
 }
