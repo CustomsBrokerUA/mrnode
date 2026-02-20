@@ -416,45 +416,59 @@ export class CustomsService {
      * ```
      */
     async getDeclarationsList(dateFrom: Date, dateTo: Date): Promise<CustomsResponse> {
-        try {
-            // 1. Construct XML Body
-            // Ensure dateFrom starts at 00:00:00
-            const startOfDay = new Date(dateFrom);
-            startOfDay.setHours(0, 0, 0, 0);
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        const parseRetryAfterMs = (v: any) => {
+            if (!v) return 0;
+            const raw = Array.isArray(v) ? v[0] : v;
+            const s = String(raw).trim();
+            const sec = Number(s);
+            if (Number.isFinite(sec)) return Math.max(0, Math.floor(sec * 1000));
+            const dateMs = Date.parse(s);
+            if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+            return 0;
+        };
 
-            // Ensure dateTo ends at 23:59:59
-            const endOfDay = new Date(dateTo);
-            endOfDay.setHours(23, 59, 59, 999);
+        const maxAttempts = 6;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                // 1. Construct XML Body
+                // Ensure dateFrom starts at 00:00:00
+                const startOfDay = new Date(dateFrom);
+                startOfDay.setHours(0, 0, 0, 0);
 
-            const creationDate = this.getTimestamp();
-            const dateBegin = this.getTimestamp(startOfDay);
-            const dateEnd = this.getTimestamp(endOfDay);
+                // Ensure dateTo ends at 23:59:59
+                const endOfDay = new Date(dateTo);
+                endOfDay.setHours(23, 59, 59, 999);
 
-            // XML Body matching working n8n example (with status field)
-            const xmlBody = `<UA.SFS.REQ.60.1><creation_date>${creationDate}</creation_date><cli_code>${this.edrpou}</cli_code><date_begin>${dateBegin}</date_begin><date_end>${dateEnd}</date_end><date_type>1</date_type><status>R</status></UA.SFS.REQ.60.1>`;
+                const creationDate = this.getTimestamp();
+                const dateBegin = this.getTimestamp(startOfDay);
+                const dateEnd = this.getTimestamp(endOfDay);
 
-            // 2. Construct Payload as SINGLE OBJECT
-            const payload = {
-                "MessageType": "UA.SFS.REQ.60.1",
-                "MessageBody": xmlBody,
-                "Token": this.token
-            };
+                // XML Body matching working n8n example (with status field)
+                const xmlBody = `<UA.SFS.REQ.60.1><creation_date>${creationDate}</creation_date><cli_code>${this.edrpou}</cli_code><date_begin>${dateBegin}</date_begin><date_end>${dateEnd}</date_end><date_type>1</date_type><status>R</status></UA.SFS.REQ.60.1>`;
+
+                // 2. Construct Payload as SINGLE OBJECT
+                const payload = {
+                    "MessageType": "UA.SFS.REQ.60.1",
+                    "MessageBody": xmlBody,
+                    "Token": this.token
+                };
 
 
-            // 3. Send Request
-            console.log("📤 Sending 60.1 Request:");
-            console.log("  - Date From:", dateBegin);
-            console.log("  - Date To:", dateEnd);
-            console.log("  - EDRPOU:", this.edrpou);
-            console.log("  - XML Body:", xmlBody);
-            
-            const response = await axios.post(API_ENDPOINT, payload, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                httpsAgent: httpsAgent,
-                timeout: 90000 // Increased to 90 seconds for large chunks (45 days can have many declarations)
-            });
+                // 3. Send Request
+                console.log("📤 Sending 60.1 Request:");
+                console.log("  - Date From:", dateBegin);
+                console.log("  - Date To:", dateEnd);
+                console.log("  - EDRPOU:", this.edrpou);
+                console.log("  - XML Body:", xmlBody);
+                
+                const response = await axios.post(API_ENDPOINT, payload, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    httpsAgent: httpsAgent,
+                    timeout: 90000 // Increased to 90 seconds for large chunks (45 days can have many declarations)
+                });
 
             console.log("📥 Received 60.1 Response:");
             console.log("  - Status:", response.status);
@@ -543,25 +557,43 @@ export class CustomsService {
             console.log("  - Full Response Object Keys:", Object.keys(response));
             return { success: false, error: "Invalid Response Structure" };
 
-        } catch (error: any) {
-            console.error("❌ API ERROR (60.1):");
-            console.error("Message:", error.message);
-            if (error.response) {
-                console.error("Status:", error.response.status);
-                console.error("Status Text:", error.response.statusText);
-                console.error("Response Data:", JSON.stringify(error.response.data, null, 2));
-                console.error("Response Headers:", error.response.headers);
-                
-                // Handle 500 Internal Server Error - often means period is too old or data unavailable
-                if (error.response.status === 500) {
-                    const errorMsg = typeof error.response.data === 'string' && error.response.data.trim()
-                        ? error.response.data
-                        : "Сервер митниці повернув помилку 500. Можливо, дані за цей період недоступні або період занадто старий.";
-                    return { success: false, error: errorMsg };
+            } catch (error: any) {
+                const status = error?.response?.status;
+                const responseData = error?.response?.data;
+                const responseDataStr = typeof responseData === 'string' ? responseData : '';
+                const isTooManyRequests400 = status === 400 && responseDataStr.trim() === 'TOO_MANY_REQUESTS';
+
+                if ((status === 429 || isTooManyRequests400) && attempt < maxAttempts) {
+                    const retryAfterMs = parseRetryAfterMs(error?.response?.headers?.['retry-after']);
+                    const backoffMs = Math.min(60000, 1000 * Math.pow(2, attempt - 1));
+                    const jitterMs = Math.floor(Math.random() * 250);
+                    const waitMs = Math.max(retryAfterMs, backoffMs + jitterMs);
+                    console.warn(`⚠️ 60.1 rate limited (${status}). Retry ${attempt}/${maxAttempts} in ${waitMs}ms`);
+                    await sleep(waitMs);
+                    continue;
                 }
+
+                console.error("❌ API ERROR (60.1):");
+                console.error("Message:", error.message);
+                if (error.response) {
+                    console.error("Status:", error.response.status);
+                    console.error("Status Text:", error.response.statusText);
+                    console.error("Response Data:", JSON.stringify(error.response.data, null, 2));
+                    console.error("Response Headers:", error.response.headers);
+                    
+                    // Handle 500 Internal Server Error - often means period is too old or data unavailable
+                    if (error.response.status === 500) {
+                        const errorMsg = typeof error.response.data === 'string' && error.response.data.trim()
+                            ? error.response.data
+                            : "Сервер митниці повернув помилку 500. Можливо, дані за цей період недоступні або період занадто старий.";
+                        return { success: false, error: errorMsg };
+                    }
+                }
+                return { success: false, error: error.message };
             }
-            return { success: false, error: error.message };
         }
+
+        return { success: false, error: "Too Many Requests" };
     }
 
     /**
