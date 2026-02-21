@@ -22,6 +22,9 @@ export class CustomsService {
     private token: string;
     private edrpou: string;
 
+    private static nextAllowedAtMs = 0;
+    private static consecutiveRateLimitHits = 0;
+
     constructor(token: string, edrpou: string) {
         this.token = token;
         this.edrpou = edrpou;
@@ -431,6 +434,11 @@ export class CustomsService {
         const maxAttempts = 6;
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
+                const now = Date.now();
+                if (now < CustomsService.nextAllowedAtMs) {
+                    await sleep(CustomsService.nextAllowedAtMs - now);
+                }
+
                 // 1. Construct XML Body
                 // Ensure dateFrom starts at 00:00:00
                 const startOfDay = new Date(dateFrom);
@@ -469,6 +477,9 @@ export class CustomsService {
                     httpsAgent: httpsAgent,
                     timeout: 90000 // Increased to 90 seconds for large chunks (45 days can have many declarations)
                 });
+
+                CustomsService.consecutiveRateLimitHits = 0;
+                CustomsService.nextAllowedAtMs = 0;
 
             console.log("📥 Received 60.1 Response:");
             console.log("  - Status:", response.status);
@@ -565,6 +576,10 @@ export class CustomsService {
 
                 if ((status === 429 || isTooManyRequests400) && attempt < maxAttempts) {
                     const retryAfterMs = parseRetryAfterMs(error?.response?.headers?.['retry-after']);
+                    CustomsService.consecutiveRateLimitHits = Math.min(20, CustomsService.consecutiveRateLimitHits + 1);
+                    const cooldownMs = Math.min(120000, 5000 * Math.pow(2, CustomsService.consecutiveRateLimitHits - 1));
+                    CustomsService.nextAllowedAtMs = Date.now() + Math.max(retryAfterMs, cooldownMs);
+
                     const backoffMs = Math.min(60000, 1000 * Math.pow(2, attempt - 1));
                     const jitterMs = Math.floor(Math.random() * 250);
                     const waitMs = Math.max(retryAfterMs, backoffMs + jitterMs);
@@ -643,6 +658,11 @@ export class CustomsService {
         const maxAttempts = 6;
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
+                const now = Date.now();
+                if (now < CustomsService.nextAllowedAtMs) {
+                    await sleep(CustomsService.nextAllowedAtMs - now);
+                }
+
                 // 1. Construct XML Body for 61.1
                 const creationDate = this.getTimestamp();
 
@@ -664,6 +684,9 @@ export class CustomsService {
                     httpsAgent: httpsAgent,
                     timeout: 60000 // Increased to 60 seconds for 61.1 requests (details can be large)
                 });
+
+                CustomsService.consecutiveRateLimitHits = 0;
+                CustomsService.nextAllowedAtMs = 0;
 
 
             // 4. Handle Response (same Base64/ZIP format)
@@ -719,6 +742,10 @@ export class CustomsService {
                 const status = error?.response?.status;
                 if (status === 429 && attempt < maxAttempts) {
                     const retryAfterMs = parseRetryAfterMs(error?.response?.headers?.['retry-after']);
+                    CustomsService.consecutiveRateLimitHits = Math.min(20, CustomsService.consecutiveRateLimitHits + 1);
+                    const cooldownMs = Math.min(120000, 5000 * Math.pow(2, CustomsService.consecutiveRateLimitHits - 1));
+                    CustomsService.nextAllowedAtMs = Date.now() + Math.max(retryAfterMs, cooldownMs);
+
                     const backoffMs = Math.min(60000, 1000 * Math.pow(2, attempt - 1));
                     const jitterMs = Math.floor(Math.random() * 250);
                     const waitMs = Math.max(retryAfterMs, backoffMs + jitterMs);
